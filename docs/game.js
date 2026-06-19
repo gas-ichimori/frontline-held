@@ -67,15 +67,15 @@ function brsStars(v) {
 
 // ─── Enemy Definitions ───────────────────────────────────────────────────────
 const EDEFS = [
-  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:20,   depthSpd:0.000125, dmg:8,  drop:0.25 },
-  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, drop:0.50 },
-  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, drop:0.75 },
-  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:25,   depthSpd:0.000100, dmg:8,  drop:0.25 },
-  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, drop:0.50 },
-  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, drop:0.75 },
+  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:20,   depthSpd:0.000125, dmg:8,  drop:0.15 },
+  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, drop:0.30 },
+  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, drop:0.50 },
+  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:25,   depthSpd:0.000100, dmg:8,  drop:0.20 },
+  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, drop:0.40 },
+  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, drop:0.50 },
   { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:15,   depthSpd:0.000150, dmg:6,  drop:0.15 },
-  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, drop:0.30 },
-  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, drop:0.55 },
+  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, drop:0.25 },
+  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, drop:0.40 },
 ];
 
 const PU_TYPES = ['atk', 'spd', 'bsr'];
@@ -568,8 +568,9 @@ function update(dt) {
       enemyCount = Math.max(0, enemyCount - 1);
       const dropRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
       if (Math.random() < e.drop && dropRd?.type !== 'wave') {
+        const atkMax = loopCount > 0 ? 500 : 100;
         const avail = PU_TYPES.filter(t =>
-          (t==='atk' ? pl.atk  < 100 :
+          (t==='atk' ? pl.atk  < atkMax :
            t==='spd' ? pl.bspd < 100 :
                        pl.burst < 10));
         if (avail.length > 0) {
@@ -621,11 +622,11 @@ function update(dt) {
     const ps = proj(p.laneX, p.depth);
     if (Math.hypot(ps.x - pl.screenX, ps.y - (GY - 40)) < 44) {
       switch (p.type) {
-        case 'atk': pl.atk  = Math.min(pl.atk  + 5,  100); break;
+        case 'atk': pl.atk  = Math.min(pl.atk  + 5,  loopCount > 0 ? 500 : 100); break;
         case 'spd': pl.bspd = Math.min(pl.bspd + 5,  100); break;
         case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.5).toFixed(1)), 10); break;
       }
-      const hitMax = (p.type==='atk' && pl.atk>=100) ||
+      const hitMax = (p.type==='atk' && pl.atk>=(loopCount > 0 ? 500 : 100)) ||
                      (p.type==='spd' && pl.bspd>=100) ||
                      (p.type==='bsr' && pl.burst>=10);
       pl.notif = { type: hitMax ? `${p.type}_max` : p.type, t: hitMax ? 220 : 130 };
