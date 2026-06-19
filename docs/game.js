@@ -588,7 +588,7 @@ function update(dt) {
       switch (p.type) {
         case 'atk': pl.atk  = Math.min(pl.atk  + 5,  500); break;
         case 'spd': pl.bspd = Math.min(pl.bspd + 5,  100); break;
-        case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.1).toFixed(1)), 10); break;
+        case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.5).toFixed(1)), 10); break;
       }
       pl.notif = { type: p.type, t: 130 };
       snd('powerup'); powerups.splice(i, 1); continue;
