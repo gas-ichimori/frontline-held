@@ -1035,8 +1035,9 @@ function drawHUD() {
   if (gstate === 'playing') {
     const bm = 38, by = H - 90;
     ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,0.50)';
+    ctx.strokeStyle = 'rgba(255,160,40,0.80)';
     ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.shadowColor = 'rgba(255,130,0,0.9)'; ctx.shadowBlur = 10;
     // 左矢印
     const lx = bm;
     ctx.beginPath();
@@ -1047,6 +1048,7 @@ function drawHUD() {
     ctx.beginPath();
     ctx.moveTo(rx-16, by-16); ctx.lineTo(rx, by); ctx.lineTo(rx-16, by+16);
     ctx.stroke();
+    ctx.shadowBlur = 0;
     ctx.restore();
   }
 }
