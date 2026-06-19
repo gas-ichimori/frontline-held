@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDF - 地球防衛軍 迎撃戦</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    canvas { display: block; image-rendering: pixelated; }
+
+    /* ── デバッグトグルボタン ── */
+    #dbgToggle {
+      position: fixed; top: 6px; left: 6px; z-index: 300;
+      background: rgba(255,200,0,0.18); color: #ffdd00;
+      border: 1px solid #ffdd00; border-radius: 4px;
+      padding: 3px 10px; font-size: 11px; font-family: monospace;
+      cursor: pointer;
+    }
+
+    /* ── デバッグパネル ── */
+    #dbgPanel {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.92);
+      flex-direction: column; gap: 10px;
+      padding: 14px; overflow-y: auto;
+      font-family: monospace; font-size: 13px; color: #fff;
+    }
+    .dbg-title {
+      font-size: 15px; font-weight: bold; color: #ffdd00;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .dbg-close {
+      background: #333; color: #fff; border: 1px solid #666;
+      border-radius: 4px; padding: 2px 10px; cursor: pointer; font-size: 12px;
+    }
+    .dbg-section { border-top: 1px solid #333; padding-top: 8px; }
+    .dbg-label { color: #aaa; margin-bottom: 6px; font-size: 12px; }
+    .dbg-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dbg-btn {
+      background: #222; color: #eee; border: 1px solid #555;
+      border-radius: 4px; padding: 6px 10px; cursor: pointer;
+      font-size: 12px; font-family: monospace;
+    }
+    .dbg-btn:active { background: #444; }
+    .dbg-btn.pause  { background: #1a3a1a; border-color: #44ff44; color: #44ff44; }
+    .dbg-btn.ant    { border-color: #ff5533; color: #ff5533; }
+    .dbg-btn.spider { border-color: #aa66ff; color: #aa66ff; }
+    .dbg-btn.bee    { border-color: #ffcc00; color: #ffcc00; }
+    .dbg-btn.spd    { border-color: #44aaff; color: #44aaff; }
+    .dbg-btn.atk    { border-color: #ff4444; color: #ff4444; }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- デバッグ開閉ボタン -->
+  <button id="dbgToggle" onclick="toggleDebug()">DBG</button>
+
+  <!-- デバッグパネル -->
+  <div id="dbgPanel">
+
+    <div class="dbg-title">
+      🛠 DEBUG MODE
+      <button class="dbg-close" onclick="toggleDebug()">✕ 閉じる</button>
+    </div>
+
+    <!-- ポーズ -->
+    <div class="dbg-section">
+      <div class="dbg-label">ゲーム制御</div>
+      <div class="dbg-row">
+        <button id="dbgPauseBtn" class="dbg-btn pause" onclick="togglePause()">⏸ PAUSE</button>
+      </div>
+    </div>
+
+    <!-- 攻撃力 -->
+    <div class="dbg-section">
+      <div class="dbg-label">攻撃力 (ATK: <span id="dbgAtk">-</span>)</div>
+      <div class="dbg-row">
+        <button class="dbg-btn atk" onclick="dbgAtk(10)">＋10</button>
+        <button class="dbg-btn atk" onclick="dbgAtk(50)">＋50</button>
+        <button class="dbg-btn atk" onclick="dbgAtk(-10)">－10</button>
+        <button class="dbg-btn atk" onclick="dbgAtk(-50)">－50</button>
+      </div>
+    </div>
+
+    <!-- 弾速 -->
+    <div class="dbg-section">
+      <div class="dbg-label">弾速 (SPD: <span id="dbgSpd">-</span>)</div>
+      <div class="dbg-row">
+        <button class="dbg-btn spd" onclick="dbgSpd(5)">＋5</button>
+        <button class="dbg-btn spd" onclick="dbgSpd(20)">＋20</button>
+        <button class="dbg-btn spd" onclick="dbgSpd(-5)">－5</button>
+        <button class="dbg-btn spd" onclick="dbgSpd(-20)">－20</button>
+      </div>
+    </div>
+
+    <!-- バースト連射数 -->
+    <div class="dbg-section">
+      <div class="dbg-label">バースト連射数 (1サイクルで何発)</div>
+      <div class="dbg-row">
+        <button class="dbg-btn" onclick="dbgBurst(1)">1発</button>
+        <button class="dbg-btn" onclick="dbgBurst(2)">2連射</button>
+        <button class="dbg-btn" onclick="dbgBurst(3)">3連射</button>
+        <button class="dbg-btn" onclick="dbgBurst(5)">5連射</button>
+        <button class="dbg-btn" onclick="dbgBurst(10)">10連射</button>
+      </div>
+    </div>
+
+    <!-- 蟻スポーン -->
+    <div class="dbg-section">
+      <div class="dbg-label">蟻 スポーン</div>
+      <div class="dbg-row">
+        <button class="dbg-btn ant" onclick="dbgSpawn('ant_s')">🐜 小</button>
+        <button class="dbg-btn ant" onclick="dbgSpawn('ant_m')">🐜 中</button>
+        <button class="dbg-btn ant" onclick="dbgSpawn('ant_l')">🐜 大</button>
+      </div>
+    </div>
+
+    <!-- 蜘蛛スポーン -->
+    <div class="dbg-section">
+      <div class="dbg-label">蜘蛛 スポーン</div>
+      <div class="dbg-row">
+        <button class="dbg-btn spider" onclick="dbgSpawn('spider_s')">🕷 小</button>
+        <button class="dbg-btn spider" onclick="dbgSpawn('spider_m')">🕷 中</button>
+        <button class="dbg-btn spider" onclick="dbgSpawn('spider_l')">🕷 大</button>
+      </div>
+    </div>
+
+    <!-- 蜂スポーン -->
+    <div class="dbg-section">
+      <div class="dbg-label">蜂 スポーン</div>
+      <div class="dbg-row">
+        <button class="dbg-btn bee" onclick="dbgSpawn('bee_s')">🐝 小</button>
+        <button class="dbg-btn bee" onclick="dbgSpawn('bee_m')">🐝 中</button>
+        <button class="dbg-btn bee" onclick="dbgSpawn('bee_l')">🐝 大</button>
+      </div>
+    </div>
+
+    <!-- 敵スピード -->
+    <div class="dbg-section">
+      <div class="dbg-label">敵スピード倍率: <span id="dbgSpdLabel">1x</span> &nbsp;(depthSpd: <span id="dbgSpdVal">0.000100</span>)</div>
+      <div class="dbg-row">
+        <button class="dbg-btn" onclick="dbgEnemySpd(0.3)">×0.3<br><span style="font-size:10px">0.000030</span></button>
+        <button class="dbg-btn" onclick="dbgEnemySpd(0.6)">×0.6<br><span style="font-size:10px">0.000060</span></button>
+        <button class="dbg-btn" onclick="dbgEnemySpd(1.0)">×1.0<br><span style="font-size:10px">0.000100</span></button>
+        <button class="dbg-btn" onclick="dbgEnemySpd(1.5)">×1.5<br><span style="font-size:10px">0.000150</span></button>
+        <button class="dbg-btn" onclick="dbgEnemySpd(2.0)">×2.0<br><span style="font-size:10px">0.000200</span></button>
+        <button class="dbg-btn" onclick="dbgEnemySpd(3.0)">×3.0<br><span style="font-size:10px">0.000300</span></button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="game.js"></script>
+
+  <!-- ATK/SPD の現在値をリアルタイム表示 -->
+  <script>
+    setInterval(() => {
+      if (typeof pl === 'undefined') return;
+      const a = document.getElementById('dbgAtk');
+      const s = document.getElementById('dbgSpd');
+      if (a) a.textContent = pl.atk;
+      if (s) s.textContent = pl.bspd;
+    }, 200);
+  </script>
+</body>
+</html>
