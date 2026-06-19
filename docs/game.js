@@ -604,8 +604,8 @@ function render() {
   } else {
     ctx.fillStyle='#0a0a14'; ctx.fillRect(0,0,W,H);
   }
-  drawEnvWaves();
   ctx.fillStyle='rgba(0,0,0,0.28)'; ctx.fillRect(0,0,W,H);
+  drawEnvWaves();
   drawEnvFire();
 
   drawGround();
@@ -828,18 +828,18 @@ function drawBarricades() {
 // ─── 環境エフェクト（炎・波）────────────────────────────────────────────────────
 function drawFireZone(zx, zy, zw, zh) {
   const t = envFireTime;
-  const cols = Math.ceil(zw / 16);
+  const cols = Math.ceil(zw / 14);
   for (let i = 0; i < cols; i++) {
     const cx  = zx + (zw / cols) * (i + 0.5);
-    const fh  = zh * (0.25 + 0.55 * Math.abs(Math.sin(t * 1.4 + i * 1.1)));
+    const fh  = zh * (0.35 + 0.60 * Math.abs(Math.sin(t * 1.4 + i * 1.1)));
     const fy  = zy + zh - fh;
-    const fw  = (zw / cols) * 0.85;
-    const flk = Math.sin(t * 3.2 + i * 0.9) * 3;
+    const fw  = (zw / cols) * 1.1;
+    const flk = Math.sin(t * 3.2 + i * 0.9) * 5;
     const grad = ctx.createLinearGradient(cx, fy + fh, cx, fy);
-    grad.addColorStop(0,   'rgba(255,130,0,0.55)');
-    grad.addColorStop(0.4, 'rgba(255,50,0,0.28)');
-    grad.addColorStop(0.75,'rgba(255,210,0,0.10)');
-    grad.addColorStop(1,   'rgba(255,255,0,0)');
+    grad.addColorStop(0,    'rgba(255,140,0,0.85)');
+    grad.addColorStop(0.35, 'rgba(255,60,0,0.55)');
+    grad.addColorStop(0.70, 'rgba(255,220,0,0.25)');
+    grad.addColorStop(1,    'rgba(255,255,100,0)');
     ctx.fillStyle = grad;
     ctx.beginPath();
     ctx.ellipse(cx + flk, fy + fh * 0.5, fw * 0.5, fh * 0.5, 0, 0, Math.PI * 2);
@@ -864,12 +864,12 @@ function drawWaveZone(wx, wy, ww, wh) {
   const rows = 7;
   for (let r = 0; r < rows; r++) {
     const y     = wy + (wh / rows) * r;
-    const amp   = 1.2 + r * 0.35;
-    const freq  = 0.065 - r * 0.004;
-    const spd   = 1.3 - r * 0.12;
-    const alpha = Math.max(0.03, 0.18 - r * 0.02);
-    ctx.strokeStyle = `rgba(110,175,225,${alpha})`;
-    ctx.lineWidth = 0.9;
+    const amp   = 3 + r * 0.8;
+    const freq  = 0.055 - r * 0.004;
+    const spd   = 1.4 - r * 0.12;
+    const alpha = Math.max(0.12, 0.50 - r * 0.05);
+    ctx.strokeStyle = `rgba(120,190,240,${alpha})`;
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     for (let px = wx; px <= wx + ww; px += 2) {
       const py = y + Math.sin(px * freq + t * spd) * amp;
@@ -929,7 +929,7 @@ function drawHUD() {
   ctx.textAlign='left'; ctx.textBaseline='alphabetic';
   ctx.fillText('DEFENSE', hx + pw + 2, hy + 54);
   ctx.fillStyle='#333'; ctx.fillRect(hx, hy+60, 120, 12);
-  ctx.fillStyle=dr>0.6?'#4488ff':dr>0.3?'#ffaa44':'#ff4444';
+  ctx.fillStyle=dr>=0.5?'#eedd00':dr>=0.25?'#ff8800':'#ff2200';
   ctx.fillRect(hx, hy+60, 120*dr, 12);
   ctx.strokeStyle='#555'; ctx.lineWidth=1; ctx.strokeRect(hx, hy+60, 120, 12);
 
