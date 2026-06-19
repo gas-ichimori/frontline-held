@@ -133,6 +133,8 @@ loadImg('notif_bsr', 'assets/images/notif_bsr.png');
 loadImg('notif_atk_max', 'assets/images/ui/atk_max.png');
 loadImg('notif_spd_max', 'assets/images/ui/spd_max.png');
 loadImg('notif_bsr_max', 'assets/images/ui/brs_max.png');
+loadImg('btn_left',  'assets/images/ui/btn_left.png');
+loadImg('btn_right', 'assets/images/ui/btn_right.png');
 loadImg('edf_icon',         'assets/images/edf_icon.png');
 loadImg('cert_count_frame', 'assets/images/cert_count_frame.png');
 loadImg('cert_rank_bar',    'assets/images/cert_rank_bar.png');
@@ -1025,6 +1027,33 @@ function drawHUD() {
       ctx.fillStyle='#ffff44'; ctx.shadowColor='#ff8800'; ctx.shadowBlur=20;
       ctx.font='bold 20px monospace'; ctx.textAlign='center';
       ctx.fillText(PU_LABEL[pl.notif.type], W/2, H/2-60);
+    }
+    ctx.restore();
+  }
+
+  // ── ← → 移動ボタン ──
+  if (gstate === 'playing') {
+    const bs = 76, bm = 16, by = H - bs - 18;
+    ctx.save();
+    ctx.globalAlpha = 0.72;
+    const bl = imgs['btn_left'],  br = imgs['btn_right'];
+    if (bl?.complete && bl.naturalWidth) {
+      ctx.drawImage(bl, bm, by, bs, bs);
+    } else {
+      ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.beginPath();
+      ctx.arc(bm+bs/2, by+bs/2, bs/2, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 32px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('←', bm+bs/2, by+bs/2);
+    }
+    if (br?.complete && br.naturalWidth) {
+      ctx.drawImage(br, W-bm-bs, by, bs, bs);
+    } else {
+      ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.beginPath();
+      ctx.arc(W-bm-bs/2, by+bs/2, bs/2, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 32px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('→', W-bm-bs/2, by+bs/2);
     }
     ctx.restore();
   }

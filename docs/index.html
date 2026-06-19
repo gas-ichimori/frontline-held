@@ -122,6 +122,37 @@
       50%     { filter: drop-shadow(0 0 30px rgba(255,210,0,1.0)); transform: scale(1.06); }
     }
 
+    /* ── チュートリアル ── */
+    #tutorialOverlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 910;
+      background: #000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+    #tutorialOverlay img.tut-img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      object-position: center;
+      flex: 1;
+      min-height: 0;
+    }
+    #tutorialOverlay .tut-start {
+      width: 100%;
+      text-align: center;
+      padding: 14px 0 20px;
+      background: rgba(0,0,0,0.75);
+      font-family: sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffdd44;
+      letter-spacing: 2px;
+      animation: fs-blink 0.9s step-start infinite;
+      flex-shrink: 0;
+    }
+
     /* ── 横向き警告 ── */
     #rotateOverlay {
       display: none;
@@ -220,6 +251,12 @@
       <div class="fs-blink">▲&nbsp;&nbsp;PRESS THE BUTTON&nbsp;&nbsp;▲</div>
 
     </div>
+  </div>
+
+  <!-- チュートリアル -->
+  <div id="tutorialOverlay" onclick="startGame()">
+    <img class="tut-img" src="assets/images/ui/tutorial.png" alt="チュートリアル">
+    <div class="tut-start">▼&nbsp;&nbsp;タップしてスタート&nbsp;&nbsp;▼</div>
   </div>
 
   <!-- 横向き警告 -->
@@ -356,17 +393,21 @@
       return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     }
 
-    async function startMobileGame() {
+    // タイトルタップ → チュートリアル表示
+    function startMobileGame() {
       document.getElementById('fsOverlay').style.display = 'none';
-      // AudioContext 再開
+      document.getElementById('tutorialOverlay').style.display = 'flex';
       if (typeof resume === 'function') resume();
-      // 全画面リクエスト
+    }
+
+    // チュートリアルタップ → 全画面でゲーム開始
+    async function startGame() {
+      document.getElementById('tutorialOverlay').style.display = 'none';
       try {
         const el = document.documentElement;
         if (el.requestFullscreen)            await el.requestFullscreen();
         else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
       } catch(e) {}
-      // 縦向きロック（Android Chrome / 一部ブラウザのみ有効）
       try {
         if (screen.orientation?.lock) await screen.orientation.lock('portrait');
       } catch(e) {}
