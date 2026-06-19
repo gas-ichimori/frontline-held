@@ -80,7 +80,7 @@ const EDEFS = [
 
 const PU_TYPES = ['atk', 'spd', 'bsr'];
 const PU_COLOR = { atk:'#ff4444', spd:'#44aaff', bsr:'#44ff44' };
-const PU_LABEL = { atk:'ATK ↑',   spd:'SPD ↑',   bsr:'BRS ↑'  };
+const PU_LABEL = { atk:'ATK ↑', spd:'SPD ↑', bsr:'BRS ↑', atk_max:'ATK MAX!', spd_max:'SPD MAX!', bsr_max:'BRS MAX!' };
 
 // ─── Audio ───────────────────────────────────────────────────────────────────
 const AC = new (window.AudioContext || window['webkitAudioContext'])();
@@ -129,7 +129,10 @@ loadImg('fx_hit_player',      'assets/images/fx_hit_player.png');
 loadImg('fx_hit_bullet',      'assets/images/fx_hit_bullet.png');
 loadImg('notif_atk', 'assets/images/notif_atk.png');
 loadImg('notif_spd', 'assets/images/notif_spd.png');
-loadImg('notif_bsr',        'assets/images/notif_bsr.png');
+loadImg('notif_bsr', 'assets/images/notif_bsr.png');
+loadImg('notif_atk_max', 'assets/images/ui/atk_max.png');
+loadImg('notif_spd_max', 'assets/images/ui/spd_max.png');
+loadImg('notif_bsr_max', 'assets/images/ui/brs_max.png');
 loadImg('edf_icon',         'assets/images/edf_icon.png');
 loadImg('cert_count_frame', 'assets/images/cert_count_frame.png');
 loadImg('cert_rank_bar',    'assets/images/cert_rank_bar.png');
@@ -605,7 +608,10 @@ function update(dt) {
         case 'spd': pl.bspd = Math.min(pl.bspd + 5,  100); break;
         case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.2).toFixed(1)), 10); break;
       }
-      pl.notif = { type: p.type, t: 130 };
+      const hitMax = (p.type==='atk' && pl.atk>=500) ||
+                     (p.type==='spd' && pl.bspd>=100) ||
+                     (p.type==='bsr' && pl.burst>=10);
+      pl.notif = { type: hitMax ? `${p.type}_max` : p.type, t: hitMax ? 220 : 130 };
       snd('powerup'); powerups.splice(i, 1); continue;
     }
     if (p.life <= 0 || p.depth > 1.05) powerups.splice(i, 1);
@@ -1009,11 +1015,12 @@ function drawHUD() {
   // ── パワーアップ通知 ──
   if (pl.notif) {
     const notifImg = imgs[`notif_${pl.notif.type}`];
+    const isMax = pl.notif.type.endsWith('_max');
     ctx.save();
     ctx.globalAlpha = Math.min(1, pl.notif.t / 30);
     if (notifImg?.complete && notifImg.naturalWidth) {
-      const ns = 160;
-      ctx.drawImage(notifImg, W/2 - ns/2, H/2 - ns - 20, ns, ns);
+      const ns = isMax ? 210 : 160;
+      ctx.drawImage(notifImg, W/2 - ns/2, H/2 - ns/2 - (isMax ? 30 : 20), ns, ns);
     } else {
       ctx.fillStyle='#ffff44'; ctx.shadowColor='#ff8800'; ctx.shadowBlur=20;
       ctx.font='bold 20px monospace'; ctx.textAlign='center';
