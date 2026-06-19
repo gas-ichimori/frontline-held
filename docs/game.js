@@ -67,15 +67,15 @@ function brsStars(v) {
 
 // ─── Enemy Definitions ───────────────────────────────────────────────────────
 const EDEFS = [
-  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:20,   depthSpd:0.000125, dmg:8,  drop:0.12 },
-  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, drop:0.15 },
-  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, drop:0.28 },
-  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:25,   depthSpd:0.000100, dmg:8,  drop:0.12 },
-  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, drop:0.18 },
-  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, drop:0.28 },
-  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:15,   depthSpd:0.000150, dmg:6,  drop:0.10 },
-  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, drop:0.15 },
-  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, drop:0.25 },
+  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:20,   depthSpd:0.000125, dmg:8,  drop:0.25 },
+  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, drop:0.50 },
+  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, drop:0.75 },
+  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:25,   depthSpd:0.000100, dmg:8,  drop:0.25 },
+  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, drop:0.50 },
+  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, drop:0.75 },
+  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:15,   depthSpd:0.000150, dmg:6,  drop:0.15 },
+  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, drop:0.30 },
+  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, drop:0.55 },
 ];
 
 const PU_TYPES = ['atk', 'spd', 'bsr'];
