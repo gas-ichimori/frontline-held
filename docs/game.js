@@ -1031,28 +1031,22 @@ function drawHUD() {
     ctx.restore();
   }
 
-  // ── ← → 移動ボタン（ヴァーチャルスティック風）──
+  // ── ← → 移動ボタン ──
   if (gstate === 'playing') {
-    const r = 38, bm = 28, by = H - r - 22;
+    const bm = 38, by = H - 90;
     ctx.save();
-    // 左ボタン
-    const lx = bm + r;
-    ctx.beginPath(); ctx.arc(lx, by, r, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.50)';
+    ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    // 左矢印
+    const lx = bm;
     ctx.beginPath();
-    ctx.moveTo(lx+10, by-14); ctx.lineTo(lx-10, by); ctx.lineTo(lx+10, by+14);
-    ctx.strokeStyle = 'rgba(255,255,255,0.50)'; ctx.lineWidth = 3;
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
-    // 右ボタン
-    const rx = W - bm - r;
-    ctx.beginPath(); ctx.arc(rx, by, r, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.moveTo(lx+16, by-16); ctx.lineTo(lx, by); ctx.lineTo(lx+16, by+16);
+    ctx.stroke();
+    // 右矢印
+    const rx = W - bm;
     ctx.beginPath();
-    ctx.moveTo(rx-10, by-14); ctx.lineTo(rx+10, by); ctx.lineTo(rx-10, by+14);
-    ctx.strokeStyle = 'rgba(255,255,255,0.50)'; ctx.lineWidth = 3;
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+    ctx.moveTo(rx-16, by-16); ctx.lineTo(rx, by); ctx.lineTo(rx-16, by+16);
+    ctx.stroke();
     ctx.restore();
   }
 }
