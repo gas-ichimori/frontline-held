@@ -204,8 +204,12 @@ canvas.addEventListener('touchstart', e => {
   const rect = canvas.getBoundingClientRect();
   const tx = (e.touches[0].clientX - rect.left) * (W / rect.width);
   const ty = (e.touches[0].clientY - rect.top)  * (H / rect.height);
-  // バリケードエリア（画面下部）タップでPAUSE
-  if (gstate === 'playing' && ty > H - 70) { togglePause(); return; }
+  // バリケードエリア（画面下部）タップ
+  if (gstate === 'playing' && ty > H - 70) {
+    if (tx > W * 0.65)      toggleDebug();   // 右バリケード → DEBUG
+    else if (tx > W * 0.35) togglePause();   // 中央バリケード → PAUSE
+    return;
+  }
   if (paused) return;
   if (tx < W * 0.38)      tryLaneMove(-1);
   else if (tx > W * 0.62) tryLaneMove(+1);
@@ -225,7 +229,10 @@ canvas.addEventListener('click', e => {
   const tx = (e.clientX - rect.left) * (W / rect.width);
   const ty = (e.clientY - rect.top)  * (H / rect.height);
   if (gstate === 'gameover') { handleGoTap(tx, ty); return; }
-  if (gstate === 'playing' && ty > H - 70) togglePause();
+  if (gstate === 'playing' && ty > H - 70) {
+    if (tx > W * 0.65)      toggleDebug();
+    else if (tx > W * 0.35) togglePause();
+  }
 });
 function handleGoTap(tx, ty) {
   const hit = b => b && tx >= b.x && tx <= b.x+b.w && ty >= b.y && ty <= b.y+b.h;
@@ -885,13 +892,18 @@ function drawBarricades() {
       ctx.fillRect(bx, ty, bw, bh);
     }
   }
-  // 中央バリケードにPAUSEヒント
+  // 中央バリケード：PAUSEヒント
   const ccx = laneScreenX(1) + laneOffset[1];
+  // 右バリケード：DEBUGヒント
+  const rcx = laneScreenX(2) + laneOffset[2];
   ctx.save();
+  ctx.font = '11px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.globalAlpha = paused ? 0.9 : 0.35;
   ctx.fillStyle = paused ? '#ffdd44' : '#ffffff';
-  ctx.font = '11px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('⏸', ccx, H - 30);
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = '#88ff88';
+  ctx.fillText('DBG', rcx, H - 30);
   ctx.restore();
 }
 
