@@ -271,33 +271,42 @@ function segCircleHit(ax, ay, bx, by, cx, cy, r) {
 
 // ─── Round System ─────────────────────────────────────────────────────────────
 const ROUNDS = [
+  // index 0
   { type:'round', num:1, dur:60000, phases:[
     { until:20000, batch:1, pool:'s',   interval:700 },
     { until:40000, batch:2, pool:'s',   interval:700 },
     { until:60000, batch:2, pool:'sm',  interval:700 },
   ]},
+  // index 1
   { type:'round', num:2, dur:60000, phases:[
     { until:20000, batch:2, pool:'s',   interval:700 },
     { until:40000, batch:2, pool:'sm',  interval:700 },
     { until:60000, batch:2, pool:'sml', interval:700 },
   ]},
+  // index 2
+  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:3 },
+  // index 3
   { type:'round', num:3, dur:60000, phases:[
     { until:20000, batch:2, pool:'sm',  interval:700 },
     { until:40000, batch:3, pool:'sm',  interval:700 },
     { until:60000, batch:3, pool:'sml', interval:700 },
   ]},
+  // index 4
   { type:'round', num:4, dur:60000, phases:[
     { until:20000, batch:3, pool:'sm',  interval:700 },
     { until:40000, batch:3, pool:'sml', interval:700 },
     { until:60000, batch:3, pool:'sml', interval:500 },
   ]},
+  // index 5
+  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:300, batch:3 },
+  // index 6
   { type:'round', num:5, dur:60000, phases:[
     { until:20000, batch:3, pool:'sml', interval:500 },
     { until:40000, batch:3, pool:'sml', interval:400 },
     { until:60000, batch:3, pool:'sml', interval:300 },
   ]},
-  // LAST Wave 後は Round 3（index=2）に戻ってループ
-  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:3, loopTo:2 },
+  // index 7 ― LAST Wave 後は Round 3（index=3）に戻ってループ
+  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:3, loopTo:3 },
 ];
 
 function getPool(key) {
