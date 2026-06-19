@@ -2,7 +2,9 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <title>EDF - 地球防衛軍 迎撃戦</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,6 +18,60 @@
       overflow: hidden;
     }
     canvas { display: block; image-rendering: pixelated; }
+
+    /* ── スマホ全画面タップ画面 ── */
+    #fsOverlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 900;
+      background: #000;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      color: #fff;
+      text-align: center;
+      font-family: sans-serif;
+    }
+    #fsOverlay .fs-title {
+      font-size: 22px; font-weight: bold; color: #ffdd44;
+      letter-spacing: 2px;
+    }
+    #fsOverlay .fs-sub {
+      font-size: 12px; color: #aa8833; letter-spacing: 1px;
+    }
+    #fsOverlay .fs-btn {
+      margin-top: 16px;
+      background: #ffdd44; color: #000;
+      border: none; border-radius: 8px;
+      padding: 16px 40px; font-size: 18px; font-weight: bold;
+      cursor: pointer; letter-spacing: 1px;
+    }
+    #fsOverlay .fs-note {
+      font-size: 11px; color: #666; margin-top: 8px;
+    }
+
+    /* ── 横向き警告 ── */
+    #rotateOverlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 1000;
+      background: #000;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+      text-align: center;
+      font-family: sans-serif;
+    }
+    #rotateOverlay .rotate-icon { font-size: 56px; }
+    #rotateOverlay .rotate-msg  { font-size: 16px; color: #ffdd44; }
+    #rotateOverlay .rotate-sub  { font-size: 12px; color: #888; }
+
+    /* 横向き時に警告表示（スマホのみ） */
+    @media screen and (orientation: landscape) and (max-height: 500px) {
+      #rotateOverlay { display: flex !important; }
+
+    }
 
     /* ── デバッグトグルボタン ── */
     #dbgToggle {
@@ -62,6 +118,21 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
+
+  <!-- スマホ：タップして全画面スタート -->
+  <div id="fsOverlay">
+    <div class="fs-title">地球防衛軍</div>
+    <div class="fs-sub">EARTH DEFENSE FORCE</div>
+    <button class="fs-btn" onclick="startMobileGame()">タップしてプレイ</button>
+    <div class="fs-note">縦向きでプレイしてください</div>
+  </div>
+
+  <!-- 横向き警告 -->
+  <div id="rotateOverlay">
+    <div class="rotate-icon">📱</div>
+    <div class="rotate-msg">端末を縦向きにしてください</div>
+    <div class="rotate-sub">PLEASE ROTATE YOUR DEVICE</div>
+  </div>
 
   <!-- デバッグ開閉ボタン -->
   <button id="dbgToggle" onclick="toggleDebug()">DBG</button>
@@ -181,6 +252,34 @@
       if (a) a.textContent = pl.atk;
       if (s) s.textContent = pl.bspd;
     }, 200);
+  </script>
+
+  <!-- スマホ：全画面 + 縦向きロック -->
+  <script>
+    function isMobile() {
+      return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    }
+
+    async function startMobileGame() {
+      document.getElementById('fsOverlay').style.display = 'none';
+      // AudioContext 再開
+      if (typeof resume === 'function') resume();
+      // 全画面リクエスト
+      try {
+        const el = document.documentElement;
+        if (el.requestFullscreen)            await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+      } catch(e) {}
+      // 縦向きロック（Android Chrome / 一部ブラウザのみ有効）
+      try {
+        if (screen.orientation?.lock) await screen.orientation.lock('portrait');
+      } catch(e) {}
+    }
+
+    // スマホのみ全画面導入画面を表示
+    if (isMobile()) {
+      document.getElementById('fsOverlay').style.display = 'flex';
+    }
   </script>
 </body>
 </html>
