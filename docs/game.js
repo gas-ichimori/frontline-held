@@ -272,43 +272,39 @@ function segCircleHit(ax, ay, bx, by, cx, cy, r) {
 // ─── Round System ─────────────────────────────────────────────────────────────
 const ROUNDS = [
   { type:'round', num:1, dur:60000, phases:[
-    { until:20000, batch:1, pool:'s' },
-    { until:40000, batch:2, pool:'s' },
-    { until:60000, batch:2, pool:'s' },
+    { until:20000, batch:1, pool:'s',   interval:700 },
+    { until:40000, batch:2, pool:'s',   interval:700 },
+    { until:60000, batch:2, pool:'sm',  interval:700 },
   ]},
   { type:'round', num:2, dur:60000, phases:[
-    { until:20000, batch:1, pool:'s' },
-    { until:40000, batch:2, pool:'s' },
-    { until:60000, batch:2, pool:'s' },
+    { until:20000, batch:2, pool:'s',   interval:700 },
+    { until:40000, batch:2, pool:'sm',  interval:700 },
+    { until:60000, batch:2, pool:'sml', interval:700 },
   ]},
-  { type:'wave', waveNum:1, dur:30000, pool:'s'   },
   { type:'round', num:3, dur:60000, phases:[
-    { until:20000, batch:1, pool:'s'  },
-    { until:40000, batch:2, pool:'s'  },
-    { until:60000, batch:3, pool:'sm' },
+    { until:20000, batch:2, pool:'sm',  interval:700 },
+    { until:40000, batch:3, pool:'sm',  interval:700 },
+    { until:60000, batch:3, pool:'sml', interval:700 },
   ]},
   { type:'round', num:4, dur:60000, phases:[
-    { until:20000, batch:1, pool:'s'  },
-    { until:40000, batch:2, pool:'s'  },
-    { until:60000, batch:3, pool:'sm' },
+    { until:20000, batch:3, pool:'sm',  interval:700 },
+    { until:40000, batch:3, pool:'sml', interval:700 },
+    { until:60000, batch:3, pool:'sml', interval:500 },
   ]},
-  { type:'wave', waveNum:2, dur:30000, pool:'sm'  },
   { type:'round', num:5, dur:60000, phases:[
-    { until:20000, batch:1, pool:'s'   },
-    { until:40000, batch:2, pool:'sm'  },
-    { until:60000, batch:3, pool:'sml' },
+    { until:20000, batch:3, pool:'sml', interval:500 },
+    { until:40000, batch:3, pool:'sml', interval:400 },
+    { until:60000, batch:3, pool:'sml', interval:300 },
   ]},
-  { type:'round', num:6, dur:60000, phases:[
-    { until:20000, batch:1, pool:'s'   },
-    { until:40000, batch:2, pool:'sm'  },
-    { until:60000, batch:3, pool:'sml' },
-  ]},
+  // LAST Wave 後は Round 3（index=2）に戻ってループ
+  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:3, loopTo:2 },
 ];
 
 function getPool(key) {
   if (key === 's')   return EDEFS.filter(d => d.id.endsWith('_s'));
   if (key === 'sm')  return EDEFS.filter(d => !d.id.endsWith('_l'));
-  return EDEFS;
+  if (key === 'l')   return EDEFS.filter(d => d.id.endsWith('_l'));
+  return EDEFS; // 'sml'
 }
 
 // ─── Spawn ────────────────────────────────────────────────────────────────────
@@ -422,14 +418,20 @@ function update(dt) {
   }
   let rd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
   if (rd && roundTimer >= rd.dur) {
-    roundIdx++;
+    // LAST Wave など loopTo が指定されていればそのインデックスへ戻る
+    if (rd.loopTo !== undefined) {
+      roundIdx = rd.loopTo;
+    } else {
+      roundIdx++;
+    }
     roundTimer = 0;
     spawnTmr   = 0;
     if (roundIdx < ROUNDS.length) {
       const next = ROUNDS[roundIdx];
-      roundBanner = next.type === 'round'
-        ? { text:`ROUND ${next.num}`, timer:2500, color:'#ffdd00' }
-        : { text:'WAVE!!',            timer:2500, color:'#ff4444' };
+      const bannerText = next.type === 'round'
+        ? `ROUND ${next.num}`
+        : (next.label || 'WAVE!!');
+      roundBanner = { text:bannerText, timer:2500, color: next.type==='round' ? '#ffdd00' : '#ff4444' };
     } else {
       roundBanner = { text:'ALL CLEAR!', timer:5000, color:'#44ff88' };
     }
@@ -437,20 +439,21 @@ function update(dt) {
   }
 
   if (rd) {
-    const isWave   = rd.type === 'wave';
-    const interval = isWave ? 300 : 700;
+    const isWave = rd.type === 'wave';
+    let interval, batch, pool;
+    if (isWave) {
+      interval = rd.interval || 300;
+      batch    = rd.batch    || 3;
+      pool     = getPool(rd.pool);
+    } else {
+      const ph = rd.phases.find(p => roundTimer <= p.until) || rd.phases[rd.phases.length - 1];
+      interval = ph.interval || 700;
+      batch    = ph.batch;
+      pool     = getPool(ph.pool);
+    }
     spawnTmr += dt;
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
-      let batch, pool;
-      if (isWave) {
-        batch = 3;
-        pool  = getPool(rd.pool);
-      } else {
-        const ph = rd.phases.find(p => roundTimer <= p.until) || rd.phases[rd.phases.length - 1];
-        batch = ph.batch;
-        pool  = getPool(ph.pool);
-      }
       for (let i = 0; i < batch && enemies.length < 120; i++) spawnEnemy(pool);
     }
   }
@@ -937,7 +940,7 @@ function drawHUD() {
   const cx=W/2;
   const curRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
   const rdLabel = curRd
-    ? (curRd.type === 'wave' ? `WAVE ${curRd.waveNum}` : `ROUND ${curRd.num}`)
+    ? (curRd.type === 'wave' ? (curRd.label || `WAVE ${curRd.waveNum}`) : `ROUND ${curRd.num}`)
     : 'ALL CLEAR!';
   ctx.fillStyle='rgba(0,0,0,0.80)'; rrect(cx-66,8,132,44,5); ctx.fill();
   ctx.strokeStyle='#ffaa00'; ctx.lineWidth=2; rrect(cx-66,8,132,44,5); ctx.stroke();
@@ -1052,7 +1055,7 @@ function drawGameOver() {
   // 到達ラウンド・撃破数
   const goRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
   const goRdLabel = goRd
-    ? (goRd.type==='wave' ? `WAVE ${goRd.waveNum}` : `ROUND ${goRd.num}`)
+    ? (goRd.type==='wave' ? (goRd.label || `WAVE ${goRd.waveNum}`) : `ROUND ${goRd.num}`)
     : 'ALL CLEAR!';
   const defeated = INIT_ENEMIES - enemyCount;
   ctx.fillStyle='#aaa'; ctx.font='13px monospace';
@@ -1129,7 +1132,7 @@ function makeCertificate() {
   const s1=atkStars(pl.atk), s2=atkStars(pl.bspd), s3=brsStars(pl.burst);
   const stars = n => '★'.repeat(n)+'☆'.repeat(5-n);
   const goRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
-  const rdLbl = goRd ? (goRd.type==='wave'?`WAVE ${goRd.waveNum}`:`ROUND ${goRd.num}`) : 'ALL CLEAR!';
+  const rdLbl = goRd ? (goRd.type==='wave' ? (goRd.label||`WAVE ${goRd.waveNum}`) : `ROUND ${goRd.num}`) : 'ALL CLEAR!';
 
   // 画像ヘルパー
   const di = (key,x,y,w,h) => {
