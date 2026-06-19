@@ -1031,30 +1031,28 @@ function drawHUD() {
     ctx.restore();
   }
 
-  // ── ← → 移動ボタン ──
+  // ── ← → 移動ボタン（ヴァーチャルスティック風）──
   if (gstate === 'playing') {
-    const bs = 76, bm = 16, by = H - bs - 18;
+    const r = 38, bm = 28, by = H - r - 22;
     ctx.save();
-    ctx.globalAlpha = 0.72;
-    const bl = imgs['btn_left'],  br = imgs['btn_right'];
-    if (bl?.complete && bl.naturalWidth) {
-      ctx.drawImage(bl, bm, by, bs, bs);
-    } else {
-      ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.beginPath();
-      ctx.arc(bm+bs/2, by+bs/2, bs/2, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle='#fff'; ctx.font='bold 32px sans-serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('←', bm+bs/2, by+bs/2);
-    }
-    if (br?.complete && br.naturalWidth) {
-      ctx.drawImage(br, W-bm-bs, by, bs, bs);
-    } else {
-      ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.beginPath();
-      ctx.arc(W-bm-bs/2, by+bs/2, bs/2, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle='#fff'; ctx.font='bold 32px sans-serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('→', W-bm-bs/2, by+bs/2);
-    }
+    // 左ボタン
+    const lx = bm + r;
+    ctx.beginPath(); ctx.arc(lx, by, r, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(lx+10, by-14); ctx.lineTo(lx-10, by); ctx.lineTo(lx+10, by+14);
+    ctx.strokeStyle = 'rgba(255,255,255,0.50)'; ctx.lineWidth = 3;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+    // 右ボタン
+    const rx = W - bm - r;
+    ctx.beginPath(); ctx.arc(rx, by, r, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(rx-10, by-14); ctx.lineTo(rx+10, by); ctx.lineTo(rx-10, by+14);
+    ctx.strokeStyle = 'rgba(255,255,255,0.50)'; ctx.lineWidth = 3;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
     ctx.restore();
   }
 }
