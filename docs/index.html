@@ -409,7 +409,7 @@
       if (typeof resume === 'function') resume();
       // BGM 再生（うっすら）
       const bgm = document.getElementById('bgm');
-      if (bgm) { bgm.volume = 0.15; bgm.play().catch(()=>{}); }
+      if (bgm) { bgm.volume = 0.07; bgm.play().catch(()=>{}); }
       try {
         const el = document.documentElement;
         if (el.requestFullscreen)            await el.requestFullscreen();

@@ -206,9 +206,14 @@ canvas.addEventListener('touchstart', e => {
   const ty = (e.touches[0].clientY - rect.top)  * (H / rect.height);
   // バリケードエリア（画面下部）タップ
   if (gstate === 'playing' && ty > H - 70) {
-    if (tx > W * 0.65)      toggleDebug();   // 右バリケード → DEBUG
-    else if (tx > W * 0.35) togglePause();   // 中央バリケード → PAUSE
-    return;
+    if (tx > W * 0.68) {                             // 右バリケード → DEBUG
+      if (typeof toggleDebug === 'function') toggleDebug();
+      return;
+    } else if (tx >= W * 0.40 && tx <= W * 0.60) {  // 中央バリケード → PAUSE
+      togglePause();
+      return;
+    }
+    // 左・右端はそのまま通常の移動処理へ
   }
   if (paused) return;
   if (tx < W * 0.38)      tryLaneMove(-1);
@@ -230,8 +235,8 @@ canvas.addEventListener('click', e => {
   const ty = (e.clientY - rect.top)  * (H / rect.height);
   if (gstate === 'gameover') { handleGoTap(tx, ty); return; }
   if (gstate === 'playing' && ty > H - 70) {
-    if (tx > W * 0.65)      toggleDebug();
-    else if (tx > W * 0.35) togglePause();
+    if (tx > W * 0.68) { if (typeof toggleDebug === 'function') toggleDebug(); }
+    else if (tx >= W * 0.40 && tx <= W * 0.60) togglePause();
   }
 });
 function handleGoTap(tx, ty) {
@@ -1360,7 +1365,7 @@ let envFireTime  = 0;
 
 function toggleDebug() {
   const p = document.getElementById('dbgPanel');
-  p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+  p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
 }
 function togglePause() {
   paused = !paused;
