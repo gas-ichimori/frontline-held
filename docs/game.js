@@ -167,6 +167,9 @@ let roundTimer    = 0;
 let roundBanner   = { text:'ROUND 1', timer:2500, color:'#ffdd00' };
 let bgScroll      = 0;
 let defenseHp     = INIT_DEFENSE;
+let loopCount     = 0;   // LAST WAVE 通過回数
+let hpBonus       = 0;   // LAST WAVE ごとに +2000
+let gameResult    = 'defeat'; // 'defeat' | 'victory'
 // barricadeHitFx removed
 
 const pl = {
@@ -320,9 +323,10 @@ function getPool(key) {
 function spawnEnemy(pool) {
   const def = pool[Math.floor(Math.random() * pool.length)];
   const li  = Math.floor(Math.random() * 3);
+  const totalHp = def.hp + hpBonus;
   enemies.push({
     ...def, laneIndex: li, laneX: LANE_X[li],
-    depth: 0.05, currentHp: def.hp, hitFx: 0,
+    depth: 0.05, hp: totalHp, currentHp: totalHp, hitFx: 0,
     animFrame: 0, animTimer: 0,
     dying: false, dieFrame: 0, dieTimer: 0,
   });
@@ -374,6 +378,7 @@ function resetGame() {
   enemyCount=INIT_ENEMIES; spawnTmr=0; gameMs=0;
   roundIdx=0; roundTimer=0; bgScroll=0;
   defenseHp=INIT_DEFENSE;
+  loopCount=0; hpBonus=0; gameResult='defeat';
   roundBanner={ text:'ROUND 1', timer:2500, color:'#ffdd00' };
   gstate='playing';
 }
@@ -427,8 +432,10 @@ function update(dt) {
   }
   let rd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
   if (rd && roundTimer >= rd.dur) {
-    // LAST Wave など loopTo が指定されていればそのインデックスへ戻る
     if (rd.loopTo !== undefined) {
+      // LAST WAVE 通過：HP ボーナス加算・ループカウント増加
+      hpBonus   += 2000;
+      loopCount++;
       roundIdx = rd.loopTo;
     } else {
       roundIdx++;
@@ -436,11 +443,13 @@ function update(dt) {
     roundTimer = 0;
     spawnTmr   = 0;
     if (roundIdx < ROUNDS.length) {
-      const next = ROUNDS[roundIdx];
-      const bannerText = next.type === 'round'
-        ? `ROUND ${next.num}`
-        : (next.label || 'WAVE!!');
-      roundBanner = { text:bannerText, timer:2500, color: next.type==='round' ? '#ffdd00' : '#ff4444' };
+      // LAST WAVE 後はすべて「STAGE ∞」表示
+      const bannerText  = loopCount > 0 ? 'STAGE ∞'
+        : ROUNDS[roundIdx].type === 'round' ? `ROUND ${ROUNDS[roundIdx].num}`
+        : (ROUNDS[roundIdx].label || 'WAVE!!');
+      const bannerColor = loopCount > 0 ? '#44ffaa'
+        : ROUNDS[roundIdx].type === 'round' ? '#ffdd00' : '#ff4444';
+      roundBanner = { text:bannerText, timer:2500, color:bannerColor };
     } else {
       roundBanner = { text:'ALL CLEAR!', timer:5000, color:'#44ff88' };
     }
@@ -539,9 +548,15 @@ function update(dt) {
       enemyCount = Math.max(0, enemyCount - 1);
       const dropRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
       if (Math.random() < e.drop && dropRd?.type !== 'wave') {
-        powerups.push({ laneIndex:e.laneIndex, laneX:e.laneX,
-          depth:0.05, type:PU_TYPES[Math.floor(Math.random()*3)], life:600,
-          animFrame:0, animTimer:0 });
+        const avail = PU_TYPES.filter(t =>
+          (t==='atk' ? pl.atk  < 500 :
+           t==='spd' ? pl.bspd < 100 :
+                       pl.burst < 10));
+        if (avail.length > 0) {
+          powerups.push({ laneIndex:e.laneIndex, laneX:e.laneX,
+            depth:0.05, type:avail[Math.floor(Math.random()*avail.length)], life:600,
+            animFrame:0, animTimer:0 });
+        }
       }
       e.dying = true; e.dieFrame = 0; e.dieTimer = 0;
     }
@@ -588,7 +603,7 @@ function update(dt) {
       switch (p.type) {
         case 'atk': pl.atk  = Math.min(pl.atk  + 5,  500); break;
         case 'spd': pl.bspd = Math.min(pl.bspd + 5,  100); break;
-        case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.5).toFixed(1)), 10); break;
+        case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.2).toFixed(1)), 10); break;
       }
       pl.notif = { type: p.type, t: 130 };
       snd('powerup'); powerups.splice(i, 1); continue;
@@ -605,6 +620,13 @@ function update(dt) {
   for (let i = splashes.length - 1; i >= 0; i--) {
     splashes[i].life -= dt;
     if (splashes[i].life <= 0) splashes.splice(i, 1);
+  }
+
+  // 1万撃破で地球防衛成功
+  if (INIT_ENEMIES - enemyCount >= 10000) {
+    gameResult = 'victory';
+    gstate = 'gameover';
+    snd('gameover');
   }
 }
 
@@ -948,9 +970,11 @@ function drawHUD() {
   // ── ラウンド情報（上中央） ──
   const cx=W/2;
   const curRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
-  const rdLabel = curRd
-    ? (curRd.type === 'wave' ? (curRd.label || `WAVE ${curRd.waveNum}`) : `ROUND ${curRd.num}`)
-    : 'ALL CLEAR!';
+  const rdLabel = loopCount > 0
+    ? 'STAGE ∞'
+    : curRd
+      ? (curRd.type === 'wave' ? (curRd.label || `WAVE ${curRd.waveNum}`) : `ROUND ${curRd.num}`)
+      : 'ALL CLEAR!';
   ctx.fillStyle='rgba(0,0,0,0.80)'; rrect(cx-66,8,132,44,5); ctx.fill();
   ctx.strokeStyle='#ffaa00'; ctx.lineWidth=2; rrect(cx-66,8,132,44,5); ctx.stroke();
   ctx.fillStyle='#ffdd00'; ctx.font='bold 13px monospace'; ctx.textAlign='center';
@@ -1047,28 +1071,43 @@ function drawGameOver() {
   ctx.fillStyle='rgba(0,0,0,0.90)'; ctx.fillRect(0,0,W,H);
   ctx.textAlign='center'; ctx.textBaseline='middle';
   const cx = W/2;
+  const isVictory = gameResult === 'victory';
 
   // メインメッセージ
-  ctx.shadowColor='#ffaa00'; ctx.shadowBlur=20;
-  ctx.fillStyle='#ffdd44'; ctx.font='bold 18px sans-serif';
-  ctx.fillText('諸君の勇気ある行動に感謝する！', cx, 110);
-  ctx.shadowBlur=0;
-  ctx.fillStyle='#ffaa55'; ctx.font='12px sans-serif';
-  ctx.fillText('I thank you for your courageous', cx, 136);
-  ctx.fillText('actions, soldiers!', cx, 154);
+  if (isVictory) {
+    ctx.shadowColor='#44ff88'; ctx.shadowBlur=24;
+    ctx.fillStyle='#44ff88'; ctx.font='bold 22px sans-serif';
+    ctx.fillText('地球防衛成功！！', cx, 100);
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#88ffcc'; ctx.font='bold 16px sans-serif';
+    ctx.fillText('EARTH DEFENSE SUCCESS', cx, 130);
+    ctx.fillStyle='#ffdd44'; ctx.font='bold 28px monospace';
+    ctx.shadowColor='#ffdd44'; ctx.shadowBlur=16;
+    ctx.fillText('ALL CLEAR', cx, 164);
+    ctx.shadowBlur=0;
+  } else {
+    ctx.shadowColor='#ffaa00'; ctx.shadowBlur=20;
+    ctx.fillStyle='#ffdd44'; ctx.font='bold 18px sans-serif';
+    ctx.fillText('諸君の勇気ある行動に感謝する！', cx, 110);
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#ffaa55'; ctx.font='12px sans-serif';
+    ctx.fillText('I thank you for your courageous', cx, 136);
+    ctx.fillText('actions, soldiers!', cx, 154);
+  }
 
   // 区切り線
   ctx.strokeStyle='#554422'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(30,172); ctx.lineTo(375,172); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(30,182); ctx.lineTo(375,182); ctx.stroke();
 
   // 到達ラウンド・撃破数
   const goRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
-  const goRdLabel = goRd
-    ? (goRd.type==='wave' ? (goRd.label || `WAVE ${goRd.waveNum}`) : `ROUND ${goRd.num}`)
+  const goRdLabel = isVictory ? '地球防衛成功'
+    : loopCount > 0 ? 'STAGE ∞'
+    : goRd ? (goRd.type==='wave' ? (goRd.label || `WAVE ${goRd.waveNum}`) : `ROUND ${goRd.num}`)
     : 'ALL CLEAR!';
   const defeated = INIT_ENEMIES - enemyCount;
   ctx.fillStyle='#aaa'; ctx.font='13px monospace';
-  ctx.fillText(`到達: ${goRdLabel}`, cx, 196);
+  ctx.fillText(`到達: ${goRdLabel}`, cx, 206);
   ctx.fillStyle='#ff9955'; ctx.font='bold 28px monospace';
   ctx.fillText(`${defeated.toLocaleString()} 匹撃破`, cx, 232);
 
@@ -1141,7 +1180,9 @@ function makeCertificate() {
   const s1=atkStars(pl.atk), s2=atkStars(pl.bspd), s3=brsStars(pl.burst);
   const stars = n => '★'.repeat(n)+'☆'.repeat(5-n);
   const goRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
-  const rdLbl = goRd ? (goRd.type==='wave' ? (goRd.label||`WAVE ${goRd.waveNum}`) : `ROUND ${goRd.num}`) : 'ALL CLEAR!';
+  const rdLbl = gameResult === 'victory' ? '地球防衛成功'
+    : loopCount > 0 ? 'STAGE ∞'
+    : goRd ? (goRd.type==='wave' ? (goRd.label||`WAVE ${goRd.waveNum}`) : `ROUND ${goRd.num}`) : 'ALL CLEAR!';
 
   // 画像ヘルパー
   const di = (key,x,y,w,h) => {
@@ -1256,6 +1297,7 @@ function togglePause() {
   document.getElementById('dbgPauseBtn').textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
 }
 function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
+function dbgVictory()  { gameResult='victory'; gstate='gameover'; snd('gameover'); }
 function dbgAtk(v)  { pl.atk  = Math.max(1, Math.min(500, pl.atk  + v)); }
 function dbgSpd(v)  { pl.bspd = Math.max(1, Math.min(200, pl.bspd + v)); }
 function dbgSpawn(id) {

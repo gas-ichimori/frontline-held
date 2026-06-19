@@ -25,29 +25,71 @@
       position: fixed; inset: 0; z-index: 900;
       background: #000;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
-      gap: 20px;
-      color: #fff;
-      text-align: center;
+      overflow: hidden;
       font-family: sans-serif;
     }
-    #fsOverlay .fs-title {
-      font-size: 22px; font-weight: bold; color: #ffdd44;
-      letter-spacing: 2px;
+    #fsOverlay .fs-bg {
+      position: absolute; inset: 0;
+      background-image: url('assets/images/ui/top_bg.png');
+      background-size: cover;
+      background-position: center top;
+      filter: brightness(0.55);
     }
-    #fsOverlay .fs-sub {
-      font-size: 12px; color: #aa8833; letter-spacing: 1px;
+    #fsOverlay .fs-content {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+      align-items: center;
+      width: 100%; height: 100%;
+      padding: 0 16px;
+    }
+    #fsOverlay .fs-logos {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-top: 32px;
+      width: 100%;
+    }
+    #fsOverlay .fs-logo-main {
+      width: 80%; max-width: 280px;
+      filter: drop-shadow(0 0 12px rgba(255,200,0,0.6));
+    }
+    #fsOverlay .fs-logo-sub {
+      display: flex; gap: 12px; justify-content: center;
+    }
+    #fsOverlay .fs-logo-sub img {
+      width: 38%; max-width: 130px;
+      filter: drop-shadow(0 0 6px rgba(255,150,0,0.4));
+    }
+    #fsOverlay .fs-taisa {
+      width: 68%; max-width: 240px;
+      margin-top: auto;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.8));
+    }
+    #fsOverlay .fs-bottom {
+      width: 100%;
+      display: flex; flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 32px;
     }
     #fsOverlay .fs-btn {
-      margin-top: 16px;
-      background: #ffdd44; color: #000;
-      border: none; border-radius: 8px;
-      padding: 16px 40px; font-size: 18px; font-weight: bold;
-      cursor: pointer; letter-spacing: 1px;
+      background: linear-gradient(135deg, #ffcc00, #ff8800);
+      color: #000;
+      border: none; border-radius: 10px;
+      padding: 16px 48px; font-size: 19px; font-weight: bold;
+      cursor: pointer; letter-spacing: 2px;
+      box-shadow: 0 0 20px rgba(255,180,0,0.6);
+      animation: fs-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes fs-pulse {
+      0%,100% { box-shadow: 0 0 16px rgba(255,180,0,0.5); }
+      50%      { box-shadow: 0 0 32px rgba(255,200,0,0.9); }
     }
     #fsOverlay .fs-note {
-      font-size: 11px; color: #666; margin-top: 8px;
+      font-size: 11px; color: #aaa; letter-spacing: 1px;
     }
 
     /* ── 横向き警告 ── */
@@ -121,10 +163,21 @@
 
   <!-- スマホ：タップして全画面スタート -->
   <div id="fsOverlay">
-    <div class="fs-title">地球防衛軍</div>
-    <div class="fs-sub">EARTH DEFENSE FORCE</div>
-    <button class="fs-btn" onclick="startMobileGame()">タップしてプレイ</button>
-    <div class="fs-note">縦向きでプレイしてください</div>
+    <div class="fs-bg"></div>
+    <div class="fs-content">
+      <div class="fs-logos">
+        <img class="fs-logo-main" src="assets/images/ui/logo1.png" alt="EDF 6.1x2">
+        <div class="fs-logo-sub">
+          <img src="assets/images/ui/logo3.png" alt="EDF 5">
+          <img src="assets/images/ui/logo2.png" alt="EDF 6">
+        </div>
+      </div>
+      <img class="fs-taisa" src="assets/images/ui/taisa.png" alt="大佐">
+      <div class="fs-bottom">
+        <button class="fs-btn" onclick="startMobileGame()">タップしてプレイ</button>
+        <div class="fs-note">縦向きでプレイしてください</div>
+      </div>
+    </div>
   </div>
 
   <!-- 横向き警告 -->
@@ -151,6 +204,7 @@
       <div class="dbg-row">
         <button id="dbgPauseBtn" class="dbg-btn pause" onclick="togglePause()">⏸ PAUSE</button>
         <button class="dbg-btn" style="border-color:#ff4444;color:#ff4444;" onclick="dbgGameOver()">💀 即GAME OVER</button>
+        <button class="dbg-btn" style="border-color:#44ff88;color:#44ff88;" onclick="dbgVictory()">🏆 10000撃破 ALL CLEAR</button>
       </div>
     </div>
 
