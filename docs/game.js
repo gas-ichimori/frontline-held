@@ -569,7 +569,7 @@ function update(dt) {
       const dropRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
       if (Math.random() < e.drop && dropRd?.type !== 'wave') {
         const avail = PU_TYPES.filter(t =>
-          (t==='atk' ? pl.atk  < 500 :
+          (t==='atk' ? pl.atk  < 100 :
            t==='spd' ? pl.bspd < 100 :
                        pl.burst < 10));
         if (avail.length > 0) {
@@ -621,11 +621,11 @@ function update(dt) {
     const ps = proj(p.laneX, p.depth);
     if (Math.hypot(ps.x - pl.screenX, ps.y - (GY - 40)) < 44) {
       switch (p.type) {
-        case 'atk': pl.atk  = Math.min(pl.atk  + 5,  500); break;
+        case 'atk': pl.atk  = Math.min(pl.atk  + 5,  100); break;
         case 'spd': pl.bspd = Math.min(pl.bspd + 5,  100); break;
-        case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.2).toFixed(1)), 10); break;
+        case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.5).toFixed(1)), 10); break;
       }
-      const hitMax = (p.type==='atk' && pl.atk>=500) ||
+      const hitMax = (p.type==='atk' && pl.atk>=100) ||
                      (p.type==='spd' && pl.bspd>=100) ||
                      (p.type==='bsr' && pl.burst>=10);
       pl.notif = { type: hitMax ? `${p.type}_max` : p.type, t: hitMax ? 220 : 130 };
@@ -1375,7 +1375,7 @@ function togglePause() {
 }
 function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
 function dbgVictory()  { gameResult='victory'; gstate='gameover'; snd('gameover'); }
-function dbgAtk(v)  { pl.atk  = Math.max(1, Math.min(500, pl.atk  + v)); }
+function dbgAtk(v)  { pl.atk  = Math.max(1, Math.min(100, pl.atk  + v)); }
 function dbgSpd(v)  { pl.bspd = Math.max(1, Math.min(200, pl.bspd + v)); }
 function dbgSpawn(id) {
   if (gstate !== 'playing') return;
