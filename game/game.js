@@ -48,17 +48,34 @@ const INIT_HP        = 1000;
 const INIT_DEFENSE   = 1000;
 const INIT_ENEMIES   = 10_000_000;
 
+// ─── TGS ブース情報（イベント当日に変更） ────────────────────────────────────
+const TGS_HALL  = '●';   // 例: '1'
+const TGS_BOOTH = '●●';  // 例: '東1ホール N12'
+
+// ─── GameOver ボタン ──────────────────────────────────────────────────────────
+let goBtn1 = null; // 証明書ボタン
+let goBtn2 = null; // リトライボタン
+
+function atkStars(v) {
+  if (v < 20) return 1; if (v < 40) return 2;
+  if (v < 60) return 3; if (v < 80) return 4; return 5;
+}
+function brsStars(v) {
+  if (v < 2) return 1; if (v < 4) return 2;
+  if (v < 6) return 3; if (v < 8) return 4; return 5;
+}
+
 // ─── Enemy Definitions ───────────────────────────────────────────────────────
 const EDEFS = [
-  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:20,  depthSpd:0.000100, dmg:8,  drop:0.12 },
-  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:60,  depthSpd:0.000100, dmg:15, drop:0.15 },
-  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:200, depthSpd:0.000100, dmg:30, drop:0.28 },
-  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:25,  depthSpd:0.000100, dmg:8,  drop:0.12 },
-  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:80,  depthSpd:0.000100, dmg:18, drop:0.18 },
-  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:250, depthSpd:0.000100, dmg:35, drop:0.28 },
-  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:15,  depthSpd:0.000100, dmg:6,  drop:0.10 },
-  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:50,  depthSpd:0.000100, dmg:12, drop:0.15 },
-  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:160, depthSpd:0.000100, dmg:25, drop:0.25 },
+  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:20,   depthSpd:0.000125, dmg:8,  drop:0.12 },
+  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, drop:0.15 },
+  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, drop:0.28 },
+  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:25,   depthSpd:0.000100, dmg:8,  drop:0.12 },
+  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, drop:0.18 },
+  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, drop:0.28 },
+  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:15,   depthSpd:0.000150, dmg:6,  drop:0.10 },
+  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, drop:0.15 },
+  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, drop:0.25 },
 ];
 
 const PU_TYPES = ['atk', 'spd', 'bsr'];
@@ -112,7 +129,12 @@ loadImg('fx_hit_player',      'assets/images/fx_hit_player.png');
 loadImg('fx_hit_bullet',      'assets/images/fx_hit_bullet.png');
 loadImg('notif_atk', 'assets/images/notif_atk.png');
 loadImg('notif_spd', 'assets/images/notif_spd.png');
-loadImg('notif_bsr', 'assets/images/notif_bsr.png');
+loadImg('notif_bsr',        'assets/images/notif_bsr.png');
+loadImg('edf_icon',         'assets/images/edf_icon.png');
+loadImg('cert_count_frame', 'assets/images/cert_count_frame.png');
+loadImg('cert_rank_bar',    'assets/images/cert_rank_bar.png');
+loadImg('cert_stamp',       'assets/images/cert_stamp.png');
+loadImg('cert_bg',          'assets/images/cert_bg.png');
 for (let i = 1; i <= 4; i++) {
   loadImg(`wc${i}`, `assets/images/player/walk_c_${i}.png`);
   loadImg(`wb${i}`, `assets/images/player/walk_b_${i}.png`);
@@ -170,6 +192,7 @@ window.addEventListener('keyup',   e => { keys[e.key] = false; });
 
 canvas.addEventListener('touchstart', e => {
   e.preventDefault(); resume();
+  if (gstate === 'gameover') return;
   const rect = canvas.getBoundingClientRect();
   const tx = (e.touches[0].clientX - rect.left) * (W / rect.width);
   if (tx < W * 0.38)      tryLaneMove(-1);
@@ -177,9 +200,27 @@ canvas.addEventListener('touchstart', e => {
 }, { passive: false });
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
-  if (gstate === 'gameover') resetGame();
+  if (gstate === 'gameover') {
+    const rect = canvas.getBoundingClientRect();
+    const tx = (e.changedTouches[0].clientX - rect.left) * (W / rect.width);
+    const ty = (e.changedTouches[0].clientY - rect.top)  * (H / rect.height);
+    handleGoTap(tx, ty);
+  }
 }, { passive: false });
-canvas.addEventListener('click', () => { resume(); if (gstate === 'gameover') resetGame(); });
+canvas.addEventListener('click', e => {
+  resume();
+  if (gstate === 'gameover') {
+    const rect = canvas.getBoundingClientRect();
+    const tx = (e.clientX - rect.left) * (W / rect.width);
+    const ty = (e.clientY - rect.top)  * (H / rect.height);
+    handleGoTap(tx, ty);
+  }
+});
+function handleGoTap(tx, ty) {
+  const hit = b => b && tx >= b.x && tx <= b.x+b.w && ty >= b.y && ty <= b.y+b.h;
+  if (hit(goBtn1)) shareToX();
+  else if (hit(goBtn2)) resetGame();
+}
 
 function resume() { if (AC.state === 'suspended') AC.resume(); }
 
@@ -439,6 +480,21 @@ function update(dt) {
     if (e.animTimer >= aniRate) { e.animTimer = 0; e.animFrame = (e.animFrame + 1) % 4; }
   }
 
+  // 同一レーン追い越し禁止（手前の敵に追いついたら速度を合わせる）
+  for (let li = 0; li < 3; li++) {
+    const lane = enemies
+      .filter(e => !e.dying && e.laneIndex === li)
+      .sort((a, b) => b.depth - a.depth); // 手前（depth大）→奥（depth小）
+    for (let k = 1; k < lane.length; k++) {
+      const front = lane[k - 1];
+      const back  = lane[k];
+      const minGap = (front.r + back.r) * 0.001;
+      if (back.depth > front.depth - minGap) {
+        back.depth = front.depth - minGap;
+      }
+    }
+  }
+
   // 弾-敵 衝突（線分×円で貫通防止、最手前の敵を優先）
   for (let j = bullets.length - 1; j >= 0; j--) {
     const b = bullets[j];
@@ -548,7 +604,9 @@ function render() {
   } else {
     ctx.fillStyle='#0a0a14'; ctx.fillRect(0,0,W,H);
   }
+  drawEnvWaves();
   ctx.fillStyle='rgba(0,0,0,0.28)'; ctx.fillRect(0,0,W,H);
+  drawEnvFire();
 
   drawGround();
 
@@ -643,7 +701,7 @@ function render() {
     if (e.currentHp < e.hp && !e.dying) {
       ctx.globalAlpha = 1;
       ctx.fillStyle='#222'; ctx.fillRect(es.x-esr, es.y-esr-6, esr*2, 3);
-      ctx.fillStyle='#ff2200'; ctx.fillRect(es.x-esr, es.y-esr-6, esr*2*(e.currentHp/e.hp), 3);
+      ctx.fillStyle='#00dd44'; ctx.fillRect(es.x-esr, es.y-esr-6, esr*2*(e.currentHp/e.hp), 3);
     }
 
 
@@ -767,6 +825,70 @@ function drawBarricades() {
   }
 }
 
+// ─── 環境エフェクト（炎・波）────────────────────────────────────────────────────
+function drawFireZone(zx, zy, zw, zh) {
+  const t = envFireTime;
+  const cols = Math.ceil(zw / 16);
+  for (let i = 0; i < cols; i++) {
+    const cx  = zx + (zw / cols) * (i + 0.5);
+    const fh  = zh * (0.25 + 0.55 * Math.abs(Math.sin(t * 1.4 + i * 1.1)));
+    const fy  = zy + zh - fh;
+    const fw  = (zw / cols) * 0.85;
+    const flk = Math.sin(t * 3.2 + i * 0.9) * 3;
+    const grad = ctx.createLinearGradient(cx, fy + fh, cx, fy);
+    grad.addColorStop(0,   'rgba(255,130,0,0.55)');
+    grad.addColorStop(0.4, 'rgba(255,50,0,0.28)');
+    grad.addColorStop(0.75,'rgba(255,210,0,0.10)');
+    grad.addColorStop(1,   'rgba(255,255,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(cx + flk, fy + fh * 0.5, fw * 0.5, fh * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawEnvFire() {
+  if (!dbgFireWave) return;
+  ctx.save();
+  // 左側ビル群
+  drawFireZone(0,   28, 142, 210);
+  // 右側ビル群
+  drawFireZone(263, 28, 142, 210);
+  // 奥中央ビル群
+  drawFireZone(148, 28, 109, 150);
+  ctx.restore();
+}
+
+function drawWaveZone(wx, wy, ww, wh) {
+  const t = envFireTime;
+  const rows = 7;
+  for (let r = 0; r < rows; r++) {
+    const y     = wy + (wh / rows) * r;
+    const amp   = 1.2 + r * 0.35;
+    const freq  = 0.065 - r * 0.004;
+    const spd   = 1.3 - r * 0.12;
+    const alpha = Math.max(0.03, 0.18 - r * 0.02);
+    ctx.strokeStyle = `rgba(110,175,225,${alpha})`;
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    for (let px = wx; px <= wx + ww; px += 2) {
+      const py = y + Math.sin(px * freq + t * spd) * amp;
+      px === wx ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawEnvWaves() {
+  if (!dbgFireWave) return;
+  ctx.save();
+  // 左水面
+  drawWaveZone(0,   288, 142, 130);
+  // 右水面
+  drawWaveZone(263, 288, 142, 130);
+  ctx.restore();
+}
+
 // ─── Splashes ────────────────────────────────────────────────────────────────
 function drawSplashes() {
   for (const sp of splashes) {
@@ -789,11 +911,9 @@ function drawHUD() {
   ctx.fillText('♟ EDF-007', hx, hy+10);
   const hr=pl.hp/pl.maxHp;
   ctx.fillStyle='#333'; ctx.fillRect(hx, hy+16, 120, 14);
-  ctx.fillStyle=hr>0.6?'#44ee44':hr>0.3?'#eeee44':'#ee4444';
+  ctx.fillStyle=hr>=0.5?'#2266ff':hr>=0.25?'#ff8800':'#ff2200';
   ctx.fillRect(hx, hy+16, 120*hr, 14);
   ctx.strokeStyle='#555'; ctx.lineWidth=1; ctx.strokeRect(hx, hy+16, 120, 14);
-  ctx.fillStyle='#fff'; ctx.font='9px monospace';
-  ctx.fillText(`HP ${pl.hp}/${pl.maxHp}`, hx+2, hy+27);
 
   // ── 防衛力ゲージ（HP バーの下） ──
   const dr = defenseHp / INIT_DEFENSE;
@@ -812,8 +932,6 @@ function drawHUD() {
   ctx.fillStyle=dr>0.6?'#4488ff':dr>0.3?'#ffaa44':'#ff4444';
   ctx.fillRect(hx, hy+60, 120*dr, 12);
   ctx.strokeStyle='#555'; ctx.lineWidth=1; ctx.strokeRect(hx, hy+60, 120, 12);
-  ctx.fillStyle='#fff'; ctx.font='9px monospace';
-  ctx.fillText(`${defenseHp}/${INIT_DEFENSE}`, hx+2, hy+71);
 
   // ── ラウンド情報（上中央） ──
   const cx=W/2;
@@ -914,30 +1032,208 @@ function drawLoading() {
   ctx.textBaseline='middle'; ctx.fillText('LOADING...', W/2, H/2);
 }
 function drawGameOver() {
-  ctx.fillStyle='rgba(0,0,0,0.78)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(0,0,0,0.90)'; ctx.fillRect(0,0,W,H);
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle='#ff2222'; ctx.shadowColor='#ff0000'; ctx.shadowBlur=36;
-  ctx.font='bold 48px monospace'; ctx.fillText('GAME OVER', W/2, H/2-80);
+  const cx = W/2;
+
+  // メインメッセージ
+  ctx.shadowColor='#ffaa00'; ctx.shadowBlur=20;
+  ctx.fillStyle='#ffdd44'; ctx.font='bold 18px sans-serif';
+  ctx.fillText('諸君の勇気ある行動に感謝する！', cx, 110);
   ctx.shadowBlur=0;
+  ctx.fillStyle='#ffaa55'; ctx.font='12px sans-serif';
+  ctx.fillText('I thank you for your courageous', cx, 136);
+  ctx.fillText('actions, soldiers!', cx, 154);
+
+  // 区切り線
+  ctx.strokeStyle='#554422'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(30,172); ctx.lineTo(375,172); ctx.stroke();
+
+  // 到達ラウンド・撃破数
   const goRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
   const goRdLabel = goRd
-    ? (goRd.type === 'wave' ? `WAVE ${goRd.waveNum}` : `ROUND ${goRd.num}`)
+    ? (goRd.type==='wave' ? `WAVE ${goRd.waveNum}` : `ROUND ${goRd.num}`)
     : 'ALL CLEAR!';
-  ctx.fillStyle='#aaa'; ctx.font='14px monospace';
-  ctx.fillText(`到達: ${goRdLabel}`, W/2, H/2-20);
-  ctx.fillStyle='#ff3333'; ctx.font='bold 28px monospace';
-  ctx.fillText(`撃破数: ${(INIT_ENEMIES-enemyCount).toLocaleString()}`, W/2, H/2+16);
-  ctx.fillStyle='#88ccff'; ctx.font='13px monospace';
-  ctx.fillText(`ATK:${pl.atk}  SPD:${pl.bspd}  BRS:${pl.burst}`, W/2, H/2+44);
-  if (Math.floor(Date.now()/500)%2===0) {
-    ctx.fillStyle='#ffff44'; ctx.font='14px monospace';
-    ctx.fillText('タップでリトライ', W/2, H/2+88);
-  }
+  const defeated = INIT_ENEMIES - enemyCount;
+  ctx.fillStyle='#aaa'; ctx.font='13px monospace';
+  ctx.fillText(`到達: ${goRdLabel}`, cx, 196);
+  ctx.fillStyle='#ff9955'; ctx.font='bold 28px monospace';
+  ctx.fillText(`${defeated.toLocaleString()} 匹撃破`, cx, 232);
+
+  // 区切り線
+  ctx.strokeStyle='#554422';
+  ctx.beginPath(); ctx.moveTo(30,256); ctx.lineTo(375,256); ctx.stroke();
+
+  // 能力ランク（星）
+  ctx.fillStyle='#88ccff'; ctx.font='13px sans-serif';
+  ctx.fillText('能力ランク', cx, 278);
+  const s1=atkStars(pl.atk), s2=atkStars(pl.bspd), s3=brsStars(pl.burst);
+  const stars = (n) => '★'.repeat(n)+'☆'.repeat(5-n);
+  ctx.textAlign='left';
+  const rx=80;
+  ctx.fillStyle='#ff8888'; ctx.font='bold 14px monospace'; ctx.fillText('ATK', rx, 305);
+  ctx.fillStyle='#ffdd44'; ctx.font='18px sans-serif'; ctx.fillText(stars(s1), rx+44, 305);
+  ctx.fillStyle='#88aaff'; ctx.font='bold 14px monospace'; ctx.fillText('SPD', rx, 330);
+  ctx.fillStyle='#ffdd44'; ctx.font='18px sans-serif'; ctx.fillText(stars(s2), rx+44, 330);
+  ctx.fillStyle='#88ff88'; ctx.font='bold 14px monospace'; ctx.fillText('BRS', rx, 355);
+  ctx.fillStyle='#ffdd44'; ctx.font='18px sans-serif'; ctx.fillText(stars(s3), rx+44, 355);
+  ctx.textAlign='center';
+
+  // 区切り線
+  ctx.strokeStyle='#554422';
+  ctx.beginPath(); ctx.moveTo(30,375); ctx.lineTo(375,375); ctx.stroke();
+
+  // ボタン1: 証明書
+  const b1x=W/2-145, b1y=392, b1w=290, b1h=78;
+  goBtn1={x:b1x, y:b1y, w:b1w, h:b1h};
+  ctx.fillStyle='rgba(20,60,160,0.92)'; ctx.beginPath();
+  roundedRect(ctx,b1x,b1y,b1w,b1h,8); ctx.fill();
+  ctx.strokeStyle='#5599ff'; ctx.lineWidth=2;
+  roundedRect(ctx,b1x,b1y,b1w,b1h,8); ctx.stroke();
+  ctx.fillStyle='#ffffff'; ctx.font='bold 14px sans-serif';
+  ctx.fillText('次の任務に就く為、証明書を発行', cx, b1y+20);
+  ctx.fillStyle='#aaddff'; ctx.font='11px sans-serif';
+  ctx.fillText('Next Mission Certificate Issued', cx, b1y+40);
+  ctx.fillStyle='#ffff88'; ctx.font='bold 11px sans-serif';
+  ctx.fillText('▶ X (Twitter) へ投稿', cx, b1y+61);
+
+  // ボタン2: リトライ
+  const b2x=W/2-145, b2y=488, b2w=290, b2h=60;
+  goBtn2={x:b2x, y:b2y, w:b2w, h:b2h};
+  ctx.fillStyle='rgba(150,30,30,0.92)'; ctx.beginPath();
+  roundedRect(ctx,b2x,b2y,b2w,b2h,8); ctx.fill();
+  ctx.strokeStyle='#ff6644'; ctx.lineWidth=2;
+  roundedRect(ctx,b2x,b2y,b2w,b2h,8); ctx.stroke();
+  ctx.fillStyle='#ffffff'; ctx.font='bold 14px sans-serif';
+  ctx.fillText('引き続き前線で戦う', cx, b2y+20);
+  ctx.fillStyle='#ffbbaa'; ctx.font='11px sans-serif';
+  ctx.fillText('Continue Fighting on the Front Lines', cx, b2y+42);
+}
+
+function roundedRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x+r, y);
+  c.lineTo(x+w-r, y); c.arcTo(x+w, y, x+w, y+r, r);
+  c.lineTo(x+w, y+h-r); c.arcTo(x+w, y+h, x+w-r, y+h, r);
+  c.lineTo(x+r, y+h); c.arcTo(x, y+h, x, y+h-r, r);
+  c.lineTo(x, y+r); c.arcTo(x, y, x+r, y, r);
+  c.closePath();
+}
+
+// ─── Certificate & Share ─────────────────────────────────────────────────────
+function makeCertificate() {
+  const cc = document.createElement('canvas');
+  cc.width = 405; cc.height = 720;
+  const c = cc.getContext('2d');
+  const defeated = INIT_ENEMIES - enemyCount;
+  const s1=atkStars(pl.atk), s2=atkStars(pl.bspd), s3=brsStars(pl.burst);
+  const stars = n => '★'.repeat(n)+'☆'.repeat(5-n);
+  const goRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
+  const rdLbl = goRd ? (goRd.type==='wave'?`WAVE ${goRd.waveNum}`:`ROUND ${goRd.num}`) : 'ALL CLEAR!';
+
+  // 画像ヘルパー
+  const di = (key,x,y,w,h) => {
+    const im=imgs[key]; if(im?.complete&&im.naturalWidth) c.drawImage(im,x,y,w,h);
+  };
+
+  // 背景（cert_bg.png があれば紙テクスチャ、なければ暗色単色）
+  c.fillStyle='#07070f'; c.fillRect(0,0,405,720);
+  di('cert_bg', 0, 0, 405, 720);
+
+  c.textAlign='center'; c.textBaseline='middle';
+
+  // ── ヘッダー ──
+  c.fillStyle='#ffdd44'; c.font='bold 20px sans-serif';
+  c.fillText('地球防衛軍 作戦報告書', 202, 44);
+  c.fillStyle='#aa8833'; c.font='10px sans-serif';
+  c.fillText('EARTH DEFENSE FORCE  MISSION REPORT', 202, 64);
+  c.strokeStyle='#554422'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(28,76); c.lineTo(377,76); c.stroke();
+
+  // ── EDFアイコン（500×390 → 140×109 で縦横比維持）──
+  di('edf_icon', 202-70, 82, 140, 109);
+
+  // ── 兵士ID ──
+  c.fillStyle='#88ff88'; c.font='bold 14px monospace';
+  c.fillText('♟ EDF-007', 202, 205);
+  c.fillStyle='#888'; c.font='11px sans-serif';
+  c.fillText(`到達: ${rdLbl}`, 202, 223);
+  c.strokeStyle='#332211'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(28,235); c.lineTo(377,235); c.stroke();
+
+  // ── 撃破数 ──
+  c.fillStyle='#ffaa44'; c.font='bold 13px sans-serif';
+  c.fillText('作戦撃破数', 202, 253);
+  di('cert_count_frame', 12, 261, 381, 152);
+  c.fillStyle='#ffffff'; c.font='bold 40px monospace';
+  c.fillText(defeated.toLocaleString(), 202, 337);
+
+  c.strokeStyle='#554422'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(28,421); c.lineTo(377,421); c.stroke();
+
+  // ── 能力ランク ──
+  c.fillStyle='#88ccff'; c.font='bold 13px sans-serif';
+  c.fillText('能力ランク  ABILITY RANK', 202, 441);
+
+  const rows=[
+    {label:'ATK', color:'#ff9988', n:s1},
+    {label:'SPD', color:'#88aaff', n:s2},
+    {label:'BRS', color:'#88ff88', n:s3},
+  ];
+  rows.forEach((row,i)=>{
+    const ry=459+i*54;
+    di('cert_rank_bar', 32, ry, 341, 48);
+    c.fillStyle=row.color; c.font='bold 15px monospace'; c.textAlign='right';
+    c.fillText(row.label, 148, ry+24);
+    c.fillStyle='#ffdd44'; c.font='22px sans-serif'; c.textAlign='left';
+    c.fillText(stars(row.n), 162, ry+24);
+  });
+  c.textAlign='center';
+
+  c.strokeStyle='#554422'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(28,625); c.lineTo(377,625); c.stroke();
+
+  // ── 認定スタンプ ──
+  c.save(); c.globalAlpha=0.82;
+  di('cert_stamp', 202-48, 621, 96, 96);
+  c.restore();
+
+  // ── フッターテキスト ──
+  c.fillStyle='#665522'; c.font='10px sans-serif';
+  c.fillText('地球防衛軍 作戦司令部 認定  /  EDF OPERATIONS CERTIFIED', 202, 683);
+  c.fillStyle='#2a2a3a'; c.font='10px sans-serif';
+  c.fillText('#EDF  #D3P  #TGS2026', 202, 699);
+
+  return cc;
+}
+
+async function shareToX() {
+  const defeated = INIT_ENEMIES - enemyCount;
+  const tweetText =
+    `D3Pブース 第${TGS_HALL}ホール ${TGS_BOOTH}の最前線基地へ応援求む！` +
+    ` ${defeated.toLocaleString()}匹撃破！ #EDF #D3P #TGS2026`;
+  const cc = makeCertificate();
+  cc.toBlob(async blob => {
+    const file = new File([blob], 'edf_certificate.png', { type:'image/png' });
+    if (navigator.canShare?.({ files:[file] })) {
+      try { await navigator.share({ text:tweetText, files:[file] }); return; } catch(e){}
+    }
+    // フォールバック: 画像ダウンロード → Twitter Intent
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='edf_certificate.png'; a.click();
+    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      window.open('https://x.com/intent/tweet?text='+encodeURIComponent(tweetText), '_blank');
+    }, 600);
+  }, 'image/png');
 }
 
 // ─── Debug ────────────────────────────────────────────────────────────────────
 let paused = false;
 let enemySpeedMult = 1.0;
+let dbgFireWave = false;
+let envFireTime  = 0;
 
 function toggleDebug() {
   const p = document.getElementById('dbgPanel');
@@ -947,6 +1243,7 @@ function togglePause() {
   paused = !paused;
   document.getElementById('dbgPauseBtn').textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
 }
+function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
 function dbgAtk(v)  { pl.atk  = Math.max(1, Math.min(500, pl.atk  + v)); }
 function dbgSpd(v)  { pl.bspd = Math.max(1, Math.min(200, pl.bspd + v)); }
 function dbgSpawn(id) {
@@ -964,11 +1261,17 @@ function dbgEnemySpd(mult) {
   document.getElementById('dbgSpdLabel').textContent = mult + 'x';
   document.getElementById('dbgSpdVal').textContent = (0.000100 * mult).toFixed(6);
 }
+function toggleFireWave() {
+  dbgFireWave = !dbgFireWave;
+  const btn = document.getElementById('dbgFireWaveBtn');
+  if (btn) btn.textContent = dbgFireWave ? '🔥 炎・波 ON' : '🔥 炎・波 OFF';
+}
 window.addEventListener('keydown', e => { if (e.key === 'd' || e.key === 'D') toggleDebug(); });
 
 // ─── Main Loop ────────────────────────────────────────────────────────────────
 function loop(ts) {
   const dt=Math.min(ts-lastTs,50); lastTs=ts;
+  envFireTime += dt * 0.001;
   if (gstate==='loading' && loaded>=toLoad) gstate='playing';
   if (gstate==='playing' && !paused) update(dt);
   render();
