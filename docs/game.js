@@ -1311,7 +1311,7 @@ async function shareToX() {
 }
 
 // ─── Debug ────────────────────────────────────────────────────────────────────
-let paused = false;
+let paused = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 let enemySpeedMult = 1.0;
 let dbgFireWave = false;
 let envFireTime  = 0;
