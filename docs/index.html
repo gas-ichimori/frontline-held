@@ -228,6 +228,12 @@
 <body>
   <canvas id="gameCanvas"></canvas>
 
+  <!-- BGM: docs/assets/audio/bgm.mp3 を配置してください -->
+  <audio id="bgm" loop preload="auto">
+    <source src="assets/audio/bgm.mp3" type="audio/mpeg">
+    <source src="assets/audio/bgm.ogg" type="audio/ogg">
+  </audio>
+
   <!-- スマホ：タップして全画面スタート -->
   <div id="fsOverlay">
     <div class="fs-bg"></div>
@@ -412,6 +418,9 @@
       // ゲームのポーズを解除
       if (typeof paused !== 'undefined') paused = false;
       if (typeof resume === 'function') resume();
+      // BGM 再生（うっすら）
+      const bgm = document.getElementById('bgm');
+      if (bgm) { bgm.volume = 0.15; bgm.play().catch(()=>{}); }
       try {
         const el = document.documentElement;
         if (el.requestFullscreen)            await el.requestFullscreen();

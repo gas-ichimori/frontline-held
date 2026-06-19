@@ -203,6 +203,10 @@ canvas.addEventListener('touchstart', e => {
   if (gstate === 'gameover') return;
   const rect = canvas.getBoundingClientRect();
   const tx = (e.touches[0].clientX - rect.left) * (W / rect.width);
+  const ty = (e.touches[0].clientY - rect.top)  * (H / rect.height);
+  // バリケードエリア（画面下部）タップでPAUSE
+  if (gstate === 'playing' && ty > H - 70) { togglePause(); return; }
+  if (paused) return;
   if (tx < W * 0.38)      tryLaneMove(-1);
   else if (tx > W * 0.62) tryLaneMove(+1);
 }, { passive: false });
@@ -217,12 +221,11 @@ canvas.addEventListener('touchend', e => {
 }, { passive: false });
 canvas.addEventListener('click', e => {
   resume();
-  if (gstate === 'gameover') {
-    const rect = canvas.getBoundingClientRect();
-    const tx = (e.clientX - rect.left) * (W / rect.width);
-    const ty = (e.clientY - rect.top)  * (H / rect.height);
-    handleGoTap(tx, ty);
-  }
+  const rect = canvas.getBoundingClientRect();
+  const tx = (e.clientX - rect.left) * (W / rect.width);
+  const ty = (e.clientY - rect.top)  * (H / rect.height);
+  if (gstate === 'gameover') { handleGoTap(tx, ty); return; }
+  if (gstate === 'playing' && ty > H - 70) togglePause();
 });
 function handleGoTap(tx, ty) {
   const hit = b => b && tx >= b.x && tx <= b.x+b.w && ty >= b.y && ty <= b.y+b.h;
@@ -797,6 +800,23 @@ function render() {
 
   if (gstate==='loading')  drawLoading();
   if (gstate==='gameover') drawGameOver();
+  if (gstate==='playing' && paused) drawPause();
+}
+
+function drawPause() {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 20;
+  ctx.fillStyle = '#ffdd44'; ctx.font = 'bold 48px monospace';
+  ctx.fillText('⏸', W/2, H/2 - 24);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px sans-serif';
+  ctx.fillText('PAUSE', W/2, H/2 + 22);
+  ctx.fillStyle = '#aaa'; ctx.font = '12px sans-serif';
+  ctx.fillText('バリケードをタップして再開', W/2, H/2 + 50);
+  ctx.restore();
 }
 
 // ─── Ground ───────────────────────────────────────────────────────────────────
@@ -865,6 +885,14 @@ function drawBarricades() {
       ctx.fillRect(bx, ty, bw, bh);
     }
   }
+  // 中央バリケードにPAUSEヒント
+  const ccx = laneScreenX(1) + laneOffset[1];
+  ctx.save();
+  ctx.globalAlpha = paused ? 0.9 : 0.35;
+  ctx.fillStyle = paused ? '#ffdd44' : '#ffffff';
+  ctx.font = '11px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('⏸', ccx, H - 30);
+  ctx.restore();
 }
 
 // ─── 環境エフェクト（炎・波）────────────────────────────────────────────────────
@@ -1325,6 +1353,8 @@ function toggleDebug() {
 function togglePause() {
   paused = !paused;
   document.getElementById('dbgPauseBtn').textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
+  const bgm = document.getElementById('bgm');
+  if (bgm) { paused ? bgm.pause() : bgm.play().catch(()=>{}); }
 }
 function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
 function dbgVictory()  { gameResult='victory'; gstate='gameover'; snd('gameover'); }
