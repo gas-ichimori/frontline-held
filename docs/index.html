@@ -327,13 +327,13 @@
 
     <!-- バースト連射数 -->
     <div class="dbg-section">
-      <div class="dbg-label">バースト連射数 (1サイクルで何発)</div>
+      <div class="dbg-label">バースト連射数 (BRS: <span id="dbgBrs">-</span>)</div>
       <div class="dbg-row">
         <button class="dbg-btn" onclick="dbgBurst(1)">1発</button>
         <button class="dbg-btn" onclick="dbgBurst(2)">2連射</button>
         <button class="dbg-btn" onclick="dbgBurst(3)">3連射</button>
         <button class="dbg-btn" onclick="dbgBurst(5)">5連射</button>
-        <button class="dbg-btn" onclick="dbgBurst(10)">10連射</button>
+        <button class="dbg-btn" style="border-color:#44ff66;color:#44ff66;" onclick="dbgBurst(10)">MAX (10)</button>
       </div>
     </div>
 
@@ -390,8 +390,10 @@
       if (typeof pl === 'undefined') return;
       const a = document.getElementById('dbgAtk');
       const s = document.getElementById('dbgSpd');
+      const b = document.getElementById('dbgBrs');
       if (a) a.textContent = pl.atk;
       if (s) s.textContent = pl.bspd;
+      if (b) b.textContent = pl.burst.toFixed(1);
     }, 200);
   </script>
 
