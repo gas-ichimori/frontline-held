@@ -324,7 +324,7 @@ const ROUNDS = [
     { until:60000, batch:4, pool:'sml', interval:300 },
   ]},
   // index 5
-  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:200, batch:5, hpMult:2.0 },
+  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:200, batch:5, hpMult:3.0 },
   // index 6
   { type:'round', num:5, dur:60000, phases:[
     { until:20000, batch:4, pool:'sml', interval:200 },
@@ -332,7 +332,7 @@ const ROUNDS = [
     { until:60000, batch:4, pool:'sml', interval:200 },
   ]},
   // index 7 ― LAST Wave 後は Round 3（index=3）に戻ってループ
-  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:5, loopTo:3, hpMult:3.0 },
+  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:5, loopTo:3, hpMult:5.0 },
 ];
 
 function getPool(key) {
@@ -1103,6 +1103,27 @@ function drawHUD() {
   ctx.fillRect(hx, hy+60, 120*dr, 12);
   ctx.strokeStyle='#555'; ctx.lineWidth=1; ctx.strokeRect(hx, hy+60, 120, 12);
 
+  // ── MAX アイコン（DEFENCE ゲージ下） ──
+  const atkCap = loopCount > 0 ? 500 : 100;
+  const maxDefs = [
+    { key:'notif_atk_max', show: pl.atk  >= atkCap },
+    { key:'notif_spd_max', show: pl.bspd >= 100 },
+    { key:'notif_bsr_max', show: pl.burst >= 10 },
+  ];
+  const iconSz = 26, iconY = hy + 76;
+  maxDefs.forEach(({ key, show }, i) => {
+    if (!show) return;
+    const im = imgs[key];
+    const ix = hx + i * (iconSz + 3);
+    if (im?.complete && im.naturalWidth) {
+      ctx.drawImage(im, ix, iconY, iconSz, iconSz);
+    } else {
+      ctx.fillStyle = ['#ff4444','#44aaff','#44ff44'][i];
+      ctx.font = 'bold 8px monospace'; ctx.textAlign = 'left';
+      ctx.fillText(['ATK','SPD','BRS'][i], ix, iconY + 10);
+    }
+  });
+
   // ── ラウンド情報（上中央） ──
   const cx=W/2;
   const curRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
@@ -1458,7 +1479,9 @@ function togglePause() {
 }
 function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
 function dbgVictory()  { gameResult='victory'; gstate='gameover'; snd('gameover'); }
-function dbgAtk(v)  { pl.atk  = Math.max(1, Math.min(100, pl.atk  + v)); }
+function dbgAtk(v)  { const cap = loopCount > 0 ? 500 : 100; pl.atk = Math.max(1, Math.min(cap, pl.atk + v)); }
+function dbgLoop()  { loopCount = 1; hpBonus = 2000; pl.atk = Math.min(pl.atk, 100); }
+function dbgDwn()   { dwnWarning = 2000; snd('dwn_warning'); }
 function dbgSpd(v)  { pl.bspd = Math.max(1, Math.min(200, pl.bspd + v)); }
 function dbgSpawn(id) {
   if (gstate !== 'playing') return;
