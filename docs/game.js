@@ -67,13 +67,13 @@ function brsStars(v) {
 
 // ─── Enemy Definitions ───────────────────────────────────────────────────────
 const EDEFS = [
-  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:10,   depthSpd:0.000125, dmg:8,  drop:0.15 },
+  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:10,   depthSpd:0.000125, dmg:8,  drop:0.05 },
   { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, drop:0.30 },
   { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, drop:0.50 },
-  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:12,   depthSpd:0.000100, dmg:8,  drop:0.20 },
+  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:15,   depthSpd:0.000100, dmg:8,  drop:0.10 },
   { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, drop:0.40 },
   { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, drop:0.50 },
-  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:8,    depthSpd:0.000150, dmg:6,  drop:0.15 },
+  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:10,   depthSpd:0.000150, dmg:6,  drop:0.05 },
   { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, drop:0.25 },
   { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, drop:0.40 },
 ];
@@ -302,12 +302,12 @@ const ROUNDS = [
   ]},
   // index 1
   { type:'round', num:2, dur:60000, phases:[
-    { until:20000, batch:2, pool:'s',   interval:700 },
-    { until:40000, batch:2, pool:'sm',  interval:700 },
-    { until:60000, batch:2, pool:'sml', interval:700 },
+    { until:20000, batch:3, pool:'s',   interval:400 },
+    { until:40000, batch:3, pool:'sm',  interval:400 },
+    { until:60000, batch:3, pool:'sml', interval:400 },
   ]},
   // index 2
-  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:3 },
+  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:3, hpMult:1.5 },
   // index 3
   { type:'round', num:3, dur:60000, phases:[
     { until:20000, batch:2, pool:'sm',  interval:700 },
@@ -321,7 +321,7 @@ const ROUNDS = [
     { until:60000, batch:3, pool:'sml', interval:500 },
   ]},
   // index 5
-  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:300, batch:3 },
+  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:300, batch:3, hpMult:2.0 },
   // index 6
   { type:'round', num:5, dur:60000, phases:[
     { until:20000, batch:3, pool:'sml', interval:500 },
@@ -329,7 +329,7 @@ const ROUNDS = [
     { until:60000, batch:3, pool:'sml', interval:300 },
   ]},
   // index 7 ― LAST Wave 後は Round 3（index=3）に戻ってループ
-  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:3, loopTo:3 },
+  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:3, loopTo:3, hpMult:3.0 },
 ];
 
 function getPool(key) {
@@ -340,10 +340,10 @@ function getPool(key) {
 }
 
 // ─── Spawn ────────────────────────────────────────────────────────────────────
-function spawnEnemy(pool) {
+function spawnEnemy(pool, hpMult = 1) {
   const def = pool[Math.floor(Math.random() * pool.length)];
   const li  = Math.floor(Math.random() * 3);
-  const totalHp = def.hp + hpBonus;
+  const totalHp = Math.round(def.hp * hpMult) + hpBonus;
   enemies.push({
     ...def, laneIndex: li, laneX: LANE_X[li],
     depth: 0.05, hp: totalHp, currentHp: totalHp, hitFx: 0,
@@ -492,7 +492,8 @@ function update(dt) {
     spawnTmr += dt;
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
-      for (let i = 0; i < batch && enemies.length < 120; i++) spawnEnemy(pool);
+      const wm = rd.hpMult || 1;
+      for (let i = 0; i < batch && enemies.length < 120; i++) spawnEnemy(pool, wm);
     }
   }
 
