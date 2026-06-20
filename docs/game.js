@@ -497,11 +497,20 @@ function update(dt) {
     const atkCap2 = loopCount > 0 ? 500 : 100;
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
     if (rd.type === 'wave' && rd.waveNum === 1) {
-      // WAVE 1 専用: MAXアイテム数で段階変化
+      // WAVE 1 専用
       if      (maxed2 >= 3) { batch = 3; interval = 250; }
       else if (maxed2 >= 2) { batch = 2; interval = 250; }
       else if (maxed2 >= 1) { batch = 2; interval = 275; }
-      // 0個は ROUNDS の batch:2 / interval:300 をそのまま使用
+    } else if (rd.type === 'round' && rd.num === 1) {
+      // Round 1 専用
+      if      (maxed2 >= 3) { batch = 2; interval = 350; }
+      else if (maxed2 >= 2) { batch = 2; interval = 400; }
+      else if (maxed2 >= 1) { batch = 2; interval = 450; }
+    } else if (rd.type === 'round' && rd.num === 2) {
+      // Round 2 専用
+      if      (maxed2 >= 3) { batch = 3; interval = 350; }
+      else if (maxed2 >= 2) { batch = 2; interval = 400; }
+      else if (maxed2 >= 1) { batch = 2; interval = 450; }
     } else {
       if      (maxed2 >= 3) { batch = Math.ceil(batch * 2.5); interval = Math.min(interval, 100); }
       else if (maxed2 >= 2) { batch = Math.ceil(batch * 2.0); interval = Math.min(interval, 200); }
