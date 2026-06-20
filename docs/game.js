@@ -497,9 +497,9 @@ function update(dt) {
     }
     const atkCap2 = loopCount > 0 ? 500 : 100;
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
-    if      (maxed2 >= 3) { batch = Math.ceil(batch * 8); interval = Math.min(interval, 100); }
-    else if (maxed2 >= 2) { batch = Math.ceil(batch * 4); interval = Math.min(interval, 200); }
-    else if (maxed2 >= 1) { batch = Math.ceil(batch * 2); interval = Math.min(interval, 250); }
+    if      (maxed2 >= 3) { batch = Math.ceil(batch * 2.5); interval = Math.min(interval, 100); }
+    else if (maxed2 >= 2) { batch = Math.ceil(batch * 2.0); interval = Math.min(interval, 200); }
+    else if (maxed2 >= 1) { batch = Math.ceil(batch * 1.5); interval = Math.min(interval, 250); }
     spawnTmr += dt;
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
