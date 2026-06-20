@@ -67,13 +67,13 @@ function brsStars(v) {
 
 // ─── Enemy Definitions ───────────────────────────────────────────────────────
 const EDEFS = [
-  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:20,   depthSpd:0.000125, dmg:8,  drop:0.15 },
+  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:10,   depthSpd:0.000125, dmg:8,  drop:0.15 },
   { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, drop:0.30 },
   { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, drop:0.50 },
-  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:25,   depthSpd:0.000100, dmg:8,  drop:0.20 },
+  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:12,   depthSpd:0.000100, dmg:8,  drop:0.20 },
   { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, drop:0.40 },
   { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, drop:0.50 },
-  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:15,   depthSpd:0.000150, dmg:6,  drop:0.15 },
+  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:8,    depthSpd:0.000150, dmg:6,  drop:0.15 },
   { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, drop:0.25 },
   { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, drop:0.40 },
 ];
@@ -169,7 +169,7 @@ let spawnTmr    = 0;
 let radarAng    = 0;
 let roundIdx      = 0;
 let roundTimer    = 0;
-let roundBanner   = { text:'ROUND 1', timer:2500, color:'#ffdd00' };
+let roundBanner   = { text:'ROUND 1', timer:1500, color:'#ffdd00' };
 let bgScroll      = 0;
 let defenseHp     = INIT_DEFENSE;
 let loopCount     = 0;   // LAST WAVE 通過回数
@@ -204,16 +204,16 @@ canvas.addEventListener('touchstart', e => {
   const rect = canvas.getBoundingClientRect();
   const tx = (e.touches[0].clientX - rect.left) * (W / rect.width);
   const ty = (e.touches[0].clientY - rect.top)  * (H / rect.height);
+  // レーダー（右上）タップ → PAUSE
+  if (gstate === 'playing' && tx > W - 94 && ty < 99) { togglePause(); return; }
   // バリケードエリア（画面下部）タップ
   if (gstate === 'playing' && ty > H - 70) {
-    if (tx > W * 0.68) {                             // 右バリケード → DEBUG
+    const isMob = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (!isMob && tx > W * 0.68) {  // デスクトップのみ右バリケード → DEBUG
       if (typeof toggleDebug === 'function') toggleDebug();
       return;
-    } else if (tx >= W * 0.40 && tx <= W * 0.60) {  // 中央バリケード → PAUSE
-      togglePause();
-      return;
     }
-    // 左・右端はそのまま通常の移動処理へ
+    // 左・右端はそのまま通常の移動処理へ（中央バリケードPAUSEは廃止）
   }
   if (paused) return;
   if (tx < W * 0.38)      tryLaneMove(-1);
@@ -234,9 +234,9 @@ canvas.addEventListener('click', e => {
   const tx = (e.clientX - rect.left) * (W / rect.width);
   const ty = (e.clientY - rect.top)  * (H / rect.height);
   if (gstate === 'gameover') { handleGoTap(tx, ty); return; }
-  if (gstate === 'playing' && ty > H - 70) {
-    if (tx > W * 0.68) { if (typeof toggleDebug === 'function') toggleDebug(); }
-    else if (tx >= W * 0.40 && tx <= W * 0.60) togglePause();
+  if (gstate === 'playing' && tx > W - 94 && ty < 99) { togglePause(); return; }
+  if (gstate === 'playing' && ty > H - 70 && tx > W * 0.68) {
+    if (typeof toggleDebug === 'function') toggleDebug();
   }
 });
 function handleGoTap(tx, ty) {
@@ -296,7 +296,7 @@ function segCircleHit(ax, ay, bx, by, cx, cy, r) {
 const ROUNDS = [
   // index 0
   { type:'round', num:1, dur:60000, phases:[
-    { until:20000, batch:1, pool:'s',   interval:700 },
+    { until:20000, batch:2, pool:'s',   interval:500 },
     { until:40000, batch:2, pool:'s',   interval:700 },
     { until:60000, batch:2, pool:'sm',  interval:700 },
   ]},
@@ -399,7 +399,7 @@ function resetGame() {
   roundIdx=0; roundTimer=0; bgScroll=0;
   defenseHp=INIT_DEFENSE;
   loopCount=0; hpBonus=0; gameResult='defeat';
-  roundBanner={ text:'ROUND 1', timer:2500, color:'#ffdd00' };
+  roundBanner={ text:'ROUND 1', timer:1500, color:'#ffdd00' };
   gstate='playing';
 }
 
@@ -469,7 +469,7 @@ function update(dt) {
         : (ROUNDS[roundIdx].label || 'WAVE!!');
       const bannerColor = loopCount > 0 ? '#44ffaa'
         : ROUNDS[roundIdx].type === 'round' ? '#ffdd00' : '#ff4444';
-      roundBanner = { text:bannerText, timer:2500, color:bannerColor };
+      roundBanner = { text:bannerText, timer:1500, color:bannerColor };
     } else {
       roundBanner = { text:'ALL CLEAR!', timer:5000, color:'#44ff88' };
     }
@@ -898,19 +898,16 @@ function drawBarricades() {
       ctx.fillRect(bx, ty, bw, bh);
     }
   }
-  // 中央バリケード：PAUSEヒント
-  const ccx = laneScreenX(1) + laneOffset[1];
-  // 右バリケード：DEBUGヒント
-  const rcx = laneScreenX(2) + laneOffset[2];
-  ctx.save();
-  ctx.font = '11px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.globalAlpha = paused ? 0.9 : 0.35;
-  ctx.fillStyle = paused ? '#ffdd44' : '#ffffff';
-  ctx.fillText('⏸', ccx, H - 30);
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = '#88ff88';
-  ctx.fillText('DBG', rcx, H - 30);
-  ctx.restore();
+  // 右バリケード：デスクトップのみDBGヒント
+  const isMob = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  if (!isMob) {
+    const dbgX = laneScreenX(2) + laneOffset[2];
+    ctx.save();
+    ctx.globalAlpha = 0.35; ctx.fillStyle = '#88ff88';
+    ctx.font = '11px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('DBG', dbgX, H - 30);
+    ctx.restore();
+  }
 }
 
 // ─── 環境エフェクト（炎・波）────────────────────────────────────────────────────
@@ -1134,7 +1131,7 @@ function drawRadar() {
   ctx.beginPath(); ctx.arc(rcx,rcy,rr,0,Math.PI*2); ctx.stroke();
   ctx.restore();
   ctx.fillStyle='#00ff44'; ctx.font='8px monospace'; ctx.textAlign='center';
-  ctx.fillText('RADAR', rcx, rcy+rr+11);
+  ctx.fillText(paused ? '▶ RESUME' : 'RADAR', rcx, rcy+rr+11);
 }
 
 // ─── Screens ─────────────────────────────────────────────────────────────────
