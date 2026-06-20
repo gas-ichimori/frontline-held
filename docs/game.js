@@ -341,12 +341,13 @@ function getPool(key) {
 }
 
 // ─── Spawn ────────────────────────────────────────────────────────────────────
-function spawnEnemy(pool, hpMult = 1) {
+function spawnEnemy(pool, hpMult = 1, maxMultOverride = null) {
   const def = pool[Math.floor(Math.random() * pool.length)];
   const li  = Math.floor(Math.random() * 3);
   const atkCap = loopCount > 0 ? 500 : 100;
   const maxed = (pl.atk >= atkCap ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
-  const maxMult = maxed >= 3 ? 5 : maxed >= 2 ? 7.5 : maxed >= 1 ? 5 : 1;
+  const maxMult = maxMultOverride !== null ? maxMultOverride
+    : (maxed >= 3 ? 5 : maxed >= 2 ? 7.5 : maxed >= 1 ? 5 : 1);
   const totalHp = Math.round(def.hp * hpMult * maxMult) + hpBonus;
   enemies.push({
     ...def, laneIndex: li, laneX: LANE_X[li],
@@ -510,7 +511,9 @@ function update(dt) {
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
       const wm = rd.hpMult || 1;
-      for (let i = 0; i < batch && enemies.length < 120; i++) spawnEnemy(pool, wm);
+      // WAVE 1 / 3MAX時はmaxMultを2に固定
+      const mmOvr = (rd.type === 'wave' && rd.waveNum === 1 && maxed2 >= 3) ? 2 : null;
+      for (let i = 0; i < batch && enemies.length < 120; i++) spawnEnemy(pool, wm, mmOvr);
     }
   }
 
