@@ -310,7 +310,7 @@ const ROUNDS = [
     { until:60000, batch:3, pool:'sm',  interval:400 },
   ]},
   // index 2
-  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:4, hpMult:1.5 },
+  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:4, hpMult:1.25 },
   // index 3
   { type:'round', num:3, dur:60000, phases:[
     { until:20000, batch:3, pool:'sm',  interval:400 },
