@@ -343,7 +343,10 @@ function getPool(key) {
 function spawnEnemy(pool, hpMult = 1) {
   const def = pool[Math.floor(Math.random() * pool.length)];
   const li  = Math.floor(Math.random() * 3);
-  const totalHp = Math.round(def.hp * hpMult) + hpBonus;
+  const atkCap = loopCount > 0 ? 500 : 100;
+  const maxed = (pl.atk >= atkCap ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
+  const maxMult = maxed >= 3 ? 10 : maxed >= 2 ? 7.5 : maxed >= 1 ? 5 : 1;
+  const totalHp = Math.round(def.hp * hpMult * maxMult) + hpBonus;
   enemies.push({
     ...def, laneIndex: li, laneX: LANE_X[li],
     depth: 0.05, hp: totalHp, currentHp: totalHp, hitFx: 0,
@@ -568,8 +571,15 @@ function update(dt) {
       e.r > 30 ? snd('die_l') : e.r > 18 ? snd('die_m') : snd('die_s');
       enemyCount = Math.max(0, enemyCount - 1);
       const dropRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
-      if (Math.random() < rnd(e.dropMin, e.dropMax) && dropRd?.type !== 'wave') {
-        const atkMax = loopCount > 0 ? 500 : 100;
+      const _atkMax = loopCount > 0 ? 500 : 100;
+      const _prog = ((pl.atk - INIT_ATK) / (_atkMax - INIT_ATK)
+                   + (pl.bspd - INIT_BSPD) / (100 - INIT_BSPD)
+                   + (pl.burst - INIT_BCNT) / (10 - INIT_BCNT)) / 3;
+      const _dropRate = _prog >= 0.5
+        ? (e.dropMin + e.dropMax) / 2
+        : rnd(e.dropMin, e.dropMax);
+      if (Math.random() < _dropRate && dropRd?.type !== 'wave') {
+        const atkMax = _atkMax;
         const avail = PU_TYPES.filter(t =>
           (t==='atk' ? pl.atk  < atkMax :
            t==='spd' ? pl.bspd < 100 :
