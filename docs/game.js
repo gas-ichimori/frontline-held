@@ -525,9 +525,9 @@ function update(dt) {
       const isEarlyStage = (rd.type === 'round' && (rd.num === 1 || rd.num === 2))
                         || (rd.type === 'wave'  && rd.waveNum === 1);
       if (isEarlyStage) {
-        if      (maxed2 >= 3) mmOvr = 1.2;
-        else if (maxed2 >= 2) mmOvr = 1.15;
-        else if (maxed2 >= 1) mmOvr = 1.1;
+        if      (maxed2 >= 3) mmOvr = 2.0;
+        else if (maxed2 >= 2) mmOvr = 1.75;
+        else if (maxed2 >= 1) mmOvr = 1.5;
       }
       for (let i = 0; i < batch && enemies.length < 120; i++) spawnEnemy(pool, wm, mmOvr);
     }
