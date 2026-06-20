@@ -1116,7 +1116,7 @@ function drawHUD() {
     if (!show) return;
     const im = imgs[maxImgKeys[i]];
     if (!im?.complete || !im.naturalWidth) return;
-    ctx.drawImage(im, hx + i * (iconSz + iconGap), iconY, iconSz, iconSz);
+    ctx.drawImage(im, hx, iconY + i * (iconSz + iconGap), iconSz, iconSz);
   });
 
   // ── ラウンド情報（上中央） ──
