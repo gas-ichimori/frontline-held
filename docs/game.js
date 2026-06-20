@@ -1112,11 +1112,12 @@ function drawHUD() {
   ];
   const iconSz = 52, iconGap = 4, iconY = hy + 78;
   const maxImgKeys = ['notif_atk_max', 'notif_spd_max', 'notif_bsr_max'];
+  const iconExtraY = [0, 0, 14]; // BRS MAX を14px下にずらす
   maxBadges.forEach(({ show }, i) => {
     if (!show) return;
     const im = imgs[maxImgKeys[i]];
     if (!im?.complete || !im.naturalWidth) return;
-    ctx.drawImage(im, hx, iconY + i * (iconSz + iconGap), iconSz, iconSz);
+    ctx.drawImage(im, hx, iconY + i * (iconSz + iconGap) + iconExtraY[i], iconSz, iconSz);
   });
 
   // ── ラウンド情報（上中央） ──
@@ -1166,7 +1167,8 @@ function drawHUD() {
     ctx.globalAlpha = Math.min(1, pl.notif.t / 30);
     if (notifImg?.complete && notifImg.naturalWidth) {
       const ns = isMax ? 210 : 160;
-      ctx.drawImage(notifImg, W/2 - ns/2, 120, ns, ns);
+      const notifY = (pl.notif.type === 'spd' || pl.notif.type === 'spd_max') ? 115 : 120;
+      ctx.drawImage(notifImg, W/2 - ns/2, notifY, ns, ns);
     } else {
       ctx.fillStyle='#ffff44'; ctx.shadowColor='#ff8800'; ctx.shadowBlur=20;
       ctx.font='bold 20px monospace'; ctx.textAlign='center';
