@@ -67,20 +67,20 @@ function brsStars(v) {
 
 // ─── Enemy Definitions ───────────────────────────────────────────────────────
 const EDEFS = [
-  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:10,   depthSpd:0.000125, dmg:8,  dropMin:0.08, dropMax:0.15 },
-  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, dropMin:0.15, dropMax:0.30 },
-  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, dropMin:0.30, dropMax:0.40 },
-  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:15,   depthSpd:0.000100, dmg:8,  dropMin:0.10, dropMax:0.15 },
-  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, dropMin:0.15, dropMax:0.40 },
-  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, dropMin:0.30, dropMax:0.50 },
-  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:10,   depthSpd:0.000150, dmg:6,  dropMin:0.08, dropMax:0.15 },
-  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, dropMin:0.15, dropMax:0.30 },
-  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, dropMin:0.30, dropMax:0.40 },
+  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:10,   depthSpd:0.000125, dmg:8,  dropMin:0.05, dropMax:0.10 },
+  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, dropMin:0.10, dropMax:0.20 },
+  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, dropMin:0.20, dropMax:0.30 },
+  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:15,   depthSpd:0.000100, dmg:8,  dropMin:0.05, dropMax:0.15 },
+  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, dropMin:0.15, dropMax:0.25 },
+  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, dropMin:0.25, dropMax:0.35 },
+  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:10,   depthSpd:0.000150, dmg:6,  dropMin:0.05, dropMax:0.10 },
+  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, dropMin:0.10, dropMax:0.20 },
+  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, dropMin:0.20, dropMax:0.30 },
 ];
 
 const PU_TYPES = ['atk', 'spd', 'bsr'];
-const PU_COLOR = { atk:'#ff4444', spd:'#44aaff', bsr:'#44ff44' };
-const PU_LABEL = { atk:'ATK ↑', spd:'SPD ↑', bsr:'BRS ↑', atk_max:'ATK MAX!', spd_max:'SPD MAX!', bsr_max:'BRS MAX!' };
+const PU_COLOR = { atk:'#ff4444', spd:'#44aaff', bsr:'#44ff44', dwn:'#aa00ff' };
+const PU_LABEL = { atk:'ATK ↑', spd:'SPD ↑', bsr:'BRS ↑', atk_max:'ATK MAX!', spd_max:'SPD MAX!', bsr_max:'BRS MAX!', dwn:'DWN ↓' };
 
 // ─── Audio ───────────────────────────────────────────────────────────────────
 const AC = new (window.AudioContext || window['webkitAudioContext'])();
@@ -103,7 +103,9 @@ function snd(name) {
     case 'die_s':    beep({ f:580, f2:160, dur:0.10, vol:0.10 }); break;
     case 'die_m':    beep({ type:'square', f:240, f2:55, dur:0.22, vol:0.18 }); break;
     case 'die_l':    beep({ type:'sawtooth', f:110, f2:25, dur:0.48, vol:0.30 }); break;
-    case 'powerup':  [0,0.10,0.20].forEach((d,i)=>beep({ f:[440,550,660][i], dur:0.15, vol:0.15, delay:d })); break;
+    case 'powerup':     [0,0.10,0.20].forEach((d,i)=>beep({ f:[440,550,660][i], dur:0.15, vol:0.15, delay:d })); break;
+    case 'powerdown':   [0,0.10,0.20].forEach((d,i)=>beep({ f:[660,550,440][i], dur:0.15, vol:0.22, delay:d })); break;
+    case 'dwn_warning': [0,0.15,0.30,0.45,0.60].forEach((d,i)=>beep({ f:i%2===0?920:660, dur:0.14, vol:0.28, delay:d })); break;
     case 'damage':   beep({ type:'square', f:75, dur:0.14, vol:0.25 }); break;
     case 'gameover': beep({ type:'sawtooth', f:170, f2:38, dur:1.6, vol:0.30 }); break;
     case 'lanemove': beep({ type:'sine', f:660, f2:880, dur:0.06, vol:0.08 }); break;
@@ -154,7 +156,7 @@ for (const t of ['ant_s','ant_m','ant_l','spider_s','spider_m','spider_l','bee_s
 }
 loadImg('hit1', 'assets/images/hit_1.png');
 loadImg('hit2', 'assets/images/hit_2.png');
-for (const type of ['atk', 'spd', 'bsr']) {
+for (const type of ['atk', 'spd', 'bsr', 'dwn']) {
   loadImg(`item_${type}_fall1`, `assets/images/item_${type}_fall_1.png`);
   loadImg(`item_${type}_fall2`, `assets/images/item_${type}_fall_2.png`);
   loadImg(`item_${type}_land`,  `assets/images/item_${type}_land.png`);
@@ -175,6 +177,7 @@ let defenseHp     = INIT_DEFENSE;
 let loopCount     = 0;   // LAST WAVE 通過回数
 let hpBonus       = 0;   // LAST WAVE ごとに +2000
 let gameResult    = 'defeat'; // 'defeat' | 'victory'
+let dwnWarning    = 0;   // ATK MAX in STAGE∞ → 2秒警告タイマー(ms)
 // barricadeHitFx removed
 
 const pl = {
@@ -307,7 +310,7 @@ const ROUNDS = [
     { until:60000, batch:3, pool:'sml', interval:400 },
   ]},
   // index 2
-  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:3, hpMult:1.5 },
+  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:4, hpMult:1.5 },
   // index 3
   { type:'round', num:3, dur:60000, phases:[
     { until:20000, batch:3, pool:'sm',  interval:400 },
@@ -316,12 +319,12 @@ const ROUNDS = [
   ]},
   // index 4
   { type:'round', num:4, dur:60000, phases:[
-    { until:20000, batch:3, pool:'sm',  interval:300 },
-    { until:40000, batch:3, pool:'sml', interval:300 },
-    { until:60000, batch:3, pool:'sml', interval:300 },
+    { until:20000, batch:4, pool:'sm',  interval:300 },
+    { until:40000, batch:4, pool:'sml', interval:300 },
+    { until:60000, batch:4, pool:'sml', interval:300 },
   ]},
   // index 5
-  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:300, batch:4, hpMult:2.0 },
+  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:200, batch:5, hpMult:2.0 },
   // index 6
   { type:'round', num:5, dur:60000, phases:[
     { until:20000, batch:4, pool:'sml', interval:200 },
@@ -329,7 +332,7 @@ const ROUNDS = [
     { until:60000, batch:4, pool:'sml', interval:200 },
   ]},
   // index 7 ― LAST Wave 後は Round 3（index=3）に戻ってループ
-  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:4, loopTo:3, hpMult:3.0 },
+  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:5, loopTo:3, hpMult:3.0 },
 ];
 
 function getPool(key) {
@@ -401,7 +404,7 @@ function resetGame() {
   enemyCount=INIT_ENEMIES; spawnTmr=0; gameMs=0;
   roundIdx=0; roundTimer=0; bgScroll=0;
   defenseHp=INIT_DEFENSE;
-  loopCount=0; hpBonus=0; gameResult='defeat';
+  loopCount=0; hpBonus=0; gameResult='defeat'; dwnWarning=0;
   roundBanner={ text:'ROUND 1', timer:1500, color:'#ffdd00' };
   gstate='playing';
 }
@@ -580,9 +583,9 @@ function update(dt) {
       const _prog = ((pl.atk - INIT_ATK) / (_atkMax - INIT_ATK)
                    + (pl.bspd - INIT_BSPD) / (100 - INIT_BSPD)
                    + (pl.burst - INIT_BCNT) / (10 - INIT_BCNT)) / 3;
-      const _dropRate = _prog >= 0.5
-        ? (e.dropMin + e.dropMax) / 2
-        : rnd(e.dropMin, e.dropMax);
+      const _dropRate = loopCount > 0
+        ? e.dropMin
+        : (_prog >= 0.5 ? (e.dropMin + e.dropMax) / 2 : rnd(e.dropMin, e.dropMax));
       if (Math.random() < _dropRate && dropRd?.type !== 'wave') {
         const atkMax = _atkMax;
         const avail = PU_TYPES.filter(t =>
@@ -594,6 +597,11 @@ function update(dt) {
             depth:0.05, type:avail[Math.floor(Math.random()*avail.length)], life:600,
             animFrame:0, animTimer:0 });
         }
+      }
+      // STAGE∞でATK MAXの時、DWNアイテムをdropMax率でスポーン
+      if (loopCount > 0 && pl.atk >= 500 && Math.random() < e.dropMax && dropRd?.type !== 'wave') {
+        powerups.push({ laneIndex:e.laneIndex, laneX:e.laneX,
+          depth:0.05, type:'dwn', life:600, animFrame:0, animTimer:0 });
       }
       e.dying = true; e.dieFrame = 0; e.dieTimer = 0;
     }
@@ -637,12 +645,26 @@ function update(dt) {
     if (p.animTimer >= 300) { p.animTimer = 0; p.animFrame = (p.animFrame + 1) % 2; }
     const ps = proj(p.laneX, p.depth);
     if (Math.hypot(ps.x - pl.screenX, ps.y - (GY - 40)) < 44) {
+      if (p.type === 'dwn') {
+        pl.atk   = Math.max(INIT_ATK,  pl.atk  - 5);
+        pl.bspd  = Math.max(INIT_BSPD, pl.bspd - 5);
+        pl.burst = Math.max(INIT_BCNT, parseFloat((pl.burst - 1).toFixed(1)));
+        pl.notif = { type:'dwn', t:180 };
+        snd('powerdown'); powerups.splice(i, 1); continue;
+      }
+      const atkCapPu = loopCount > 0 ? 500 : 100;
+      const wasAtkMax = pl.atk >= atkCapPu;
       switch (p.type) {
-        case 'atk': pl.atk  = Math.min(pl.atk  + 5,  loopCount > 0 ? 500 : 100); break;
+        case 'atk': pl.atk  = Math.min(pl.atk  + 5,  atkCapPu); break;
         case 'spd': pl.bspd = Math.min(pl.bspd + 5,  100); break;
         case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.5).toFixed(1)), 10); break;
       }
-      const hitMax = (p.type==='atk' && pl.atk>=(loopCount > 0 ? 500 : 100)) ||
+      // ATKがSTAGE∞で初めてMAX到達 → 2秒警告
+      if (p.type === 'atk' && loopCount > 0 && !wasAtkMax && pl.atk >= 500 && dwnWarning <= 0) {
+        dwnWarning = 2000;
+        snd('dwn_warning');
+      }
+      const hitMax = (p.type==='atk' && pl.atk>=atkCapPu) ||
                      (p.type==='spd' && pl.bspd>=100) ||
                      (p.type==='bsr' && pl.burst>=10);
       pl.notif = { type: hitMax ? `${p.type}_max` : p.type, t: hitMax ? 220 : 130 };
@@ -830,6 +852,7 @@ function render() {
   if (gstate==='loading')  drawLoading();
   if (gstate==='gameover') drawGameOver();
   if (gstate==='playing' && paused) drawPause();
+  if (gstate==='playing' && dwnWarning > 0) drawDwnWarning();
 }
 
 function drawPause() {
@@ -845,6 +868,52 @@ function drawPause() {
   ctx.fillText('PAUSE', W/2, H/2 + 22);
   ctx.fillStyle = '#aaa'; ctx.font = '12px sans-serif';
   ctx.fillText('バリケードをタップして再開', W/2, H/2 + 50);
+  ctx.restore();
+}
+
+function drawDwnWarning() {
+  ctx.save();
+  ctx.fillStyle = 'rgba(60,0,100,0.88)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+  // 警告ヘッダー
+  ctx.font = 'bold 32px monospace';
+  ctx.fillStyle = '#ff2222';
+  ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 24;
+  ctx.fillText('⚠  WARNING  ⚠', W/2, H/2 - 130);
+  ctx.shadowBlur = 0;
+
+  // DWNアイテム プレビュー
+  const dwnIm = imgs['item_dwn_fall1'];
+  const disp = 80;
+  if (dwnIm?.complete && dwnIm.naturalWidth) {
+    ctx.drawImage(dwnIm, W/2 - disp/2, H/2 - 90, disp, disp);
+  } else {
+    ctx.fillStyle = '#aa00ff'; ctx.shadowColor = '#aa00ff'; ctx.shadowBlur = 20;
+    drawStar(W/2, H/2 - 50, 5, 32, 16); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 13px monospace';
+    ctx.fillText('DWN', W/2, H/2 - 50);
+  }
+
+  // 日本語テキスト
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 24px sans-serif';
+  ctx.fillText('偽の救援物資落下中！', W/2, H/2 + 20);
+  ctx.fillText('パワーダウン要注意！', W/2, H/2 + 56);
+
+  // 英語テキスト
+  ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 17px monospace';
+  ctx.fillText('Fake Supply Drop Incoming!', W/2, H/2 + 100);
+  ctx.fillText('Power-Down Trap Ahead!', W/2, H/2 + 126);
+
+  // カウントダウンバー
+  const prog = dwnWarning / 2000;
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.fillRect(40, H/2 + 158, W - 80, 8);
+  ctx.fillStyle = '#aa00ff';
+  ctx.fillRect(40, H/2 + 158, (W - 80) * prog, 8);
+
   ctx.restore();
 }
 
@@ -1418,7 +1487,10 @@ function loop(ts) {
   const dt=Math.min(ts-lastTs,50); lastTs=ts;
   envFireTime += dt * 0.001;
   if (gstate==='loading' && loaded>=toLoad) gstate='playing';
-  if (gstate==='playing' && !paused) update(dt);
+  if (gstate==='playing' && !paused) {
+    if (dwnWarning > 0) { dwnWarning = Math.max(0, dwnWarning - dt); }
+    else update(dt);
+  }
   render();
   requestAnimationFrame(loop);
 }
