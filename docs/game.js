@@ -1103,26 +1103,28 @@ function drawHUD() {
   ctx.fillRect(hx, hy+60, 120*dr, 12);
   ctx.strokeStyle='#555'; ctx.lineWidth=1; ctx.strokeRect(hx, hy+60, 120, 12);
 
-  // ── MAX アイコン（DEFENCE ゲージ下） ──
+  // ── MAX バッジ（DEFENCE ゲージ下） ──
   const atkCap = loopCount > 0 ? 500 : 100;
-  const maxDefs = [
-    { key:'notif_atk_max', show: pl.atk  >= atkCap },
-    { key:'notif_spd_max', show: pl.bspd >= 100 },
-    { key:'notif_bsr_max', show: pl.burst >= 10 },
+  const maxBadges = [
+    { label:'ATK', color:'#ff5544', show: pl.atk  >= atkCap },
+    { label:'SPD', color:'#44aaff', show: pl.bspd >= 100 },
+    { label:'BRS', color:'#44ff66', show: pl.burst >= 10 },
   ];
-  const iconSz = 26, iconY = hy + 76;
-  maxDefs.forEach(({ key, show }, i) => {
+  const bw = 36, bh = 14, bY = hy + 78;
+  ctx.save();
+  ctx.font = 'bold 9px monospace';
+  ctx.textBaseline = 'middle';
+  maxBadges.forEach(({ label, color, show }, i) => {
     if (!show) return;
-    const im = imgs[key];
-    const ix = hx + i * (iconSz + 3);
-    if (im?.complete && im.naturalWidth) {
-      ctx.drawImage(im, ix, iconY, iconSz, iconSz);
-    } else {
-      ctx.fillStyle = ['#ff4444','#44aaff','#44ff44'][i];
-      ctx.font = 'bold 8px monospace'; ctx.textAlign = 'left';
-      ctx.fillText(['ATK','SPD','BRS'][i], ix, iconY + 10);
-    }
+    const bx = hx + i * (bw + 3);
+    ctx.fillStyle = 'rgba(0,0,0,0.80)';
+    rrect(bx, bY, bw, bh, 3); ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.2;
+    rrect(bx, bY, bw, bh, 3); ctx.stroke();
+    ctx.fillStyle = color; ctx.textAlign = 'center';
+    ctx.fillText(label, bx + bw / 2, bY + bh / 2);
   });
+  ctx.restore();
 
   // ── ラウンド情報（上中央） ──
   const cx=W/2;
@@ -1171,11 +1173,11 @@ function drawHUD() {
     ctx.globalAlpha = Math.min(1, pl.notif.t / 30);
     if (notifImg?.complete && notifImg.naturalWidth) {
       const ns = isMax ? 210 : 160;
-      ctx.drawImage(notifImg, W/2 - ns/2, H/2 - ns/2 - (isMax ? 30 : 20), ns, ns);
+      ctx.drawImage(notifImg, W/2 - ns/2, VP.y - 10, ns, ns);
     } else {
       ctx.fillStyle='#ffff44'; ctx.shadowColor='#ff8800'; ctx.shadowBlur=20;
       ctx.font='bold 20px monospace'; ctx.textAlign='center';
-      ctx.fillText(PU_LABEL[pl.notif.type], W/2, H/2-60);
+      ctx.fillText(PU_LABEL[pl.notif.type], W/2, VP.y + 40);
     }
     ctx.restore();
   }
