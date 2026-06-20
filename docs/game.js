@@ -297,8 +297,8 @@ const ROUNDS = [
   // index 0
   { type:'round', num:1, dur:60000, phases:[
     { until:20000, batch:2, pool:'s',   interval:500 },
-    { until:40000, batch:2, pool:'s',   interval:700 },
-    { until:60000, batch:2, pool:'sm',  interval:700 },
+    { until:40000, batch:2, pool:'s',   interval:500 },
+    { until:60000, batch:2, pool:'sm',  interval:500 },
   ]},
   // index 1
   { type:'round', num:2, dur:60000, phases:[
@@ -310,26 +310,26 @@ const ROUNDS = [
   { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:3, hpMult:1.5 },
   // index 3
   { type:'round', num:3, dur:60000, phases:[
-    { until:20000, batch:2, pool:'sm',  interval:700 },
-    { until:40000, batch:3, pool:'sm',  interval:700 },
-    { until:60000, batch:3, pool:'sml', interval:700 },
+    { until:20000, batch:3, pool:'sm',  interval:400 },
+    { until:40000, batch:3, pool:'sm',  interval:400 },
+    { until:60000, batch:3, pool:'sml', interval:400 },
   ]},
   // index 4
   { type:'round', num:4, dur:60000, phases:[
-    { until:20000, batch:3, pool:'sm',  interval:700 },
-    { until:40000, batch:3, pool:'sml', interval:700 },
-    { until:60000, batch:3, pool:'sml', interval:500 },
-  ]},
-  // index 5
-  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:300, batch:3, hpMult:2.0 },
-  // index 6
-  { type:'round', num:5, dur:60000, phases:[
-    { until:20000, batch:3, pool:'sml', interval:500 },
-    { until:40000, batch:3, pool:'sml', interval:400 },
+    { until:20000, batch:3, pool:'sm',  interval:300 },
+    { until:40000, batch:3, pool:'sml', interval:300 },
     { until:60000, batch:3, pool:'sml', interval:300 },
   ]},
+  // index 5
+  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:300, batch:4, hpMult:2.0 },
+  // index 6
+  { type:'round', num:5, dur:60000, phases:[
+    { until:20000, batch:4, pool:'sml', interval:200 },
+    { until:40000, batch:4, pool:'sml', interval:200 },
+    { until:60000, batch:4, pool:'sml', interval:200 },
+  ]},
   // index 7 ― LAST Wave 後は Round 3（index=3）に戻ってループ
-  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:3, loopTo:3, hpMult:3.0 },
+  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:4, loopTo:3, hpMult:3.0 },
 ];
 
 function getPool(key) {
@@ -492,6 +492,11 @@ function update(dt) {
       batch    = ph.batch;
       pool     = getPool(ph.pool);
     }
+    const atkCap2 = loopCount > 0 ? 500 : 100;
+    const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
+    if      (maxed2 >= 3) { batch = Math.ceil(batch * 8); interval = Math.min(interval, 100); }
+    else if (maxed2 >= 2) { batch = Math.ceil(batch * 4); interval = Math.min(interval, 200); }
+    else if (maxed2 >= 1) { batch = Math.ceil(batch * 2); interval = Math.min(interval, 250); }
     spawnTmr += dt;
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
