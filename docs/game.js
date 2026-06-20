@@ -520,8 +520,15 @@ function update(dt) {
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
       const wm = rd.hpMult || 1;
-      // WAVE 1 / 3MAX時はmaxMultを2に固定
-      const mmOvr = (rd.type === 'wave' && rd.waveNum === 1 && maxed2 >= 3) ? 2 : null;
+      // Round1 / Round2 / WAVE1 は maxMult を専用値に固定
+      let mmOvr = null;
+      const isEarlyStage = (rd.type === 'round' && (rd.num === 1 || rd.num === 2))
+                        || (rd.type === 'wave'  && rd.waveNum === 1);
+      if (isEarlyStage) {
+        if      (maxed2 >= 3) mmOvr = 1.2;
+        else if (maxed2 >= 2) mmOvr = 1.15;
+        else if (maxed2 >= 1) mmOvr = 1.1;
+      }
       for (let i = 0; i < batch && enemies.length < 120; i++) spawnEnemy(pool, wm, mmOvr);
     }
   }
