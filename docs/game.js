@@ -135,8 +135,6 @@ loadImg('notif_bsr', 'assets/images/notif_bsr.png');
 loadImg('notif_atk_max', 'assets/images/ui/atk_max.png');
 loadImg('notif_spd_max', 'assets/images/ui/spd_max.png');
 loadImg('notif_bsr_max', 'assets/images/ui/brs_max.png');
-loadImg('btn_left',  'assets/images/ui/btn_left.png');
-loadImg('btn_right', 'assets/images/ui/btn_right.png');
 loadImg('edf_icon',         'assets/images/edf_icon.png');
 loadImg('cert_count_frame', 'assets/images/cert_count_frame.png');
 loadImg('cert_rank_bar',    'assets/images/cert_rank_bar.png');
