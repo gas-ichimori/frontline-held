@@ -1110,23 +1110,14 @@ function drawHUD() {
     { label:'SPD', color:'#44aaff', show: pl.bspd >= 100 },
     { label:'BRS', color:'#44ff66', show: pl.burst >= 10 },
   ];
-  const bw = 52, bh = 20, bY = hy + 78;
-  ctx.save();
-  ctx.font = 'bold 11px monospace';
-  ctx.textBaseline = 'middle';
-  maxBadges.forEach(({ label, color, show }, i) => {
+  const iconSz = 52, iconGap = 4, iconY = hy + 78;
+  const maxImgKeys = ['notif_atk_max', 'notif_spd_max', 'notif_bsr_max'];
+  maxBadges.forEach(({ show }, i) => {
     if (!show) return;
-    const bx = hx + i * (bw + 4);
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
-    rrect(bx, bY, bw, bh, 4); ctx.fill();
-    ctx.strokeStyle = color; ctx.lineWidth = 1.5;
-    rrect(bx, bY, bw, bh, 4); ctx.stroke();
-    ctx.fillStyle = color; ctx.textAlign = 'center';
-    ctx.shadowColor = color; ctx.shadowBlur = 6;
-    ctx.fillText(label + ' MAX', bx + bw / 2, bY + bh / 2);
-    ctx.shadowBlur = 0;
+    const im = imgs[maxImgKeys[i]];
+    if (!im?.complete || !im.naturalWidth) return;
+    ctx.drawImage(im, hx + i * (iconSz + iconGap), iconY, iconSz, iconSz);
   });
-  ctx.restore();
 
   // ── ラウンド情報（上中央） ──
   const cx=W/2;
