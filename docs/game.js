@@ -346,7 +346,7 @@ function spawnEnemy(pool, hpMult = 1) {
   const li  = Math.floor(Math.random() * 3);
   const atkCap = loopCount > 0 ? 500 : 100;
   const maxed = (pl.atk >= atkCap ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
-  const maxMult = maxed >= 3 ? 10 : maxed >= 2 ? 7.5 : maxed >= 1 ? 5 : 1;
+  const maxMult = maxed >= 3 ? 5 : maxed >= 2 ? 7.5 : maxed >= 1 ? 5 : 1;
   const totalHp = Math.round(def.hp * hpMult * maxMult) + hpBonus;
   enemies.push({
     ...def, laneIndex: li, laneX: LANE_X[li],
@@ -495,9 +495,14 @@ function update(dt) {
     }
     const atkCap2 = loopCount > 0 ? 500 : 100;
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
-    if      (maxed2 >= 3) { batch = Math.ceil(batch * 2.5); interval = Math.min(interval, 100); }
-    else if (maxed2 >= 2) { batch = Math.ceil(batch * 2.0); interval = Math.min(interval, 200); }
-    else if (maxed2 >= 1) { batch = Math.ceil(batch * 1.5); interval = Math.min(interval, 250); }
+    if (rd.type === 'wave' && rd.waveNum === 1) {
+      // WAVE 1 専用: MAX時は出現数×1.25・250ms固定
+      if (maxed2 >= 1) { batch = Math.ceil(rd.batch * 1.25); interval = Math.min(rd.interval, 250); }
+    } else {
+      if      (maxed2 >= 3) { batch = Math.ceil(batch * 2.5); interval = Math.min(interval, 100); }
+      else if (maxed2 >= 2) { batch = Math.ceil(batch * 2.0); interval = Math.min(interval, 200); }
+      else if (maxed2 >= 1) { batch = Math.ceil(batch * 1.5); interval = Math.min(interval, 250); }
+    }
     spawnTmr += dt;
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
