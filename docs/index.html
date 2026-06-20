@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <title>EDF - 地球防衛軍 迎撃戦</title>
+  <meta name="apple-mobile-web-app-title" content="迎撃戦">
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/images/edf_icon.png">
+  <title>防衛前線 迎撃戦</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -418,6 +422,11 @@
       try {
         if (screen.orientation?.lock) await screen.orientation.lock('portrait');
       } catch(e) {}
+    }
+
+    // サービスワーカー登録（PWA）
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/frontline-held/sw.js').catch(() => {});
     }
 
     // スマホのみ：タイトル画面表示 + ゲームを一時停止
