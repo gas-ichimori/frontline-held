@@ -1110,19 +1110,21 @@ function drawHUD() {
     { label:'SPD', color:'#44aaff', show: pl.bspd >= 100 },
     { label:'BRS', color:'#44ff66', show: pl.burst >= 10 },
   ];
-  const bw = 36, bh = 14, bY = hy + 78;
+  const bw = 52, bh = 20, bY = hy + 78;
   ctx.save();
-  ctx.font = 'bold 9px monospace';
+  ctx.font = 'bold 11px monospace';
   ctx.textBaseline = 'middle';
   maxBadges.forEach(({ label, color, show }, i) => {
     if (!show) return;
-    const bx = hx + i * (bw + 3);
-    ctx.fillStyle = 'rgba(0,0,0,0.80)';
-    rrect(bx, bY, bw, bh, 3); ctx.fill();
-    ctx.strokeStyle = color; ctx.lineWidth = 1.2;
-    rrect(bx, bY, bw, bh, 3); ctx.stroke();
+    const bx = hx + i * (bw + 4);
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    rrect(bx, bY, bw, bh, 4); ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+    rrect(bx, bY, bw, bh, 4); ctx.stroke();
     ctx.fillStyle = color; ctx.textAlign = 'center';
-    ctx.fillText(label, bx + bw / 2, bY + bh / 2);
+    ctx.shadowColor = color; ctx.shadowBlur = 6;
+    ctx.fillText(label + ' MAX', bx + bw / 2, bY + bh / 2);
+    ctx.shadowBlur = 0;
   });
   ctx.restore();
 
@@ -1173,11 +1175,11 @@ function drawHUD() {
     ctx.globalAlpha = Math.min(1, pl.notif.t / 30);
     if (notifImg?.complete && notifImg.naturalWidth) {
       const ns = isMax ? 210 : 160;
-      ctx.drawImage(notifImg, W/2 - ns/2, VP.y - 10, ns, ns);
+      ctx.drawImage(notifImg, W/2 - ns/2, 120, ns, ns);
     } else {
       ctx.fillStyle='#ffff44'; ctx.shadowColor='#ff8800'; ctx.shadowBlur=20;
       ctx.font='bold 20px monospace'; ctx.textAlign='center';
-      ctx.fillText(PU_LABEL[pl.notif.type], W/2, VP.y + 40);
+      ctx.fillText(PU_LABEL[pl.notif.type], W/2, 160);
     }
     ctx.restore();
   }
