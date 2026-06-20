@@ -308,7 +308,7 @@ const ROUNDS = [
     { until:60000, batch:3, pool:'sm',  interval:400 },
   ]},
   // index 2
-  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:4, hpMult:1.25 },
+  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:2, hpMult:1.25 },
   // index 3
   { type:'round', num:3, dur:60000, phases:[
     { until:20000, batch:3, pool:'sm',  interval:400 },
@@ -496,8 +496,11 @@ function update(dt) {
     const atkCap2 = loopCount > 0 ? 500 : 100;
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
     if (rd.type === 'wave' && rd.waveNum === 1) {
-      // WAVE 1 専用: MAX時は出現数×1.25・250ms固定
-      if (maxed2 >= 1) { batch = Math.ceil(rd.batch * 1.25); interval = Math.min(rd.interval, 250); }
+      // WAVE 1 専用: MAXアイテム数で段階変化
+      if      (maxed2 >= 3) { batch = 3; interval = 250; }
+      else if (maxed2 >= 2) { batch = 2; interval = 250; }
+      else if (maxed2 >= 1) { batch = 2; interval = 275; }
+      // 0個は ROUNDS の batch:2 / interval:300 をそのまま使用
     } else {
       if      (maxed2 >= 3) { batch = Math.ceil(batch * 2.5); interval = Math.min(interval, 100); }
       else if (maxed2 >= 2) { batch = Math.ceil(batch * 2.0); interval = Math.min(interval, 200); }
