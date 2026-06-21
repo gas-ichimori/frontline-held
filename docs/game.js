@@ -549,8 +549,8 @@ function update(dt) {
           // Round 5: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.25
           mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.15 : 1.0;
         } else if (rd.type === 'wave' && rd.waveNum === 1) {
-          // WAVE 1: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.5
-          mmOvr = maxed2 >= 3 ? 1.5 : maxed2 >= 2 ? 1.25 : 1.0;
+          // WAVE 1: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.75
+          mmOvr = maxed2 >= 3 ? 1.75 : maxed2 >= 2 ? 1.25 : 1.0;
         } else if (rd.type === 'wave' && rd.waveNum === 2) {
           // WAVE 2: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.25
           mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.15 : 1.0;
