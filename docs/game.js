@@ -132,6 +132,7 @@ loadImg('fx_hit_bullet',      'assets/images/fx_hit_bullet.png');
 loadImg('notif_atk', 'assets/images/notif_atk.png');
 loadImg('notif_spd', 'assets/images/notif_spd.png');
 loadImg('notif_bsr', 'assets/images/notif_bsr.png');
+loadImg('notif_dwn', 'assets/images/notif_dwn.png');
 loadImg('notif_atk_max', 'assets/images/ui/atk_max.png');
 loadImg('notif_spd_max', 'assets/images/ui/spd_max.png');
 loadImg('notif_bsr_max', 'assets/images/ui/brs_max.png');
