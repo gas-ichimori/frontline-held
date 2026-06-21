@@ -500,8 +500,9 @@ function update(dt) {
       // WAVE 1: 3MAX のみ 3体/300ms
       if (maxed2 >= 3) { batch = 3; interval = 300; }
     } else if (rd.type === 'wave' && rd.waveNum === 2) {
-      // WAVE 2: MAX≥1 で interval を 300ms に短縮
-      if (maxed2 >= 1) interval = 300;
+      // WAVE 2: 1-2MAX→300ms, 3MAX→250ms
+      if      (maxed2 >= 3) interval = 250;
+      else if (maxed2 >= 1) interval = 300;
     } else if (rd.label === 'LAST WAVE') {
       // LAST WAVE: MAX≥2 で interval を 350ms に短縮
       if (maxed2 >= 2) interval = 350;
@@ -552,8 +553,8 @@ function update(dt) {
           // WAVE 1: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.75
           mmOvr = maxed2 >= 3 ? 1.75 : maxed2 >= 2 ? 1.25 : 1.0;
         } else if (rd.type === 'wave' && rd.waveNum === 2) {
-          // WAVE 2: 1MAX→実効×1.3, 2MAX→実効×1.5, 3MAX→実効×2.25
-          mmOvr = maxed2 >= 3 ? 1.8 : maxed2 >= 2 ? 1.2 : 1.04;
+          // WAVE 2: 1MAX→実効×1.3, 2MAX→実効×1.5, 3MAX→実効×2.4
+          mmOvr = maxed2 >= 3 ? 1.92 : maxed2 >= 2 ? 1.2 : 1.04;
         } else if (rd.label === 'LAST WAVE') {
           // LAST WAVE: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.25
           mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.15 : 1.0;
