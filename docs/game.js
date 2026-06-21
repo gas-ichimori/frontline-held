@@ -514,10 +514,8 @@ function update(dt) {
       else if (maxed2 >= 2) { batch = 2; interval = 400; }
       else if (maxed2 >= 1) { batch = 2; interval = 400; }
     } else if (rd.type === 'round' && rd.num === 3) {
-      // Round 3 専用
-      if      (maxed2 >= 3) { batch = Math.ceil(batch * 2.0); interval = 350; }
-      else if (maxed2 >= 2) { batch = Math.ceil(batch * 1.75); interval = 400; }
-      else if (maxed2 >= 1) { batch = Math.ceil(batch * 1.5); interval = 400; }
+      // Round 3: 3MAX のみ interval 短縮、batch はベースのまま
+      if (maxed2 >= 3) interval = 350;
     } else if (rd.type === 'round' && rd.num === 4) {
       // Round 4 専用
       if      (maxed2 >= 3) { batch = Math.ceil(batch * 1.5); interval = 300; }
@@ -542,6 +540,9 @@ function update(dt) {
       if (maxed2 >= 1) {
         if (rd.type === 'round' && (rd.num === 1 || rd.num === 2)) {
           mmOvr = maxed2 >= 3 ? 2.0 : maxed2 >= 2 ? 1.75 : 1.5;
+        } else if (rd.type === 'round' && rd.num === 3) {
+          // Round 3: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.5
+          mmOvr = maxed2 >= 3 ? 1.5 : maxed2 >= 2 ? 1.25 : 1.0;
         } else if (rd.type === 'wave' && rd.waveNum === 1) {
           // WAVE 1: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.5
           mmOvr = maxed2 >= 3 ? 1.5 : maxed2 >= 2 ? 1.25 : 1.0;
