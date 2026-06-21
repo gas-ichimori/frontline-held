@@ -552,8 +552,8 @@ function update(dt) {
           // WAVE 1: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.75
           mmOvr = maxed2 >= 3 ? 1.75 : maxed2 >= 2 ? 1.25 : 1.0;
         } else if (rd.type === 'wave' && rd.waveNum === 2) {
-          // WAVE 2: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.25
-          mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.15 : 1.0;
+          // WAVE 2: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.6（実効×2.0）
+          mmOvr = maxed2 >= 3 ? 1.6 : maxed2 >= 2 ? 1.15 : 1.0;
         } else if (rd.label === 'LAST WAVE') {
           // LAST WAVE: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.25
           mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.15 : 1.0;
