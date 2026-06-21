@@ -1545,6 +1545,21 @@ function dbgSpawn(id) {
     animFrame:0, animTimer:0, dying:false, dieFrame:0, dieTimer:0 });
 }
 function dbgBurst(n) { pl.burst = n; pl.burstLeft = 0; }
+function dbgGoto(idx, makeLoop) {
+  if (gstate !== 'playing') return;
+  roundIdx   = idx;
+  roundTimer = 0;
+  spawnTmr   = 0;
+  enemies    = [];
+  powerups   = [];
+  if (makeLoop && loopCount === 0) { loopCount = 1; hpBonus = 2000; pl.atk = Math.min(pl.atk, 100); }
+  const rd = ROUNDS[idx];
+  if (rd.type === 'wave') {
+    roundBanner = { text: rd.label, timer: 1500, color: '#ff4444' };
+  } else {
+    roundBanner = { text: loopCount > 0 ? `STAGE∞ R${rd.num}` : `ROUND ${rd.num}`, timer: 1500, color: loopCount > 0 ? '#aa44ff' : '#ffdd00' };
+  }
+}
 function dbgEnemySpd(mult) {
   enemySpeedMult = mult;
   document.getElementById('dbgSpdLabel').textContent = mult + 'x';
