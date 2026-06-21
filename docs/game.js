@@ -1223,7 +1223,7 @@ function drawHUD() {
     ctx.globalAlpha = Math.min(1, pl.notif.t / 500);
     if (notifImg?.complete && notifImg.naturalWidth) {
       const ns = isMax ? 210 : 160;
-      const notifY = (pl.notif.type === 'spd' || pl.notif.type === 'spd_max') ? 117 : 120;
+      const notifY = (pl.notif.type === 'spd' || pl.notif.type === 'spd_max') ? 118 : 120;
       ctx.drawImage(notifImg, W/2 - ns/2, notifY, ns, ns);
     } else {
       ctx.fillStyle='#ffff44'; ctx.shadowColor='#ff8800'; ctx.shadowBlur=20;
