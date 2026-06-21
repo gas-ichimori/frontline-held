@@ -303,31 +303,31 @@ const ROUNDS = [
   ]},
   // index 1
   { type:'round', num:2, dur:60000, phases:[
-    { until:20000, batch:3, pool:'s',   interval:400 },
-    { until:40000, batch:3, pool:'sm',  interval:400 },
-    { until:60000, batch:3, pool:'sm',  interval:400 },
+    { until:20000, batch:2, pool:'s',   interval:450 },
+    { until:40000, batch:2, pool:'sm',  interval:450 },
+    { until:60000, batch:2, pool:'sm',  interval:450 },
   ]},
   // index 2
   { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:2, hpMult:1.25 },
   // index 3
   { type:'round', num:3, dur:60000, phases:[
-    { until:20000, batch:3, pool:'sm',  interval:400 },
-    { until:40000, batch:3, pool:'sm',  interval:400 },
-    { until:60000, batch:3, pool:'sml', interval:400 },
+    { until:20000, batch:2, pool:'sm',  interval:400 },
+    { until:40000, batch:2, pool:'sm',  interval:400 },
+    { until:60000, batch:2, pool:'sml', interval:400 },
   ]},
   // index 4
   { type:'round', num:4, dur:60000, phases:[
-    { until:20000, batch:4, pool:'sm',  interval:300 },
-    { until:40000, batch:4, pool:'sml', interval:300 },
-    { until:60000, batch:4, pool:'sml', interval:300 },
+    { until:20000, batch:3, pool:'sm',  interval:400 },
+    { until:40000, batch:3, pool:'sml', interval:400 },
+    { until:60000, batch:3, pool:'sml', interval:400 },
   ]},
   // index 5
   { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:200, batch:5, hpMult:3.0 },
   // index 6
   { type:'round', num:5, dur:60000, phases:[
-    { until:20000, batch:4, pool:'sml', interval:200 },
-    { until:40000, batch:4, pool:'sml', interval:200 },
-    { until:60000, batch:4, pool:'sml', interval:200 },
+    { until:20000, batch:4, pool:'sml', interval:400 },
+    { until:40000, batch:4, pool:'sml', interval:400 },
+    { until:60000, batch:4, pool:'sml', interval:400 },
   ]},
   // index 7 ― LAST Wave 後は Round 3（index=3）に戻ってループ
   { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:5, loopTo:3, hpMult:5.0 },
@@ -508,9 +508,24 @@ function update(dt) {
       else if (maxed2 >= 1) { batch = 2; interval = 450; }
     } else if (rd.type === 'round' && rd.num === 2) {
       // Round 2 専用
-      if      (maxed2 >= 3) { batch = 3; interval = 350; }
+      if      (maxed2 >= 3) { batch = 2; interval = 350; }
       else if (maxed2 >= 2) { batch = 2; interval = 400; }
-      else if (maxed2 >= 1) { batch = 2; interval = 450; }
+      else if (maxed2 >= 1) { batch = 2; interval = 400; }
+    } else if (rd.type === 'round' && rd.num === 3) {
+      // Round 3 専用
+      if      (maxed2 >= 3) { batch = Math.ceil(batch * 2.0); interval = 350; }
+      else if (maxed2 >= 2) { batch = Math.ceil(batch * 1.75); interval = 400; }
+      else if (maxed2 >= 1) { batch = Math.ceil(batch * 1.5); interval = 400; }
+    } else if (rd.type === 'round' && rd.num === 4) {
+      // Round 4 専用
+      if      (maxed2 >= 3) { batch = Math.ceil(batch * 1.5); interval = 300; }
+      else if (maxed2 >= 2) { batch = Math.ceil(batch * 1.5); interval = 350; }
+      else if (maxed2 >= 1) { batch = Math.ceil(batch * 1.25); interval = 350; }
+    } else if (rd.type === 'round' && rd.num === 5) {
+      // Round 5 専用
+      if      (maxed2 >= 3) { batch = Math.ceil(batch * 1.5); interval = 300; }
+      else if (maxed2 >= 2) { batch = Math.ceil(batch * 1.25); interval = 350; }
+      else if (maxed2 >= 1) { batch = Math.ceil(batch * 1.0); interval = 350; }
     } else {
       if      (maxed2 >= 3) { batch = Math.ceil(batch * 2.5); interval = Math.min(interval, 100); }
       else if (maxed2 >= 2) { batch = Math.ceil(batch * 2.0); interval = Math.min(interval, 200); }
