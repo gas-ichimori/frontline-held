@@ -498,7 +498,7 @@ function update(dt) {
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
     if (rd.type === 'wave' && rd.waveNum === 1) {
       // WAVE 1: 3MAX のみ 3体/300ms
-      if (maxed2 >= 3) { batch = 10; interval = 250; }
+      if (maxed2 >= 3) { batch = 9; interval = 250; }
     } else if (rd.type === 'wave' && rd.waveNum === 2) {
       // WAVE 2: 3MAX→4体/250ms, 1-2MAX→300ms
       if      (maxed2 >= 3) { batch = 9; interval = 200; }
@@ -550,8 +550,8 @@ function update(dt) {
           // Round 5: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.25
           mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.15 : 1.0;
         } else if (rd.type === 'wave' && rd.waveNum === 1) {
-          // WAVE 1: 1MAX→×1, 2MAX→×1.25, 3MAX→×3.0
-          mmOvr = maxed2 >= 3 ? 3.0 : maxed2 >= 2 ? 1.25 : 1.0;
+          // WAVE 1: 1MAX→×1, 2MAX→×1.25, 3MAX→×2.5
+          mmOvr = maxed2 >= 3 ? 2.5 : maxed2 >= 2 ? 1.25 : 1.0;
         } else if (rd.type === 'wave' && rd.waveNum === 2) {
           // WAVE 2: 1MAX→実効×1.3, 2MAX→実効×1.5, 3MAX→実効×2.5
           mmOvr = maxed2 >= 3 ? 2.0 : maxed2 >= 2 ? 1.2 : 1.04;
