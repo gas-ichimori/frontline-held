@@ -498,7 +498,7 @@ function update(dt) {
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
     if (rd.type === 'wave' && rd.waveNum === 1) {
       // WAVE 1: 3MAX のみ 3体/300ms
-      if (maxed2 >= 3) { batch = 9; interval = 250; }
+      if (maxed2 >= 3) { batch = 8; interval = 275; }
     } else if (rd.type === 'wave' && rd.waveNum === 2) {
       // WAVE 2: 3MAX→4体/250ms, 1-2MAX→300ms
       if      (maxed2 >= 3) { batch = 9; interval = 200; }
