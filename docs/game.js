@@ -308,7 +308,7 @@ const ROUNDS = [
     { until:60000, batch:2, pool:'sm',  interval:450 },
   ]},
   // index 2
-  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:300, batch:2, hpMult:1.25 },
+  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:350, batch:2 },
   // index 3
   { type:'round', num:3, dur:60000, phases:[
     { until:20000, batch:2, pool:'sm',  interval:400 },
@@ -322,7 +322,7 @@ const ROUNDS = [
     { until:60000, batch:3, pool:'sml', interval:400 },
   ]},
   // index 5
-  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:200, batch:5, hpMult:3.0 },
+  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:400, batch:2 },
   // index 6
   { type:'round', num:5, dur:60000, phases:[
     { until:20000, batch:4, pool:'sml', interval:400 },
@@ -330,7 +330,7 @@ const ROUNDS = [
     { until:60000, batch:4, pool:'sml', interval:400 },
   ]},
   // index 7 ― LAST Wave 後は Round 3（index=3）に戻ってループ
-  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:200, batch:5, loopTo:3, hpMult:5.0 },
+  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:350, batch:2, loopTo:3 },
 ];
 
 function getPool(key) {
@@ -497,10 +497,12 @@ function update(dt) {
     const atkCap2 = loopCount > 0 ? 500 : 100;
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
     if (rd.type === 'wave' && rd.waveNum === 1) {
-      // WAVE 1 専用
-      if      (maxed2 >= 3) { batch = 3; interval = 250; }
-      else if (maxed2 >= 2) { batch = 2; interval = 250; }
-      else if (maxed2 >= 1) { batch = 2; interval = 275; }
+      // WAVE 1: 全MAX数で 2体/350ms（ベース値のまま変化なし）
+    } else if (rd.type === 'wave' && rd.waveNum === 2) {
+      // WAVE 2: 全MAX数で 2体/400ms（ベース値のまま変化なし）
+    } else if (rd.label === 'LAST WAVE') {
+      // LAST WAVE: MAX≥1 で interval を 300ms に短縮
+      if (maxed2 >= 1) interval = 300;
     } else if (rd.type === 'round' && rd.num === 1) {
       // Round 1 専用
       if      (maxed2 >= 3) { batch = 2; interval = 350; }
@@ -534,15 +536,22 @@ function update(dt) {
     spawnTmr += dt;
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
-      const wm = rd.hpMult || 1;
-      // Round1 / Round2 / WAVE1 は maxMult を専用値に固定
+      const wm = 1;
+      // ステージごとに maxMult を専用値に固定
       let mmOvr = null;
-      const isEarlyStage = (rd.type === 'round' && (rd.num === 1 || rd.num === 2))
-                        || (rd.type === 'wave'  && rd.waveNum === 1);
-      if (isEarlyStage) {
-        if      (maxed2 >= 3) mmOvr = 2.0;
-        else if (maxed2 >= 2) mmOvr = 1.75;
-        else if (maxed2 >= 1) mmOvr = 1.5;
+      if (maxed2 >= 1) {
+        if (rd.type === 'round' && (rd.num === 1 || rd.num === 2)) {
+          mmOvr = maxed2 >= 3 ? 2.0 : maxed2 >= 2 ? 1.75 : 1.5;
+        } else if (rd.type === 'wave' && rd.waveNum === 1) {
+          // WAVE 1: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.5
+          mmOvr = maxed2 >= 3 ? 1.5 : maxed2 >= 2 ? 1.25 : 1.0;
+        } else if (rd.type === 'wave' && rd.waveNum === 2) {
+          // WAVE 2: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.25
+          mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.25 : 1.0;
+        } else if (rd.label === 'LAST WAVE') {
+          // LAST WAVE: 1MAX→×1, 2MAX→×1.25, 3MAX→×1.5
+          mmOvr = maxed2 >= 3 ? 1.5 : maxed2 >= 2 ? 1.25 : 1.0;
+        }
       }
       for (let i = 0; i < batch && enemies.length < 120; i++) spawnEnemy(pool, wm, mmOvr);
     }
