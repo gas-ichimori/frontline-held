@@ -497,7 +497,8 @@ function update(dt) {
     const atkCap2 = loopCount > 0 ? 500 : 100;
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
     if (rd.type === 'wave' && rd.waveNum === 1) {
-      // WAVE 1: 全MAX数で 2体/350ms（ベース値のまま変化なし）
+      // WAVE 1: 3MAX のみ 3体/300ms
+      if (maxed2 >= 3) { batch = 3; interval = 300; }
     } else if (rd.type === 'wave' && rd.waveNum === 2) {
       // WAVE 2: MAX≥1 で interval を 300ms に短縮
       if (maxed2 >= 1) interval = 300;
