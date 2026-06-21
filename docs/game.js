@@ -703,7 +703,7 @@ function update(dt) {
         pl.atk   = Math.max(INIT_ATK,  pl.atk  - 5);
         pl.bspd  = Math.max(INIT_BSPD, pl.bspd - 5);
         pl.burst = Math.max(INIT_BCNT, parseFloat((pl.burst - 1).toFixed(1)));
-        pl.notif = { type:'dwn', t:180 };
+        pl.notif = { type:'dwn', t:3000 };
         snd('powerdown'); powerups.splice(i, 1); continue;
       }
       const atkCapPu = loopCount > 0 ? 500 : 100;
@@ -721,7 +721,7 @@ function update(dt) {
       const hitMax = (p.type==='atk' && pl.atk>=atkCapPu) ||
                      (p.type==='spd' && pl.bspd>=100) ||
                      (p.type==='bsr' && pl.burst>=10);
-      pl.notif = { type: hitMax ? `${p.type}_max` : p.type, t: hitMax ? 220 : 130 };
+      pl.notif = { type: hitMax ? `${p.type}_max` : p.type, t: hitMax ? 3500 : 2000 };
       snd('powerup'); powerups.splice(i, 1); continue;
     }
     if (p.life <= 0 || p.depth > 1.05) powerups.splice(i, 1);
@@ -732,7 +732,7 @@ function update(dt) {
     p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.life-=p.decay;
     if (p.life <= 0) particles.splice(i, 1);
   }
-  if (pl.notif) { pl.notif.t--; if (pl.notif.t<=0) pl.notif=null; }
+  if (pl.notif) { pl.notif.t -= dt; if (pl.notif.t<=0) pl.notif=null; }
   for (let i = splashes.length - 1; i >= 0; i--) {
     splashes[i].life -= dt;
     if (splashes[i].life <= 0) splashes.splice(i, 1);
@@ -1218,7 +1218,7 @@ function drawHUD() {
     const notifImg = imgs[`notif_${pl.notif.type}`];
     const isMax = pl.notif.type.endsWith('_max');
     ctx.save();
-    ctx.globalAlpha = Math.min(1, pl.notif.t / 30);
+    ctx.globalAlpha = Math.min(1, pl.notif.t / 500);
     if (notifImg?.complete && notifImg.naturalWidth) {
       const ns = isMax ? 210 : 160;
       const notifY = (pl.notif.type === 'spd' || pl.notif.type === 'spd_max') ? 115 : 120;
