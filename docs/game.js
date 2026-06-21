@@ -519,8 +519,8 @@ function update(dt) {
       // Round 3: 3MAX のみ interval 短縮、batch はベースのまま
       if (maxed2 >= 3) interval = 350;
     } else if (rd.type === 'round' && rd.num === 4) {
-      // Round 4: batch はベースのまま、interval のみ変更
-      if      (maxed2 >= 3) interval = 300;
+      // Round 4: 2MAX以上で300ms、1MAXで350ms
+      if      (maxed2 >= 2) interval = 300;
       else if (maxed2 >= 1) interval = 350;
     } else if (rd.type === 'round' && rd.num === 5) {
       // Round 5: batch はベースのまま、MAX≥1 で interval を 350ms に短縮
@@ -543,8 +543,8 @@ function update(dt) {
           // Round 3: 1MAX→×1.5, 2MAX→×2.0, 3MAX→×2.25
           mmOvr = maxed2 >= 3 ? 2.25 : maxed2 >= 2 ? 2.0 : 1.5;
         } else if (rd.type === 'round' && rd.num === 4) {
-          // Round 4: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.25
-          mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.15 : 1.0;
+          // Round 4: 1MAX→×1.25, 2MAX→×1.25, 3MAX→×1.5
+          mmOvr = maxed2 >= 3 ? 1.5 : 1.25;
         } else if (rd.type === 'round' && rd.num === 5) {
           // Round 5: 1MAX→×1.0, 2MAX→×1.15, 3MAX→×1.25
           mmOvr = maxed2 >= 3 ? 1.25 : maxed2 >= 2 ? 1.15 : 1.0;
