@@ -501,7 +501,7 @@ function update(dt) {
       if (maxed2 >= 3) { batch = 3; interval = 300; }
     } else if (rd.type === 'wave' && rd.waveNum === 2) {
       // WAVE 2: 3MAX→4体/250ms, 1-2MAX→300ms
-      if      (maxed2 >= 3) { batch = 5; interval = 250; }
+      if      (maxed2 >= 3) { batch = 7; interval = 250; }
       else if (maxed2 >= 1) interval = 300;
     } else if (rd.label === 'LAST WAVE') {
       // LAST WAVE: MAX≥2 で interval を 350ms に短縮
