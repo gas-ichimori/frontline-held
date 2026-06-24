@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>議事録｜D3P様 TGS2026出展 キックオフMTG</title>
+  <style>
+    :root {
+      --blue-dark: #00467F;
+      --blue-mid: #1F497D;
+      --blue-light: #DCE6F1;
+      --blue-xlight: #EBF3FB;
+      --red: #C00000;
+      --gray: #555;
+      --border: #AABBD4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'メイリオ', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      font-size: 14px;
+      color: #222;
+      background: #F5F8FC;
+      line-height: 1.7;
+    }
+    .wrapper {
+      max-width: 860px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 16px rgba(0,70,127,.12);
+      padding: 48px 56px 60px;
+    }
+
+    /* ---------- HEADER ---------- */
+    .doc-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      padding-bottom: 16px;
+      border-bottom: 3px solid var(--blue-dark);
+      margin-bottom: 28px;
+      letter-spacing: .04em;
+    }
+
+    /* ---------- INFO TABLE ---------- */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 32px;
+      font-size: 13px;
+    }
+    .info-table th, .info-table td {
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+    }
+    .info-table th {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      font-weight: bold;
+      width: 30%;
+      white-space: nowrap;
+    }
+    .info-table td { background: #fff; }
+
+    /* ---------- SECTION ---------- */
+    h2 {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      border-bottom: 2px solid var(--blue-dark);
+      padding: 8px 0 4px;
+      margin: 32px 0 12px;
+    }
+    h3 {
+      font-size: 13.5px;
+      font-weight: bold;
+      color: var(--blue-mid);
+      margin: 16px 0 6px 4px;
+    }
+
+    /* ---------- BULLET LIST ---------- */
+    ul.content {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 8px 0;
+    }
+    ul.content li {
+      padding: 3px 0 3px 1.2em;
+      position: relative;
+    }
+    ul.content li::before {
+      content: '・';
+      position: absolute;
+      left: 0;
+      color: var(--blue-dark);
+      font-weight: bold;
+    }
+    ul.content li.sub {
+      padding-left: 2.4em;
+    }
+    ul.content li.sub::before {
+      content: '└';
+      color: var(--gray);
+    }
+    ul.content li.sub2 {
+      padding-left: 3.6em;
+    }
+    ul.content li.sub2::before {
+      content: '└';
+      color: #999;
+    }
+
+    /* ---------- ACTION ITEM ---------- */
+    .action {
+      background: #FFF0F0;
+      border-left: 4px solid var(--red);
+      padding: 8px 14px;
+      margin: 12px 0 8px;
+      border-radius: 0 4px 4px 0;
+      font-weight: bold;
+      color: var(--red);
+      font-size: 13px;
+    }
+    .action::before { content: '★ '; }
+
+    /* ---------- ACTION TABLE ---------- */
+    .action-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    .action-table th {
+      background: var(--blue-dark);
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: bold;
+    }
+    .action-table td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      vertical-align: top;
+    }
+    .action-table tr:nth-child(even) td { background: var(--blue-xlight); }
+    .action-table tr:nth-child(odd) td { background: #fff; }
+    .action-table td.check {
+      text-align: center;
+      color: #999;
+      font-size: 16px;
+    }
+
+    /* ---------- FOOTER ---------- */
+    .footer {
+      text-align: right;
+      font-size: 12px;
+      color: #999;
+      margin-top: 40px;
+      border-top: 1px solid #ddd;
+      padding-top: 12px;
+    }
+
+    /* ---------- PRINT ---------- */
+    @media print {
+      body { background: #fff; }
+      .wrapper { box-shadow: none; padding: 20px; }
+    }
+
+    /* ---------- DOWNLOAD BTN ---------- */
+    .download-bar {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    .btn-download {
+      display: inline-block;
+      background: var(--blue-dark);
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 20px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: .02em;
+    }
+    .btn-download:hover { background: var(--blue-mid); }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="download-bar">
+    <a class="btn-download" href="D3P_TGS2026_kickoff_minutes.docx" download>Word(.docx)ダウンロード</a>
+  </div>
+
+  <div class="doc-title">議事録｜D3P様 TGS2026出展 キックオフMTG</div>
+
+  <table class="info-table">
+    <tr><th>案件名</th><td>D3P様 TGS2026出展 キックオフMTG</td></tr>
+    <tr><th>開催日時</th><td>2026年6月24日（火）</td></tr>
+    <tr><th>出席者（D3P様）</th><td>岡島様、山下様、鎌田様</td></tr>
+    <tr><th>出席者（GAS）</th><td>都築、一森</td></tr>
+    <tr><th>出席者（ポマト）</th><td>佐藤様</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>アジェンダ</h2>
+  <ul class="content">
+    <li>① ブースデザイン（ラフのラフ）</li>
+    <li>② オプションプランについて（バルーン・MC・よゐこ濱口夫妻）</li>
+    <li>③ グッズ展示についてのご相談</li>
+    <li>④ そのほか（発注関連、コラボ関連）</li>
+    <li>⑤ 契約進行・次回定例会日時のご相談</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2>① ブースデザイン（ラフのラフ）</h2>
+
+  <h3>提出パターン</h3>
+  <ul class="content">
+    <li>3パターンのブースデザインをご提出</li>
+    <li class="sub"><strong>1. MAIN導線 ステージ斜め型</strong>（GAS推奨）</li>
+    <li class="sub2">導線は一方通行。前面ステージ＆EDF6.2の試遊、奥にEDF6＆5、フォトコーナーなど</li>
+    <li class="sub"><strong>2. MAIN導線 ステージ正面型（案A）</strong></li>
+    <li class="sub2">導線回遊型。前面ステージ＆EDF6.2の試遊、6m導線側にEDF6＆5設置、フォトコーナー奥</li>
+    <li class="sub"><strong>3. MAIN導線 ステージ正面型（案B）</strong>（岡島様ご希望）</li>
+    <li class="sub2">導線回遊型。前面ステージ＆EDF6.2の試遊、6m導線側にフォトブース設置、EDF6＆5試遊奥</li>
+  </ul>
+
+  <h3>補足・追加検討事項</h3>
+  <ul class="content">
+    <li>MAIN導線側に、フォトコーナーと40インチモニター設置（最大3面）も検討</li>
+    <li>ステージ前方：起き型のロゴスタンドの設置</li>
+    <li>ロゴ露出（トラス釣りロゴでも）は集英社GAMES側にも欲しい（岡島様ご要望）</li>
+    <li>3Dパース確認希望 → ポマト社で要検討</li>
+    <li>受付はビジネスデイのみ設置。一般デイでは撤去（例：置きロゴを受付として活用）</li>
+    <li>ブースデザイン1・3ともに受付＋出入り口をカット → 解放感の向上、試遊台設置スペース確保</li>
+  </ul>
+
+  <h3>主催者控室</h3>
+  <ul class="content">
+    <li>鍵付き会議室を申し込み予定（20小間のため抽選が来ない可能性あり。C国不参加の今年はワンチャンあり）</li>
+    <li>漏れた場合は外コンテナ（プレハブ）を手配。2個推奨（サイズ確認次第1個でも可）</li>
+  </ul>
+
+  <h3>ゾーニング・設備</h3>
+  <ul class="content">
+    <li>PS5 Pro用ゾーン：白・青カラー</li>
+    <li>Nintendo Switch 2用ゾーン：赤カラー</li>
+    <li>ヘッドフォン：レーザー社 20台 仮押さえ済み（GAS手配）</li>
+  </ul>
+
+  <div class="action">次回：ブースデザイン 1. と 3. の再提出（受付・出入り口カット版）</div>
+
+  <!-- ============================================================ -->
+  <h2>② オプションプランについて</h2>
+
+  <h3>バルーン</h3>
+  <ul class="content">
+    <li>仕様：3m（仮押さえ済み）</li>
+    <li>費用：55万円（税別）＊オプション</li>
+    <li>向き：現場調整</li>
+  </ul>
+
+  <h3>MC</h3>
+  <ul class="content">
+    <li>ビジネスデイMC：檜山氏（仮押さえ済み）</li>
+    <li>一般デイMC：吉崎氏（仮押さえ済み）</li>
+    <li>対応ハードプラットフォームごとにMCを分けるパターンも検討</li>
+    <li>ステージ登壇は女性希望。吉崎氏登壇の際もステージコンパニオン（綺麗系・おねぇさんイメージ）を1名起用したい</li>
+    <li class="sub">EDFユーザーの99%が男性。過去のD3P様出演MCは全員女性</li>
+    <li class="sub">過去起用実績：姫野桜都さん</li>
+  </ul>
+  <div class="action">ポマト 佐藤様より姫野桜都さんへDMで出演問い合わせ</div>
+
+  <h3>よゐこ 濱口夫妻 出演案</h3>
+  <ul class="content">
+    <li>ギャラ：200万円 / 1ステージ</li>
+    <li class="sub">特典：YouTubeチャンネルでのアーカイブ配信、夫婦のSNS事前告知、宣材写真提供</li>
+    <li>高額のため、最低2ステージでの交渉を検討</li>
+    <li>＋ゴージャス出演（バーター特別価格）：＋50万円</li>
+  </ul>
+  <div class="action">GAS持ち帰り：よゐこ濱口夫妻のPR戦略をあらためて整理・ご提案</div>
+
+  <!-- ============================================================ -->
+  <h2>③ グッズ展示についてのご相談</h2>
+  <ul class="content">
+    <li>図面確定を最優先。図面確定後に展示グッズの希望内容を確認・相談する。</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2>④ そのほか（発注関連・コラボ関連）</h2>
+  <ul class="content">
+    <li>デザイン・図面確定後に詳細を相談。</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2>⑤ 契約進行・次回定例会</h2>
+
+  <h3>契約関連</h3>
+  <ul class="content">
+    <li>まずD3P様にて業務委託契約書をご用意いただく。その後、個別発注。</li>
+  </ul>
+
+  <h3>定例会</h3>
+  <ul class="content">
+    <li>頻度：毎週火曜日 16:00〜（暫定決定、2026年7月4日より開始）</li>
+    <li>形式：基本対面。内容によってはSkipまたはオンライン</li>
+  </ul>
+
+  <h3>連絡手段</h3>
+  <ul class="content">
+    <li>Chatworkに移行</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2>公式生放送（D3P様より共有）</h2>
+  <ul class="content">
+    <li>開催日：2026年9月20日（日）</li>
+    <li>スケジュール：10:00〜17:00（押さえ済み）</li>
+    <li>2ステージ構成</li>
+    <li class="sub">13:00〜14:00：EDF5紹介</li>
+    <li class="sub">（30分休憩）</li>
+    <li class="sub">14:30〜15:30：EDF6.2紹介</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2>待機列コンテンツ：ミニゲーム</h2>
+  <ul class="content">
+    <li>ユーザーが EDF5 / EDF6 / EDF6.2 を選択するシステム</li>
+    <li>背景イメージ</li>
+    <li class="sub">EDF5：普通の街</li>
+    <li class="sub">EDF6：荒廃した街</li>
+    <li class="sub">EDF6.2：さらに荒廃した街（ハードモード）</li>
+    <li>最初に「入隊するかしないか」の選択肢を提示</li>
+    <li>タイトル選択データも収集・分析する</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2>アクションアイテム一覧</h2>
+  <table class="action-table">
+    <thead>
+      <tr>
+        <th style="width:14%">担当</th>
+        <th style="width:24%">期限</th>
+        <th>内容</th>
+        <th style="width:6%">完了</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>GAS</td>
+        <td>次回MTGまでに</td>
+        <td>ブースデザイン 1. と 3. の再提出（受付・出入り口カット版）</td>
+        <td class="check">□</td>
+      </tr>
+      <tr>
+        <td>ポマト 佐藤様</td>
+        <td>近日中</td>
+        <td>姫野桜都さんへDMで出演打診</td>
+        <td class="check">□</td>
+      </tr>
+      <tr>
+        <td>GAS</td>
+        <td>次回MTGまでに</td>
+        <td>よゐこ濱口夫妻のPR戦略を整理し改めてご提案</td>
+        <td class="check">□</td>
+      </tr>
+      <tr>
+        <td>D3P様</td>
+        <td>近日中</td>
+        <td>業務委託契約書のご用意</td>
+        <td class="check">□</td>
+      </tr>
+      <tr>
+        <td>全体</td>
+        <td>2026年7月4日（火）16:00〜</td>
+        <td>第1回定例会（対面）</td>
+        <td class="check">□</td>
+      </tr>
+      <tr>
+        <td>全体</td>
+        <td>近日中</td>
+        <td>決起会の実施</td>
+        <td class="check">□</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer">作成：GAS 一森　／　作成日：2026年6月24日</div>
+</div>
+</body>
+</html>
