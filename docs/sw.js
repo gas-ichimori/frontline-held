@@ -1,10 +1,12 @@
-const CACHE = 'edf-frontline-v8';
+const CACHE = 'edf-frontline-v9';
 const ASSETS = [
   '/frontline-held/',
   '/frontline-held/index.html',
   '/frontline-held/game.js',
   '/frontline-held/assets/audio/bgm.mp3',
   '/frontline-held/assets/images/bg.png',
+  '/frontline-held/assets/images/bg_edf5_02.png',
+  '/frontline-held/assets/images/bg_edf6_01.png',
   '/frontline-held/assets/images/edf_icon.png',
   '/frontline-held/assets/images/barricade_normal.png',
   '/frontline-held/assets/images/barricade_damaged.png',
@@ -16,7 +18,6 @@ const ASSETS = [
   '/frontline-held/assets/images/ui/logo1.png',
   '/frontline-held/assets/images/ui/logo2.png',
   '/frontline-held/assets/images/ui/logo3.png',
-  '/frontline-held/assets/images/ui/taisa.png',
   '/frontline-held/assets/images/ui/tutorial.png',
   '/frontline-held/assets/images/ui/atk_max.png',
   '/frontline-held/assets/images/ui/spd_max.png',
