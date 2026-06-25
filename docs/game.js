@@ -122,7 +122,9 @@ function loadImg(key, src) {
   el.src = src;
   imgs[key] = el;
 }
-loadImg('bg', 'assets/images/bg.png');
+loadImg('bg',          'assets/images/bg.png');
+loadImg('bg_edf5_02', 'assets/images/bg_edf5_02.png');
+loadImg('bg_edf6_01', 'assets/images/bg_edf6_01.png');
 loadImg('barricade',         'assets/images/barricade_normal.png');
 loadImg('barricade_damaged', 'assets/images/barricade_damaged.png');
 loadImg('fx_barricade_hit',   'assets/images/fx_barricade_hit.png');
@@ -751,7 +753,8 @@ function update(dt) {
 
 // ─── Render ───────────────────────────────────────────────────────────────────
 function render() {
-  const bg = imgs['bg'];
+  const bgKey = window.selectedBgKey || 'bg';
+  const bg = imgs[bgKey] || imgs['bg'];
   if (bg?.complete && bg.naturalWidth) {
     ctx.drawImage(bg, 0, 0, W, H);
   } else {

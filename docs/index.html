@@ -51,56 +51,44 @@
       padding-bottom: 28px;
     }
 
-    /* ── ロゴスライドショー（ヘッダー） ── */
-    #fsOverlay .fs-logo-wrap {
-      position: relative;
-      width: 100%;
-      height: 130px;
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    #fsOverlay .fs-logo-wrap img {
-      position: absolute;
-      height: 100px;
-      width: auto;
-      max-width: 88%;
-      object-fit: contain;
-      opacity: 0;
-      animation: logo-cycle 9s infinite;
-    }
-    #fsOverlay .fs-logo-wrap img:nth-child(1) { animation-delay: 0s; }
-    #fsOverlay .fs-logo-wrap img:nth-child(2) { animation-delay: 3s; }
-    #fsOverlay .fs-logo-wrap img:nth-child(3) { animation-delay: 6s; }
-    @keyframes logo-cycle {
-      0%    { opacity: 0; }
-      6%    { opacity: 1; }
-      27%   { opacity: 1; }
-      33%   { opacity: 0; }
-      100%  { opacity: 0; }
+    /* ── 入隊選択メッセージ ── */
+    #fsOverlay .fs-select-msg {
+      font-size: 15px;
+      font-weight: bold;
+      color: #ffdd44;
+      text-shadow: 0 0 10px #ff8800, 0 0 20px #ff4400;
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 0 12px;
     }
 
-    /* ── ゲームタイトル ── */
-    #fsOverlay .fs-game-title {
-      text-align: center;
-      line-height: 1.15;
+    /* ── ロゴ3ボタン横並び ── */
+    #fsOverlay .fs-logo-btns {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0 8px;
     }
-    #fsOverlay .fs-game-title .title-ja {
-      font-size: 34px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 0 14px #ff6600, 0 0 28px #ff3300, 0 2px 0 #882200;
-      letter-spacing: 5px;
+    #fsOverlay .fs-logo-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      flex: 1;
+      max-width: 110px;
     }
-    #fsOverlay .fs-game-title .title-en {
-      font-size: 12px;
-      font-weight: bold;
-      color: #ffaa55;
-      letter-spacing: 2px;
-      margin-top: 6px;
+    #fsOverlay .fs-logo-btn img {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 0 12px rgba(255,150,0,0.6));
+      animation: icon-pulse 1.2s ease-in-out infinite;
+      display: block;
     }
+    #fsOverlay .fs-logo-btn:nth-child(2) img { animation-delay: 0.4s; }
+    #fsOverlay .fs-logo-btn:nth-child(3) img { animation-delay: 0.8s; }
 
     /* ── 点滅テキスト ── */
     .fs-blink {
@@ -116,19 +104,6 @@
       50%, 100% { opacity: 0; }
     }
 
-    /* ── EDF アイコン ボタン ── */
-    #fsOverlay .fs-icon-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-    #fsOverlay .fs-icon-btn img {
-      width: 168px; height: 131px;
-      filter: drop-shadow(0 0 16px rgba(255,150,0,0.7));
-      animation: icon-pulse 1.2s ease-in-out infinite;
-    }
     @keyframes icon-pulse {
       0%,100% { filter: drop-shadow(0 0 12px rgba(255,150,0,0.5)); transform: scale(1); }
       50%     { filter: drop-shadow(0 0 30px rgba(255,210,0,1.0)); transform: scale(1.06); }
@@ -234,32 +209,30 @@
 
   <!-- スマホ：タップして全画面スタート -->
   <div id="fsOverlay">
-    <div class="fs-bg"></div>
+    <div class="fs-bg" id="fsBg"></div>
     <div class="fs-content">
 
-      <!-- ロゴヘッダー（3枚ループ） -->
-      <div class="fs-logo-wrap">
-        <img src="assets/images/ui/logo1.png" alt="EDF 6.1x2">
-        <img src="assets/images/ui/logo2.png" alt="EDF 6">
-        <img src="assets/images/ui/logo3.png" alt="EDF 5">
+      <!-- 入隊選択メッセージ -->
+      <div class="fs-select-msg">貴殿の入隊したいアイコンを選択せよ！</div>
+
+      <!-- 🔻 ボタンを押せ 🔻 -->
+      <div class="fs-blink">🔻&nbsp;&nbsp;ボタンを押せ&nbsp;&nbsp;🔻</div>
+
+      <!-- ロゴ 3 ボタン -->
+      <div class="fs-logo-btns">
+        <button class="fs-logo-btn" onclick="startMobileGame('bg','HARD')">
+          <img src="assets/images/ui/logo1.png" alt="EDF 6.1×2">
+        </button>
+        <button class="fs-logo-btn" onclick="startMobileGame('bg_edf5_02','EASY')">
+          <img src="assets/images/ui/logo2.png" alt="EDF 5">
+        </button>
+        <button class="fs-logo-btn" onclick="startMobileGame('bg_edf6_01','NORMAL')">
+          <img src="assets/images/ui/logo3.png" alt="EDF 6">
+        </button>
       </div>
 
-      <!-- ゲームタイトル -->
-      <div class="fs-game-title">
-        <div class="title-ja">防衛前線　迎撃戦</div>
-        <div class="title-en">Operation Frontline Defense</div>
-      </div>
-
-      <!-- ▼ ボタンを押せ ▼ -->
-      <div class="fs-blink">▼&nbsp;&nbsp;ボタンを押せ&nbsp;&nbsp;▼</div>
-
-      <!-- EDF アイコン ボタン -->
-      <button class="fs-icon-btn" onclick="startMobileGame()">
-        <img src="assets/images/edf_icon.png" alt="START">
-      </button>
-
-      <!-- ▲ PRESS THE BUTTON ▲ -->
-      <div class="fs-blink">▲&nbsp;&nbsp;PRESS THE BUTTON&nbsp;&nbsp;▲</div>
+      <!-- 🔺 PRESS THE BUTTON 🔺 -->
+      <div class="fs-blink">🔺&nbsp;&nbsp;PRESS THE BUTTON&nbsp;&nbsp;🔺</div>
 
     </div>
   </div>
@@ -420,8 +393,10 @@
       return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     }
 
-    // タイトルタップ → チュートリアル表示
-    function startMobileGame() {
+    // ロゴボタンタップ → 背景・難易度を設定してチュートリアル表示
+    function startMobileGame(bgKey, difficulty) {
+      window.selectedBgKey  = bgKey     || 'bg';
+      window.selectedDifficulty = difficulty || 'HARD';
       document.getElementById('fsOverlay').style.display = 'none';
       document.getElementById('tutorialOverlay').style.display = 'flex';
     }
