@@ -67,15 +67,15 @@ function brsStars(v) {
 
 // ─── Enemy Definitions ───────────────────────────────────────────────────────
 const EDEFS = [
-  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:10,   depthSpd:0.000125, dmg:8,  dropMin:0.05, dropMax:0.10 },
-  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000080, dmg:15, dropMin:0.10, dropMax:0.20 },
-  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000040, dmg:30, dropMin:0.20, dropMax:0.30 },
-  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:15,   depthSpd:0.000100, dmg:8,  dropMin:0.05, dropMax:0.15 },
-  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000060, dmg:18, dropMin:0.15, dropMax:0.25 },
-  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000030, dmg:35, dropMin:0.25, dropMax:0.35 },
-  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:10,   depthSpd:0.000150, dmg:6,  dropMin:0.05, dropMax:0.10 },
-  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000090, dmg:12, dropMin:0.10, dropMax:0.20 },
-  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000045, dmg:25, dropMin:0.20, dropMax:0.30 },
+  { id:'ant_s',    color:'#ff4422', edge:'#aa1100', r:12, hp:10,   depthSpd:0.000100, dmgMin:5,    dmgMax:10,  dropMin:0.05, dropMax:0.10 },
+  { id:'ant_m',    color:'#ff4422', edge:'#aa1100', r:21, hp:600,  depthSpd:0.000050, dmgMin:10,   dmgMax:20,  dropMin:0.10, dropMax:0.20 },
+  { id:'ant_l',    color:'#dd2200', edge:'#880000', r:36, hp:1200, depthSpd:0.000025, dmgMin:15,   dmgMax:25,  dropMin:0.20, dropMax:0.30 },
+  { id:'spider_s', color:'#cc44ff', edge:'#7700aa', r:12, hp:15,   depthSpd:0.000070, dmgMin:7.5,  dmgMax:12.5,dropMin:0.075,dropMax:0.15 },
+  { id:'spider_m', color:'#cc44ff', edge:'#7700aa', r:22, hp:800,  depthSpd:0.000035, dmgMin:12.5, dmgMax:25,  dropMin:0.15, dropMax:0.25 },
+  { id:'spider_l', color:'#aa22ee', edge:'#550088', r:38, hp:1600, depthSpd:0.000015, dmgMin:20,   dmgMax:40,  dropMin:0.25, dropMax:0.35 },
+  { id:'bee_s',    color:'#ffcc00', edge:'#aa7700', r:10, hp:10,   depthSpd:0.000175, dmgMin:2.5,  dmgMax:5,   dropMin:0.03, dropMax:0.10 },
+  { id:'bee_m',    color:'#ffcc00', edge:'#aa7700', r:17, hp:500,  depthSpd:0.000085, dmgMin:5,    dmgMax:20,  dropMin:0.10, dropMax:0.20 },
+  { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000040, dmgMin:15,   dmgMax:30,  dropMin:0.20, dropMax:0.30 },
 ];
 
 const PU_TYPES = ['atk', 'spd', 'bsr'];
@@ -311,29 +311,29 @@ const ROUNDS = [
     { until:60000, batch:2, pool:'sm',  interval:450 },
   ]},
   // index 2
-  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:350, batch:2 },
+  { type:'wave', waveNum:1, label:'WAVE 1', dur:30000, pool:'sm',  interval:400, batch:3 },
   // index 3
-  { type:'round', num:3, dur:60000, phases:[
+  { type:'round', num:3, dur:50000, phases:[
     { until:20000, batch:2, pool:'sm',  interval:400 },
     { until:40000, batch:2, pool:'sm',  interval:400 },
-    { until:60000, batch:2, pool:'sml', interval:400 },
+    { until:50000, batch:2, pool:'sml', interval:400 },
   ]},
   // index 4
-  { type:'round', num:4, dur:60000, phases:[
-    { until:20000, batch:3, pool:'sm',  interval:400 },
+  { type:'round', num:4, dur:50000, phases:[
+    { until:30000, batch:2, pool:'sm',  interval:400 },
+    { until:40000, batch:2, pool:'sml', interval:400 },
+    { until:50000, batch:2, pool:'sml', interval:400 },
+  ]},
+  // index 5
+  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:350, batch:3 },
+  // index 6
+  { type:'round', num:5, dur:60000, phases:[
+    { until:20000, batch:3, pool:'sml', interval:400 },
     { until:40000, batch:3, pool:'sml', interval:400 },
     { until:60000, batch:3, pool:'sml', interval:400 },
   ]},
-  // index 5
-  { type:'wave', waveNum:2, label:'WAVE 2', dur:30000, pool:'sml', interval:350, batch:3, hpMult:1.25 },
-  // index 6
-  { type:'round', num:5, dur:60000, phases:[
-    { until:20000, batch:4, pool:'sml', interval:400 },
-    { until:40000, batch:4, pool:'sml', interval:400 },
-    { until:60000, batch:4, pool:'sml', interval:400 },
-  ]},
   // index 7 ― LAST Wave 後は Round 3（index=3）に戻ってループ
-  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:400, batch:4, loopTo:3, hpMult:1.5 },
+  { type:'wave', label:'LAST WAVE', dur:30000, pool:'l', interval:400, batch:3, loopTo:3 },
 ];
 
 function getPool(key) {
@@ -673,7 +673,7 @@ function update(dt) {
     const ep = proj(e.laneX, e.depth);
     const er = projR(e.r, e.depth);
     if (Math.hypot(ep.x - pl.screenX, ep.y - (GY - 35)) < er + 26) {
-      pl.hp -= e.dmg; pl.damageFx = 300;
+      pl.hp -= Math.round(rnd(e.dmgMin, e.dmgMax)); pl.damageFx = 300;
       for (let hi = 0; hi < 6; hi++) {
         const a = Math.random()*Math.PI*2, s = rnd(1,5);
         particles.push({ x:pl.screenX, y:GY-55, vx:Math.cos(a)*s, vy:Math.sin(a)*s-1,
