@@ -238,9 +238,9 @@
   </div>
 
   <!-- チュートリアル -->
-  <div id="tutorialOverlay" onclick="startGame()">
-    <img class="tut-img" src="assets/images/ui/tutorial.png" alt="チュートリアル">
-    <div class="tut-start">▶︎&nbsp;&nbsp;SKIP&nbsp;&nbsp;◀︎</div>
+  <div id="tutorialOverlay" onclick="tutorialTap()">
+    <img id="tutImg" class="tut-img" src="assets/images/ui/tutorial02-a.png" alt="チュートリアル">
+    <div id="tutBtn" class="tut-start">▶︎&nbsp;&nbsp;NEXT&nbsp;&nbsp;◀︎</div>
   </div>
 
   <!-- 横向き警告 -->
@@ -393,15 +393,31 @@
       return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     }
 
+    // チュートリアルページ管理
+    let tutPage = 1;
+
+    function tutorialTap() {
+      if (tutPage === 1) {
+        tutPage = 2;
+        document.getElementById('tutImg').src = 'assets/images/ui/tutorial.png';
+        document.getElementById('tutBtn').innerHTML = '▶︎&nbsp;&nbsp;Are you ready?&nbsp;&nbsp;◀︎';
+      } else {
+        startGame();
+      }
+    }
+
     // ロゴボタンタップ → 背景・難易度を設定してチュートリアル表示
     function startMobileGame(bgKey, difficulty) {
       window.selectedBgKey  = bgKey     || 'bg';
       window.selectedDifficulty = difficulty || 'HARD';
+      tutPage = 1;
+      document.getElementById('tutImg').src = 'assets/images/ui/tutorial02-a.png';
+      document.getElementById('tutBtn').innerHTML = '▶︎&nbsp;&nbsp;NEXT&nbsp;&nbsp;◀︎';
       document.getElementById('fsOverlay').style.display = 'none';
       document.getElementById('tutorialOverlay').style.display = 'flex';
     }
 
-    // SKIP タップ → 全画面でゲーム開始
+    // Are you ready? タップ → 全画面でゲーム開始
     async function startGame() {
       document.getElementById('tutorialOverlay').style.display = 'none';
       // ゲームのポーズを解除

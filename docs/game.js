@@ -705,9 +705,9 @@ function update(dt) {
     const ps = proj(p.laneX, p.depth);
     if (Math.hypot(ps.x - pl.screenX, ps.y - (GY - 40)) < 44) {
       if (p.type === 'dwn') {
-        pl.atk   = Math.max(INIT_ATK,  pl.atk  - 5);
-        pl.bspd  = Math.max(INIT_BSPD, pl.bspd - 5);
-        pl.burst = Math.max(INIT_BCNT, parseFloat((pl.burst - 1).toFixed(1)));
+        pl.atk   = Math.max(INIT_ATK,  pl.atk  - 25);
+        pl.bspd  = Math.max(INIT_BSPD, pl.bspd - 25);
+        pl.burst = Math.max(INIT_BCNT, parseFloat((pl.burst - 5).toFixed(1)));
         pl.notif = { type:'dwn', t:3000 };
         snd('powerdown'); powerups.splice(i, 1); continue;
       }
