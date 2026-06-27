@@ -78,6 +78,31 @@ const EDEFS = [
   { id:'bee_l',    color:'#ffaa00', edge:'#885500', r:30, hp:1000, depthSpd:0.000040, dmgMin:15,   dmgMax:30,  dropMin:0.20, dropMax:0.30 },
 ];
 
+const DIFF_DROPS = {
+  NORMAL: {
+    ant_s:    { dropMin:0.10, dropMax:0.10 },
+    ant_m:    { dropMin:0.20, dropMax:0.20 },
+    ant_l:    { dropMin:0.30, dropMax:0.30 },
+    spider_s: { dropMin:0.15, dropMax:0.15 },
+    spider_m: { dropMin:0.25, dropMax:0.25 },
+    spider_l: { dropMin:0.35, dropMax:0.35 },
+    bee_s:    { dropMin:0.10, dropMax:0.10 },
+    bee_m:    { dropMin:0.20, dropMax:0.20 },
+    bee_l:    { dropMin:0.30, dropMax:0.30 },
+  },
+  EASY: {
+    ant_s:    { dropMin:0.15, dropMax:0.15 },
+    ant_m:    { dropMin:0.25, dropMax:0.25 },
+    ant_l:    { dropMin:0.35, dropMax:0.35 },
+    spider_s: { dropMin:0.20, dropMax:0.20 },
+    spider_m: { dropMin:0.30, dropMax:0.30 },
+    spider_l: { dropMin:0.40, dropMax:0.40 },
+    bee_s:    { dropMin:0.15, dropMax:0.15 },
+    bee_m:    { dropMin:0.25, dropMax:0.25 },
+    bee_l:    { dropMin:0.35, dropMax:0.35 },
+  },
+};
+
 const PU_TYPES = ['atk', 'spd', 'bsr'];
 const PU_COLOR = { atk:'#ff4444', spd:'#44aaff', bsr:'#44ff44', dwn:'#aa00ff' };
 const PU_LABEL = { atk:'ATK ↑', spd:'SPD ↑', bsr:'BRS ↑', atk_max:'ATK MAX!', spd_max:'SPD MAX!', bsr_max:'BRS MAX!', dwn:'DWN ↓' };
@@ -642,9 +667,11 @@ function update(dt) {
       const _prog = ((pl.atk - INIT_ATK) / (_atkMax - INIT_ATK)
                    + (pl.bspd - INIT_BSPD) / (100 - INIT_BSPD)
                    + (pl.burst - INIT_BCNT) / (10 - INIT_BCNT)) / 3;
+      const _diffKey = window.selectedDifficulty || 'HARD';
+      const _drops = (DIFF_DROPS[_diffKey]?.[e.id]) || e;
       const _dropRate = loopCount > 0
-        ? e.dropMin
-        : (_prog >= 0.5 ? (e.dropMin + e.dropMax) / 2 : rnd(e.dropMin, e.dropMax));
+        ? _drops.dropMin
+        : (_prog >= 0.5 ? (_drops.dropMin + _drops.dropMax) / 2 : rnd(_drops.dropMin, _drops.dropMax));
       if (Math.random() < _dropRate && dropRd?.type !== 'wave') {
         const atkMax = _atkMax;
         const avail = PU_TYPES.filter(t =>
