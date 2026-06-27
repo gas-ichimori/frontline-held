@@ -49,8 +49,8 @@ const INIT_DEFENSE   = 1000;
 const INIT_ENEMIES   = 10_000_000;
 
 // ─── TGS ブース情報（イベント当日に変更） ────────────────────────────────────
-const TGS_HALL  = '●';   // 例: '1'
-const TGS_BOOTH = '●●';  // 例: '東1ホール N12'
+const TGS_HALL  = '5';
+const TGS_BOOTH = '●●';
 
 // ─── GameOver ボタン ──────────────────────────────────────────────────────────
 let goBtn1 = null; // 証明書ボタン
@@ -1526,8 +1526,7 @@ function makeCertificate() {
 async function shareToX() {
   const defeated = INIT_ENEMIES - enemyCount;
   const tweetText =
-    `D3Pブース 第${TGS_HALL}ホール ${TGS_BOOTH}の最前線基地へ応援求む！` +
-    ` ${defeated.toLocaleString()}匹撃破！ #EDF #D3P #TGS2026`;
+    `D3Pブース ${TGS_HALL}HALL ${TGS_BOOTH}の最前線基地へ応援求む！待機中の訓練システムにて ${defeated.toLocaleString()}匹撃破！ #EDF #D3P #TGS2026`;
   const cc = makeCertificate();
   cc.toBlob(async blob => {
     const file = new File([blob], 'edf_certificate.png', { type:'image/png' });
