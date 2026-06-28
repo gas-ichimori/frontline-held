@@ -239,14 +239,9 @@ canvas.addEventListener('touchstart', e => {
   const ty = (e.touches[0].clientY - rect.top)  * (H / rect.height);
   // レーダー（右上）タップ → PAUSE
   if (gstate === 'playing' && tx > W - 94 && ty < 99) { togglePause(); return; }
-  // バリケードエリア（画面下部）タップ
-  if (gstate === 'playing' && ty > H - 70) {
-    const isMob = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if (!isMob && tx > W * 0.68) {  // デスクトップのみ右バリケード → DEBUG
-      if (typeof toggleDebug === 'function') toggleDebug();
-      return;
-    }
-    // 左・右端はそのまま通常の移動処理へ（中央バリケードPAUSEは廃止）
+  // ROUNDフレーム（上中央）タップ → DEBUG
+  if (gstate === 'playing' && tx >= W/2-66 && tx <= W/2+66 && ty >= 8 && ty <= 52) {
+    if (typeof toggleDebug === 'function') toggleDebug(); return;
   }
   if (paused) return;
   if (tx < W * 0.38)      tryLaneMove(-1);
@@ -268,7 +263,7 @@ canvas.addEventListener('click', e => {
   const ty = (e.clientY - rect.top)  * (H / rect.height);
   if (gstate === 'gameover') { handleGoTap(tx, ty); return; }
   if (gstate === 'playing' && tx > W - 94 && ty < 99) { togglePause(); return; }
-  if (gstate === 'playing' && ty > H - 70 && tx > W * 0.68) {
+  if (gstate === 'playing' && tx >= W/2-66 && tx <= W/2+66 && ty >= 8 && ty <= 52) {
     if (typeof toggleDebug === 'function') toggleDebug();
   }
 });
@@ -380,7 +375,7 @@ function spawnEnemy(pool, hpMult = 1, maxMultOverride = null) {
   const maxed = (pl.atk >= atkCap ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
   const maxMult = maxMultOverride !== null ? maxMultOverride
     : (maxed >= 3 ? 5 : maxed >= 2 ? 7.5 : maxed >= 1 ? 5 : 1);
-  const totalHp = Math.round(def.hp * hpMult * maxMult) + hpBonus;
+  const totalHp = Math.max(1, Math.round(def.hp * hpMult * maxMult) + hpBonus + (dbgHpAdj[def.id] || 0));
   enemies.push({
     ...def, laneIndex: li, laneX: LANE_X[li],
     depth: 0.05, hp: totalHp, currentHp: totalHp, hitFx: 0,
@@ -563,6 +558,13 @@ function update(dt) {
       else if (maxed2 >= 2) { batch = Math.ceil(batch * 2.0); interval = Math.min(interval, 200); }
       else if (maxed2 >= 1) { batch = Math.ceil(batch * 1.5); interval = Math.min(interval, 250); }
     }
+    // デバッグ調整：MAX数別batch/interval、全体interval offset
+    if (maxed2 >= 1) {
+      const mi = Math.min(maxed2, 3) - 1;
+      batch    = Math.max(1, batch + dbgBatchAdjMax[mi]);
+      interval = Math.max(50, interval + dbgIntervalAdjMax[mi]);
+    }
+    interval = Math.max(50, interval + dbgIntervalOfs);
     spawnTmr += dt;
     if (spawnTmr >= interval) {
       spawnTmr -= interval;
@@ -614,7 +616,8 @@ function update(dt) {
       }
       continue;
     }
-    e.depth += e.depthSpd * enemySpeedMult * dt;
+    const _tSpd = e.id.startsWith('ant') ? dbgAntSpd : e.id.startsWith('spider') ? dbgSpiderSpd : dbgBeeSpd;
+    e.depth += e.depthSpd * _tSpd * dt;
     if (e.hitFx > 0) e.hitFx -= dt;
     e.animTimer += dt;
     const aniRate = Math.max(80, 260 - e.depth * 160);
@@ -958,7 +961,7 @@ function drawPause() {
   ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px sans-serif';
   ctx.fillText('PAUSE', W/2, H/2 + 22);
   ctx.fillStyle = '#aaa'; ctx.font = '12px sans-serif';
-  ctx.fillText('バリケードをタップして再開', W/2, H/2 + 50);
+  ctx.fillText('PAUSEボタンを押して再開', W/2, H/2 + 50);
   ctx.restore();
 }
 
@@ -1325,7 +1328,7 @@ function drawRadar() {
   ctx.beginPath(); ctx.arc(rcx,rcy,rr,0,Math.PI*2); ctx.stroke();
   ctx.restore();
   ctx.fillStyle='#00ff44'; ctx.font='8px monospace'; ctx.textAlign='center';
-  ctx.fillText(paused ? '▶ RESUME' : 'RADAR', rcx, rcy+rr+11);
+  if (!paused) ctx.fillText('▶︎ PAUSE', rcx, rcy+rr+11);
 }
 
 // ─── Screens ─────────────────────────────────────────────────────────────────
@@ -1571,6 +1574,13 @@ let paused = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 let enemySpeedMult = 1.0;
 let dbgFireWave = false;
 let envFireTime  = 0;
+let dbgAntSpd    = 1.0;
+let dbgSpiderSpd = 1.0;
+let dbgBeeSpd    = 1.0;
+let dbgIntervalOfs = 0;
+let dbgBatchAdjMax    = [0, 0, 0];
+let dbgIntervalAdjMax = [0, 0, 0];
+let dbgHpAdj = { ant_s:0, ant_m:0, ant_l:0, spider_s:0, spider_m:0, spider_l:0, bee_s:0, bee_m:0, bee_l:0 };
 
 function toggleDebug() {
   const p = document.getElementById('dbgPanel');
@@ -1578,16 +1588,18 @@ function toggleDebug() {
 }
 function togglePause() {
   paused = !paused;
-  document.getElementById('dbgPauseBtn').textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
+  const btn = document.getElementById('dbgPauseBtn');
+  if (btn) btn.textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
   const bgm = document.getElementById('bgm');
   if (bgm) { paused ? bgm.pause() : bgm.play().catch(()=>{}); }
 }
 function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
-function dbgVictory()  { gameResult='victory'; gstate='gameover'; snd('gameover'); }
+function dbgVictory()  { enemyCount = INIT_ENEMIES - 5000; gameResult='victory'; gstate='gameover'; snd('gameover'); }
 function dbgAtk(v)  { const cap = loopCount > 0 ? 500 : 100; pl.atk = Math.max(1, Math.min(cap, pl.atk + v)); }
 function dbgLoop()  { loopCount = 1; hpBonus = 2000; pl.atk = Math.min(pl.atk, 100); }
 function dbgDwn()   { dwnWarning = 2000; snd('dwn_warning'); }
 function dbgSpd(v)  { pl.bspd = Math.max(1, Math.min(200, pl.bspd + v)); }
+function dbgBurstAdj(v) { pl.burst = Math.max(INIT_BCNT, Math.min(10, parseFloat((pl.burst + v).toFixed(1)))); pl.burstLeft = 0; }
 function dbgSpawn(id) {
   if (gstate !== 'playing') return;
   const def = EDEFS.find(d => d.id === id);
@@ -1597,7 +1609,6 @@ function dbgSpawn(id) {
     depth:0.05, currentHp:def.hp, hitFx:0,
     animFrame:0, animTimer:0, dying:false, dieFrame:0, dieTimer:0 });
 }
-function dbgBurst(n) { pl.burst = n; pl.burstLeft = 0; }
 function dbgGoto(idx, makeLoop) {
   if (gstate !== 'playing') return;
   roundIdx   = idx;
@@ -1613,17 +1624,33 @@ function dbgGoto(idx, makeLoop) {
     roundBanner = { text: loopCount > 0 ? `STAGE∞ R${rd.num}` : `ROUND ${rd.num}`, timer: 1500, color: loopCount > 0 ? '#aa44ff' : '#ffdd00' };
   }
 }
-function dbgEnemySpd(mult) {
-  enemySpeedMult = mult;
-  document.getElementById('dbgSpdLabel').textContent = mult + 'x';
-  document.getElementById('dbgSpdVal').textContent = (0.000100 * mult).toFixed(6);
+function dbgTypeSpd(type, delta) {
+  if (type === 'ant')    dbgAntSpd    = Math.max(0.1, parseFloat((dbgAntSpd    + delta).toFixed(2)));
+  if (type === 'spider') dbgSpiderSpd = Math.max(0.1, parseFloat((dbgSpiderSpd + delta).toFixed(2)));
+  if (type === 'bee')    dbgBeeSpd    = Math.max(0.1, parseFloat((dbgBeeSpd    + delta).toFixed(2)));
+  const el = document.getElementById('dbgSpd_' + type);
+  if (el) el.textContent = (type === 'ant' ? dbgAntSpd : type === 'spider' ? dbgSpiderSpd : dbgBeeSpd).toFixed(2) + 'x';
 }
-function toggleFireWave() {
-  dbgFireWave = !dbgFireWave;
-  const btn = document.getElementById('dbgFireWaveBtn');
-  if (btn) btn.textContent = dbgFireWave ? '🔥 炎・波 ON' : '🔥 炎・波 OFF';
+function dbgIntervalOffset(delta) {
+  dbgIntervalOfs = Math.max(-300, Math.min(500, dbgIntervalOfs + delta));
+  const el = document.getElementById('dbgIntervalOfsVal');
+  if (el) el.textContent = (dbgIntervalOfs >= 0 ? '+' : '') + dbgIntervalOfs + 'ms';
 }
-window.addEventListener('keydown', e => { if (e.key === 'd' || e.key === 'D') toggleDebug(); });
+function dbgMaxBatch(mi, delta) {
+  dbgBatchAdjMax[mi] += delta;
+  const el = document.getElementById('dbgMaxBatch' + mi);
+  if (el) el.textContent = (dbgBatchAdjMax[mi] >= 0 ? '+' : '') + dbgBatchAdjMax[mi];
+}
+function dbgMaxInterval(mi, delta) {
+  dbgIntervalAdjMax[mi] = Math.max(-300, dbgIntervalAdjMax[mi] + delta);
+  const el = document.getElementById('dbgMaxInterval' + mi);
+  if (el) el.textContent = (dbgIntervalAdjMax[mi] >= 0 ? '+' : '') + dbgIntervalAdjMax[mi] + 'ms';
+}
+function dbgEnemyHp(id, delta) {
+  dbgHpAdj[id] = (dbgHpAdj[id] || 0) + delta;
+  const el = document.getElementById('dbgHp_' + id.replace('_', ''));
+  if (el) el.textContent = (dbgHpAdj[id] >= 0 ? '+' : '') + dbgHpAdj[id];
+}
 
 // ─── Main Loop ────────────────────────────────────────────────────────────────
 function loop(ts) {

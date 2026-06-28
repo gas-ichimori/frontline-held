@@ -307,13 +307,13 @@
       <button class="dbg-close" onclick="toggleDebug()">✕ 閉じる</button>
     </div>
 
-    <!-- ポーズ -->
+    <!-- ゲーム制御 -->
     <div class="dbg-section">
       <div class="dbg-label">ゲーム制御</div>
       <div class="dbg-row">
         <button id="dbgPauseBtn" class="dbg-btn pause" onclick="togglePause()">⏸ PAUSE</button>
         <button class="dbg-btn" style="border-color:#ff4444;color:#ff4444;" onclick="dbgGameOver()">💀 即GAME OVER</button>
-        <button class="dbg-btn" style="border-color:#44ff88;color:#44ff88;" onclick="dbgVictory()">🏆 10000撃破 ALL CLEAR</button>
+        <button class="dbg-btn" style="border-color:#44ff88;color:#44ff88;" onclick="dbgVictory()">🏆 5000撃破 ALL CLEAR</button>
         <button class="dbg-btn" style="border-color:#aa44ff;color:#aa44ff;" onclick="dbgLoop()">♾️ STAGE∞ 突入</button>
         <button class="dbg-btn" style="border-color:#ff00ff;color:#ff00ff;" onclick="dbgDwn()">⚠ DWN警告テスト</button>
       </div>
@@ -334,22 +334,14 @@
       </div>
     </div>
 
-    <!-- 環境エフェクト -->
-    <div class="dbg-section">
-      <div class="dbg-label">環境エフェクト</div>
-      <div class="dbg-row">
-        <button id="dbgFireWaveBtn" class="dbg-btn" style="border-color:#ff8800;color:#ff8800;" onclick="toggleFireWave()">🔥 炎・波 OFF</button>
-      </div>
-    </div>
-
     <!-- 攻撃力 -->
     <div class="dbg-section">
       <div class="dbg-label">攻撃力 (ATK: <span id="dbgAtk">-</span>)</div>
       <div class="dbg-row">
-        <button class="dbg-btn atk" onclick="dbgAtk(10)">＋10</button>
-        <button class="dbg-btn atk" onclick="dbgAtk(50)">＋50</button>
-        <button class="dbg-btn atk" onclick="dbgAtk(-10)">－10</button>
-        <button class="dbg-btn atk" onclick="dbgAtk(-50)">－50</button>
+        <button class="dbg-btn atk" onclick="dbgAtk(1)">＋1</button>
+        <button class="dbg-btn atk" onclick="dbgAtk(5)">＋5</button>
+        <button class="dbg-btn atk" onclick="dbgAtk(-1)">－1</button>
+        <button class="dbg-btn atk" onclick="dbgAtk(-5)">－5</button>
       </div>
     </div>
 
@@ -357,10 +349,10 @@
     <div class="dbg-section">
       <div class="dbg-label">弾速 (SPD: <span id="dbgSpd">-</span>)</div>
       <div class="dbg-row">
+        <button class="dbg-btn spd" onclick="dbgSpd(1)">＋1</button>
         <button class="dbg-btn spd" onclick="dbgSpd(5)">＋5</button>
-        <button class="dbg-btn spd" onclick="dbgSpd(20)">＋20</button>
+        <button class="dbg-btn spd" onclick="dbgSpd(-1)">－1</button>
         <button class="dbg-btn spd" onclick="dbgSpd(-5)">－5</button>
-        <button class="dbg-btn spd" onclick="dbgSpd(-20)">－20</button>
       </div>
     </div>
 
@@ -368,11 +360,8 @@
     <div class="dbg-section">
       <div class="dbg-label">バースト連射数 (BRS: <span id="dbgBrs">-</span>)</div>
       <div class="dbg-row">
-        <button class="dbg-btn" onclick="dbgBurst(1)">1発</button>
-        <button class="dbg-btn" onclick="dbgBurst(2)">2連射</button>
-        <button class="dbg-btn" onclick="dbgBurst(3)">3連射</button>
-        <button class="dbg-btn" onclick="dbgBurst(5)">5連射</button>
-        <button class="dbg-btn" style="border-color:#44ff66;color:#44ff66;" onclick="dbgBurst(10)">MAX (10)</button>
+        <button class="dbg-btn" style="border-color:#44ff66;color:#44ff66;" onclick="dbgBurstAdj(1)">＋1</button>
+        <button class="dbg-btn" style="border-color:#ff6644;color:#ff6644;" onclick="dbgBurstAdj(-1)">－1</button>
       </div>
     </div>
 
@@ -406,16 +395,104 @@
       </div>
     </div>
 
-    <!-- 敵スピード -->
+    <!-- 敵スピード倍率（種別） -->
     <div class="dbg-section">
-      <div class="dbg-label">敵スピード倍率: <span id="dbgSpdLabel">1x</span> &nbsp;(depthSpd: <span id="dbgSpdVal">0.000100</span>)</div>
+      <div class="dbg-label">敵スピード倍率</div>
+      <div class="dbg-row" style="flex-direction:column;gap:4px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="dbg-btn ant" style="min-width:40px;text-align:center;cursor:default;">🐜蟻</span>
+          <span id="dbgSpd_ant" style="color:#ff5533;min-width:36px;">1.00x</span>
+          <button class="dbg-btn ant" onclick="dbgTypeSpd('ant',0.1)">＋</button>
+          <button class="dbg-btn ant" onclick="dbgTypeSpd('ant',-0.1)">－</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="dbg-btn spider" style="min-width:40px;text-align:center;cursor:default;">🕷蜘蛛</span>
+          <span id="dbgSpd_spider" style="color:#aa66ff;min-width:36px;">1.00x</span>
+          <button class="dbg-btn spider" onclick="dbgTypeSpd('spider',0.1)">＋</button>
+          <button class="dbg-btn spider" onclick="dbgTypeSpd('spider',-0.1)">－</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="dbg-btn bee" style="min-width:40px;text-align:center;cursor:default;">🐝蜂</span>
+          <span id="dbgSpd_bee" style="color:#ffcc00;min-width:36px;">1.00x</span>
+          <button class="dbg-btn bee" onclick="dbgTypeSpd('bee',0.1)">＋</button>
+          <button class="dbg-btn bee" onclick="dbgTypeSpd('bee',-0.1)">－</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 間隔（グローバルoffset） -->
+    <div class="dbg-section">
+      <div class="dbg-label">間隔オフセット: <span id="dbgIntervalOfsVal">+0ms</span></div>
       <div class="dbg-row">
-        <button class="dbg-btn" onclick="dbgEnemySpd(0.3)">×0.3<br><span style="font-size:10px">0.000030</span></button>
-        <button class="dbg-btn" onclick="dbgEnemySpd(0.6)">×0.6<br><span style="font-size:10px">0.000060</span></button>
-        <button class="dbg-btn" onclick="dbgEnemySpd(1.0)">×1.0<br><span style="font-size:10px">0.000100</span></button>
-        <button class="dbg-btn" onclick="dbgEnemySpd(1.5)">×1.5<br><span style="font-size:10px">0.000150</span></button>
-        <button class="dbg-btn" onclick="dbgEnemySpd(2.0)">×2.0<br><span style="font-size:10px">0.000200</span></button>
-        <button class="dbg-btn" onclick="dbgEnemySpd(3.0)">×3.0<br><span style="font-size:10px">0.000300</span></button>
+        <button class="dbg-btn" onclick="dbgIntervalOffset(-10)">－10ms</button>
+        <button class="dbg-btn" onclick="dbgIntervalOffset(10)">＋10ms</button>
+      </div>
+    </div>
+
+    <!-- パワーアップMAX設定 -->
+    <div class="dbg-section">
+      <div class="dbg-label">パワーアップMAX設定</div>
+      <div style="font-size:11px;color:#888;margin-bottom:4px;">1つMAX時 batch:<span id="dbgMaxBatch0">+0</span> 間隔:<span id="dbgMaxInterval0">+0ms</span></div>
+      <div class="dbg-row" style="margin-bottom:6px;">
+        <button class="dbg-btn" onclick="dbgMaxBatch(0,1)">batch＋1</button>
+        <button class="dbg-btn" onclick="dbgMaxBatch(0,-1)">batch－1</button>
+        <button class="dbg-btn" onclick="dbgMaxInterval(0,-10)">間隔－10ms</button>
+        <button class="dbg-btn" onclick="dbgMaxInterval(0,10)">間隔＋10ms</button>
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:4px;">2つMAX時 batch:<span id="dbgMaxBatch1">+0</span> 間隔:<span id="dbgMaxInterval1">+0ms</span></div>
+      <div class="dbg-row" style="margin-bottom:6px;">
+        <button class="dbg-btn" onclick="dbgMaxBatch(1,1)">batch＋1</button>
+        <button class="dbg-btn" onclick="dbgMaxBatch(1,-1)">batch－1</button>
+        <button class="dbg-btn" onclick="dbgMaxInterval(1,-10)">間隔－10ms</button>
+        <button class="dbg-btn" onclick="dbgMaxInterval(1,10)">間隔＋10ms</button>
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:4px;">3つMAX時 batch:<span id="dbgMaxBatch2">+0</span> 間隔:<span id="dbgMaxInterval2">+0ms</span></div>
+      <div class="dbg-row">
+        <button class="dbg-btn" onclick="dbgMaxBatch(2,1)">batch＋1</button>
+        <button class="dbg-btn" onclick="dbgMaxBatch(2,-1)">batch－1</button>
+        <button class="dbg-btn" onclick="dbgMaxInterval(2,-10)">間隔－10ms</button>
+        <button class="dbg-btn" onclick="dbgMaxInterval(2,10)">間隔＋10ms</button>
+      </div>
+    </div>
+
+    <!-- 敵HP設定 -->
+    <div class="dbg-section">
+      <div class="dbg-label">敵の体力設定</div>
+      <div style="font-size:11px;color:#ff5533;margin-bottom:2px;">🐜蟻</div>
+      <div class="dbg-row" style="margin-bottom:4px;">
+        <span style="color:#ff5533;font-size:11px;">小<span id="dbgHp_ants">+0</span></span>
+        <button class="dbg-btn ant" onclick="dbgEnemyHp('ant_s',10)">＋10</button>
+        <button class="dbg-btn ant" onclick="dbgEnemyHp('ant_s',-10)">－10</button>
+        <span style="color:#ff5533;font-size:11px;">中<span id="dbgHp_antm">+0</span></span>
+        <button class="dbg-btn ant" onclick="dbgEnemyHp('ant_m',10)">＋10</button>
+        <button class="dbg-btn ant" onclick="dbgEnemyHp('ant_m',-10)">－10</button>
+        <span style="color:#ff5533;font-size:11px;">大<span id="dbgHp_antl">+0</span></span>
+        <button class="dbg-btn ant" onclick="dbgEnemyHp('ant_l',10)">＋10</button>
+        <button class="dbg-btn ant" onclick="dbgEnemyHp('ant_l',-10)">－10</button>
+      </div>
+      <div style="font-size:11px;color:#aa66ff;margin-bottom:2px;">🕷蜘蛛</div>
+      <div class="dbg-row" style="margin-bottom:4px;">
+        <span style="color:#aa66ff;font-size:11px;">小<span id="dbgHp_spiders">+0</span></span>
+        <button class="dbg-btn spider" onclick="dbgEnemyHp('spider_s',10)">＋10</button>
+        <button class="dbg-btn spider" onclick="dbgEnemyHp('spider_s',-10)">－10</button>
+        <span style="color:#aa66ff;font-size:11px;">中<span id="dbgHp_spiderm">+0</span></span>
+        <button class="dbg-btn spider" onclick="dbgEnemyHp('spider_m',10)">＋10</button>
+        <button class="dbg-btn spider" onclick="dbgEnemyHp('spider_m',-10)">－10</button>
+        <span style="color:#aa66ff;font-size:11px;">大<span id="dbgHp_spiderl">+0</span></span>
+        <button class="dbg-btn spider" onclick="dbgEnemyHp('spider_l',10)">＋10</button>
+        <button class="dbg-btn spider" onclick="dbgEnemyHp('spider_l',-10)">－10</button>
+      </div>
+      <div style="font-size:11px;color:#ffcc00;margin-bottom:2px;">🐝蜂</div>
+      <div class="dbg-row">
+        <span style="color:#ffcc00;font-size:11px;">小<span id="dbgHp_bees">+0</span></span>
+        <button class="dbg-btn bee" onclick="dbgEnemyHp('bee_s',10)">＋10</button>
+        <button class="dbg-btn bee" onclick="dbgEnemyHp('bee_s',-10)">－10</button>
+        <span style="color:#ffcc00;font-size:11px;">中<span id="dbgHp_beem">+0</span></span>
+        <button class="dbg-btn bee" onclick="dbgEnemyHp('bee_m',10)">＋10</button>
+        <button class="dbg-btn bee" onclick="dbgEnemyHp('bee_m',-10)">－10</button>
+        <span style="color:#ffcc00;font-size:11px;">大<span id="dbgHp_beel">+0</span></span>
+        <button class="dbg-btn bee" onclick="dbgEnemyHp('bee_l',10)">＋10</button>
+        <button class="dbg-btn bee" onclick="dbgEnemyHp('bee_l',-10)">－10</button>
       </div>
     </div>
 
