@@ -168,7 +168,9 @@ loadImg('cert_count_frame', 'assets/images/cert_count_frame.png');
 loadImg('cert_rank_bar',    'assets/images/cert_rank_bar.png');
 loadImg('cert_stamp',       'assets/images/cert_stamp.png');
 loadImg('cert_bg',          'assets/images/cert_bg.png');
-loadImg('allclear',         'assets/images/ui/allclear.png');
+loadImg('allclear01', 'assets/images/ui/allclear01.png');
+loadImg('allclear02', 'assets/images/ui/allclear02.png');
+loadImg('allclear03', 'assets/images/ui/allclear03.png');
 for (let i = 1; i <= 4; i++) {
   loadImg(`wc${i}`, `assets/images/player/walk_c_${i}.png`);
   loadImg(`wb${i}`, `assets/images/player/walk_b_${i}.png`);
@@ -1547,14 +1549,17 @@ async function shareToX() {
     }, 'image/png');
   }
 
-  // ALL CLEAR時は特別画像を使用
-  const acImg = imgs['allclear'];
-  if (gameResult === 'victory' && acImg?.complete && acImg.naturalWidth) {
-    const ac = document.createElement('canvas');
-    ac.width = acImg.naturalWidth; ac.height = acImg.naturalHeight;
-    ac.getContext('2d').drawImage(acImg, 0, 0);
-    doShare(ac, 'edf_allclear.png');
-    return;
+  // ALL CLEAR時はランダムで特別画像を使用
+  if (gameResult === 'victory') {
+    const acKeys = ['allclear01', 'allclear02', 'allclear03'];
+    const acImg = imgs[acKeys[Math.floor(Math.random() * acKeys.length)]];
+    if (acImg?.complete && acImg.naturalWidth) {
+      const ac = document.createElement('canvas');
+      ac.width = acImg.naturalWidth; ac.height = acImg.naturalHeight;
+      ac.getContext('2d').drawImage(acImg, 0, 0);
+      doShare(ac, 'edf_allclear.png');
+      return;
+    }
   }
 
   doShare(makeCertificate(), 'edf_certificate.png');
