@@ -148,6 +148,7 @@ function loadImg(key, src) {
   imgs[key] = el;
 }
 loadImg('bg',          'assets/images/bg.png');
+loadImg('bg_edf5_01', 'assets/images/bg_edf5_01.png');
 loadImg('bg_edf5_02', 'assets/images/bg_edf5_02.png');
 loadImg('bg_edf6_01', 'assets/images/bg_edf6_01.png');
 loadImg('barricade',         'assets/images/barricade_normal.png');

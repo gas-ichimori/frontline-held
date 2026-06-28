@@ -1,10 +1,11 @@
-const CACHE = 'edf-frontline-v13';
+const CACHE = 'edf-frontline-v14';
 const ASSETS = [
   '/frontline-held/',
   '/frontline-held/index.html',
   '/frontline-held/game.js',
   '/frontline-held/assets/audio/bgm.mp3',
   '/frontline-held/assets/images/bg.png',
+  '/frontline-held/assets/images/bg_edf5_01.png',
   '/frontline-held/assets/images/bg_edf5_02.png',
   '/frontline-held/assets/images/bg_edf6_01.png',
   '/frontline-held/assets/images/edf_icon.png',
