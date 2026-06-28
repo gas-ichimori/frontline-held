@@ -1563,10 +1563,11 @@ async function shareToX() {
     }, 'image/png');
   }
 
-  // ALL CLEAR時はランダムで特別画像を使用
+  // ALL CLEAR時は難易度別の特別画像を使用
   if (gameResult === 'victory') {
-    const acKeys = ['allclear01', 'allclear02', 'allclear03'];
-    const acImg = imgs[acKeys[Math.floor(Math.random() * acKeys.length)]];
+    const _diff = window.selectedDifficulty || 'HARD';
+    const acKey = _diff === 'EASY' ? 'allclear03' : _diff === 'NORMAL' ? 'allclear02' : 'allclear01';
+    const acImg = imgs[acKey];
     if (acImg?.complete && acImg.naturalWidth) {
       const ac = document.createElement('canvas');
       ac.width = acImg.naturalWidth; ac.height = acImg.naturalHeight;
