@@ -168,6 +168,7 @@ loadImg('cert_count_frame', 'assets/images/cert_count_frame.png');
 loadImg('cert_rank_bar',    'assets/images/cert_rank_bar.png');
 loadImg('cert_stamp',       'assets/images/cert_stamp.png');
 loadImg('cert_bg',          'assets/images/cert_bg.png');
+loadImg('allclear',         'assets/images/ui/allclear.png');
 for (let i = 1; i <= 4; i++) {
   loadImg(`wc${i}`, `assets/images/player/walk_c_${i}.png`);
   loadImg(`wb${i}`, `assets/images/player/walk_b_${i}.png`);
@@ -770,8 +771,8 @@ function update(dt) {
     if (splashes[i].life <= 0) splashes.splice(i, 1);
   }
 
-  // 1万撃破で地球防衛成功
-  if (INIT_ENEMIES - enemyCount >= 10000) {
+  // 5千撃破で地球防衛成功
+  if (INIT_ENEMIES - enemyCount >= 5000) {
     gameResult = 'victory';
     gstate = 'gameover';
     snd('gameover');
@@ -1525,23 +1526,38 @@ function makeCertificate() {
 
 async function shareToX() {
   const defeated = INIT_ENEMIES - enemyCount;
+  const diff = window.selectedDifficulty || 'HARD';
+  const gameTitle = diff === 'EASY' ? 'EDF5' : diff === 'NORMAL' ? 'EDF6' : 'EDF6.1x2';
   const tweetText =
-    `D3Pブース ${TGS_HALL}HALL ${TGS_BOOTH}の最前線基地へ応援求む！待機中の訓練システムにて ${defeated.toLocaleString()}匹撃破！ #EDF #D3P #TGS2026`;
-  const cc = makeCertificate();
-  cc.toBlob(async blob => {
-    const file = new File([blob], 'edf_certificate.png', { type:'image/png' });
-    if (navigator.canShare?.({ files:[file] })) {
-      try { await navigator.share({ text:tweetText, files:[file] }); return; } catch(e){}
-    }
-    // フォールバック: 画像ダウンロード → Twitter Intent
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href=url; a.download='edf_certificate.png'; a.click();
-    URL.revokeObjectURL(url);
-    setTimeout(() => {
-      window.open('https://x.com/intent/tweet?text='+encodeURIComponent(tweetText), '_blank');
-    }, 600);
-  }, 'image/png');
+    `D3Pブース ${TGS_HALL}HALL ${TGS_BOOTH}の最前線基地へ応援求む！待機中の訓練システム"${gameTitle}に挑戦！" ${defeated.toLocaleString()}匹撃破！ #EDF #D3P #TGS2026 #地球防衛軍`;
+
+  async function doShare(canvas, filename) {
+    canvas.toBlob(async blob => {
+      const file = new File([blob], filename, { type:'image/png' });
+      if (navigator.canShare?.({ files:[file] })) {
+        try { await navigator.share({ text:tweetText, files:[file] }); return; } catch(e){}
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download=filename; a.click();
+      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        window.open('https://x.com/intent/tweet?text='+encodeURIComponent(tweetText), '_blank');
+      }, 600);
+    }, 'image/png');
+  }
+
+  // ALL CLEAR時は特別画像を使用
+  const acImg = imgs['allclear'];
+  if (gameResult === 'victory' && acImg?.complete && acImg.naturalWidth) {
+    const ac = document.createElement('canvas');
+    ac.width = acImg.naturalWidth; ac.height = acImg.naturalHeight;
+    ac.getContext('2d').drawImage(acImg, 0, 0);
+    doShare(ac, 'edf_allclear.png');
+    return;
+  }
+
+  doShare(makeCertificate(), 'edf_certificate.png');
 }
 
 // ─── Debug ────────────────────────────────────────────────────────────────────
