@@ -169,6 +169,7 @@ loadImg('cert_count_frame', 'assets/images/cert_count_frame.png');
 loadImg('cert_rank_bar',    'assets/images/cert_rank_bar.png');
 loadImg('cert_stamp',       'assets/images/cert_stamp.png');
 loadImg('cert_bg',          'assets/images/cert_bg.png');
+loadImg('pause_button', 'assets/images/ui/pause_button.png');
 loadImg('allclear01', 'assets/images/ui/allclear01.png');
 loadImg('allclear02', 'assets/images/ui/allclear02.png');
 loadImg('allclear03', 'assets/images/ui/allclear03.png');
@@ -238,7 +239,7 @@ canvas.addEventListener('touchstart', e => {
   const tx = (e.touches[0].clientX - rect.left) * (W / rect.width);
   const ty = (e.touches[0].clientY - rect.top)  * (H / rect.height);
   // レーダー（右上）タップ → PAUSE
-  if (gstate === 'playing' && tx > W - 94 && ty < 99) { togglePause(); return; }
+  if (gstate === 'playing' && tx > W - 94 && ty < 150) { togglePause(); return; }
   // ROUNDフレーム（上中央）タップ → DEBUG
   if (gstate === 'playing' && tx >= W/2-66 && tx <= W/2+66 && ty >= 8 && ty <= 52) {
     if (typeof toggleDebug === 'function') toggleDebug(); return;
@@ -262,7 +263,7 @@ canvas.addEventListener('click', e => {
   const tx = (e.clientX - rect.left) * (W / rect.width);
   const ty = (e.clientY - rect.top)  * (H / rect.height);
   if (gstate === 'gameover') { handleGoTap(tx, ty); return; }
-  if (gstate === 'playing' && tx > W - 94 && ty < 99) { togglePause(); return; }
+  if (gstate === 'playing' && tx > W - 94 && ty < 150) { togglePause(); return; }
   if (gstate === 'playing' && tx >= W/2-66 && tx <= W/2+66 && ty >= 8 && ty <= 52) {
     if (typeof toggleDebug === 'function') toggleDebug();
   }
@@ -1327,8 +1328,17 @@ function drawRadar() {
   ctx.strokeStyle='#00ff44'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.arc(rcx,rcy,rr,0,Math.PI*2); ctx.stroke();
   ctx.restore();
-  ctx.fillStyle='#00ff44'; ctx.font='8px monospace'; ctx.textAlign='center';
-  if (!paused) ctx.fillText('▶︎ PAUSE', rcx, rcy+rr+11);
+  // PAUSEボタン画像（レーダー直下）
+  const pbImg = imgs['pause_button'];
+  const pbSize = 46;
+  if (pbImg?.complete && pbImg.naturalWidth) {
+    ctx.globalAlpha = paused ? 0.4 : 1.0;
+    ctx.drawImage(pbImg, rcx - pbSize/2, rcy + rr + 4, pbSize, pbSize);
+    ctx.globalAlpha = 1;
+  } else {
+    ctx.fillStyle='#00ff44'; ctx.font='8px monospace'; ctx.textAlign='center';
+    if (!paused) ctx.fillText('▶︎ PAUSE', rcx, rcy+rr+11);
+  }
 }
 
 // ─── Screens ─────────────────────────────────────────────────────────────────
