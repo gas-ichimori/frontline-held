@@ -955,10 +955,16 @@ function drawPause() {
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
   ctx.fillRect(0, 0, W, H);
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 20;
-  ctx.fillStyle = '#ffdd44'; ctx.font = 'bold 48px monospace';
-  ctx.fillText('⏸', W/2, H/2 - 24);
-  ctx.shadowBlur = 0;
+  const pbImg = imgs['pause_button'];
+  const pbSz = 80;
+  if (pbImg?.complete && pbImg.naturalWidth) {
+    ctx.drawImage(pbImg, W/2 - pbSz/2, H/2 - pbSz - 4, pbSz, pbSz);
+  } else {
+    ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 20;
+    ctx.fillStyle = '#ffdd44'; ctx.font = 'bold 48px monospace';
+    ctx.fillText('⏸', W/2, H/2 - 24);
+    ctx.shadowBlur = 0;
+  }
   ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px sans-serif';
   ctx.fillText('PAUSE', W/2, H/2 + 22);
   ctx.fillStyle = '#aaa'; ctx.font = '12px sans-serif';
