@@ -1549,7 +1549,7 @@ function makeCertificate() {
 async function shareToX() {
   const defeated = INIT_ENEMIES - enemyCount;
   const diff = window.selectedDifficulty || 'HARD';
-  const gameTitle = diff === 'EASY' ? 'EDF5' : diff === 'NORMAL' ? 'EDF6' : 'EDF6.1x2';
+  const gameTitle = diff === 'EASY' ? 'EDF5' : diff === 'NORMAL' ? 'EDF6' : 'EDF6.2';
   const tweetText =
     `D3Pブース ${TGS_HALL}HALL ${TGS_BOOTH}の最前線基地へ応援求む！待機中の訓練システム"${gameTitle}に挑戦！" ${defeated.toLocaleString()}匹撃破！ #EDF #D3P #TGS2026 #地球防衛軍`;
 
