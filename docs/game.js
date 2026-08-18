@@ -489,8 +489,11 @@ function update(dt) {
   let rd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
   if (rd && roundTimer >= rd.dur) {
     if (rd.loopTo !== undefined) {
-      // LAST WAVE 通過：HP ボーナス加算・ループカウント増加
-      hpBonus   += 2000;
+      // LAST WAVE 通過：全アイテム(ATK/SPD/BRS)がMAXの時のみHPボーナス加算、ループカウントは常に増加
+      const _atkCapAtLoop = loopCount > 0 ? 500 : 100;
+      if (pl.atk >= _atkCapAtLoop && pl.bspd >= 100 && pl.burst >= 10) {
+        hpBonus += 2000;
+      }
       loopCount++;
       roundIdx = rd.loopTo;
     } else {
@@ -683,7 +686,7 @@ function update(dt) {
       const _dropRate = loopCount > 0
         ? _drops.dropMin
         : (_prog >= 0.5 ? (_drops.dropMin + _drops.dropMax) / 2 : rnd(_drops.dropMin, _drops.dropMax));
-      if (Math.random() < _dropRate && dropRd?.type !== 'wave') {
+      if (Math.random() < _dropRate) {
         const atkMax = _atkMax;
         const avail = PU_TYPES.filter(t =>
           (t==='atk' ? pl.atk  < atkMax :
