@@ -1,4 +1,4 @@
-const CACHE = 'edf-frontline-v23';
+const CACHE = 'edf-frontline-v24';
 const ASSETS = [
   '/frontline-held/',
   '/frontline-held/index.html',
@@ -46,8 +46,9 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // game.js は常にネットワークから最新を取得（キャッシュ古在問題を防ぐ）
-  if (url.pathname.endsWith('game.js')) {
+  // ページ本体(index.html/ナビゲーション)とgame.jsは常にネットワークから最新を取得
+  // （キャッシュ古在によりCSS修正等が反映されない問題を防ぐ）
+  if (e.request.mode === 'navigate' || url.pathname.endsWith('game.js') || url.pathname.endsWith('index.html')) {
     e.respondWith(
       fetch(e.request).then(res => {
         const clone = res.clone();
@@ -57,7 +58,7 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
-  // その他はキャッシュ優先
+  // 画像・音声などの静的アセットのみキャッシュ優先
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(res => {
       const clone = res.clone();
