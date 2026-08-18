@@ -1,4 +1,4 @@
-const CACHE = 'edf-frontline-v28';
+const CACHE = 'edf-frontline-v29';
 const ASSETS = [
   '/frontline-held/',
   '/frontline-held/index.html',

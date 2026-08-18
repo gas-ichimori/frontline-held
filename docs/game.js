@@ -327,29 +327,29 @@ function segCircleHit(ax, ay, bx, by, cx, cy, r) {
 const ROUNDS = [
   // index 0
   { type:'round', num:1, dur:15000, phases:[
-    { until:20000, batch:2, pool:'s',   interval:500 },
-    { until:40000, batch:2, pool:'s',   interval:500 },
-    { until:60000, batch:2, pool:'sm',  interval:500 },
+    { until:5000,  batch:2, pool:'s',   interval:500 },
+    { until:10000, batch:2, pool:'s',   interval:500 },
+    { until:15000, batch:2, pool:'sm',  interval:500 },
   ]},
   // index 1
   { type:'round', num:2, dur:15000, phases:[
-    { until:20000, batch:2, pool:'s',   interval:450 },
-    { until:40000, batch:2, pool:'sm',  interval:450 },
-    { until:60000, batch:2, pool:'sm',  interval:450 },
+    { until:5000,  batch:2, pool:'s',   interval:450 },
+    { until:10000, batch:2, pool:'sm',  interval:450 },
+    { until:15000, batch:2, pool:'sm',  interval:450 },
   ]},
   // index 2
   { type:'wave', waveNum:1, label:'WAVE 1', dur:10000, pool:'sml',  interval:400, batch:3 },
   // index 3
   { type:'round', num:3, dur:12500, phases:[
-    { until:20000, batch:2, pool:'sm',  interval:400 },
-    { until:40000, batch:2, pool:'sm',  interval:400 },
-    { until:50000, batch:2, pool:'sml', interval:400 },
+    { until:2500,  batch:2, pool:'sm',  interval:400 },
+    { until:7500,  batch:2, pool:'sm',  interval:400 },
+    { until:12500, batch:2, pool:'sml', interval:400 },
   ]},
   // index 4
   { type:'round', num:4, dur:12500, phases:[
-    { until:30000, batch:2, pool:'sm',  interval:400 },
-    { until:40000, batch:2, pool:'sml', interval:400 },
-    { until:50000, batch:2, pool:'sml', interval:400 },
+    { until:2500,  batch:2, pool:'sm',  interval:400 },
+    { until:7500,  batch:2, pool:'sml', interval:400 },
+    { until:12500, batch:2, pool:'sml', interval:400 },
   ]},
   // index 5
   { type:'wave', waveNum:2, label:'WAVE 2', dur:10000, pool:'ml', interval:350, batch:3 },
