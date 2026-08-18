@@ -547,8 +547,8 @@
       }
     }
 
-    // ロゴボタンタップ → 背景・難易度を設定してチュートリアル表示
-    function startMobileGame(bgKey, difficulty) {
+    // ロゴボタンタップ → 全画面化 + 背景・難易度を設定してチュートリアル表示
+    async function startMobileGame(bgKey, difficulty) {
       window.selectedBgKey  = bgKey     || 'bg';
       window.selectedDifficulty = difficulty || 'HARD';
       tutPage = 1;
@@ -556,17 +556,6 @@
       document.getElementById('tutBtn').innerHTML = '▶︎&nbsp;&nbsp;NEXT&nbsp;&nbsp;◀︎';
       document.getElementById('fsOverlay').style.display = 'none';
       document.getElementById('tutorialOverlay').style.display = 'flex';
-    }
-
-    // Are you ready? タップ → 全画面でゲーム開始
-    async function startGame() {
-      document.getElementById('tutorialOverlay').style.display = 'none';
-      // ゲームのポーズを解除
-      if (typeof paused !== 'undefined') paused = false;
-      if (typeof resume === 'function') resume();
-      // BGM 再生（うっすら）
-      const bgm = document.getElementById('bgm');
-      if (bgm) { bgm.volume = 0.07; bgm.play().catch(()=>{}); }
       try {
         const el = document.documentElement;
         if (el.requestFullscreen)            await el.requestFullscreen();
@@ -575,6 +564,17 @@
       try {
         if (screen.orientation?.lock) await screen.orientation.lock('portrait');
       } catch(e) {}
+    }
+
+    // Are you ready? タップ → ゲーム開始
+    async function startGame() {
+      document.getElementById('tutorialOverlay').style.display = 'none';
+      // ゲームのポーズを解除
+      if (typeof paused !== 'undefined') paused = false;
+      if (typeof resume === 'function') resume();
+      // BGM 再生（うっすら）
+      const bgm = document.getElementById('bgm');
+      if (bgm) { bgm.volume = 0.07; bgm.play().catch(()=>{}); }
     }
 
     // サービスワーカー登録（PWA）
