@@ -12,6 +12,7 @@
   <link rel="icon" href="assets/images/edf_icon.png">
   <link rel="apple-touch-icon" href="assets/images/edf_icon.png">
   <title>防衛前線 迎撃戦</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=M+PLUS+1p:wght@800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -22,6 +23,8 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      font-family: 'M PLUS 1p', sans-serif;
+      font-weight: 800;
     }
     canvas { display: block; image-rendering: pixelated; }
 
@@ -115,13 +118,15 @@
     #fsOverlay .fs-logo-btn:nth-child(3) img { animation-delay: 0.8s; }
 
     /* ── 点滅テキスト ── */
-    .fs-blink {
-      font-size: 15px;
-      font-weight: bold;
-      color: #ff2222;
-      text-shadow: 0 0 8px #ff0000;
-      letter-spacing: 2px;
-      animation: fs-blink 0.75s step-start infinite;
+    .fs-blink.hint-ja {
+      display: block; font-size: 15px; letter-spacing: 3px; color: #dff0d0;
+      text-shadow: 0 0 10px rgba(136,255,85,0.5);
+      animation: fs-blink 1.1s ease-in-out infinite;
+    }
+    .fs-blink.hint-en {
+      display: block; font-family: 'Orbitron', sans-serif;
+      font-size: 10px; letter-spacing: 3px; color: rgba(136,255,85,0.7);
+      animation: fs-blink 1.1s ease-in-out infinite; animation-delay: 0.05s;
     }
     @keyframes fs-blink {
       0%, 49% { opacity: 1; }
@@ -305,7 +310,7 @@
       <div class="fs-select-msg">貴殿の入隊したいアイコンを選択せよ！</div>
 
       <!-- ▼ ボタンを押せ ▼ -->
-      <div class="fs-blink">▼&nbsp;&nbsp;ボタンを押せ&nbsp;&nbsp;▼</div>
+      <div class="fs-blink hint-ja">▼&nbsp;&nbsp;ボタンを押せ&nbsp;&nbsp;▼</div>
 
       <!-- ロゴ 3 ボタン -->
       <div class="fs-logo-btns">
@@ -321,7 +326,7 @@
       </div>
 
       <!-- ▲ PRESS THE BUTTON ▲ -->
-      <div class="fs-blink">▲&nbsp;&nbsp;PRESS THE BUTTON&nbsp;&nbsp;▲</div>
+      <div class="fs-blink hint-en">▲&nbsp;&nbsp;PRESS THE BUTTON&nbsp;&nbsp;▲</div>
 
       <!-- 著作権表記 -->
       <div class="fs-copyright">© D3PUBLISHER INC. All rights reserved.</div>
