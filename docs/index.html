@@ -51,6 +51,30 @@
       padding-bottom: 28px;
     }
 
+    /* ── 大見出し ── */
+    #fsOverlay .fs-top-title {
+      text-align: center;
+    }
+    #fsOverlay .fs-top-title h1 {
+      font-size: 34px; letter-spacing: 5px; color: #c8a832;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.9); line-height: 1.2;
+    }
+    #fsOverlay .fs-top-title .fs-sub-en {
+      display: block; margin-top: 6px;
+      font-size: 11px; letter-spacing: 3px; color: rgba(200,168,50,0.8);
+    }
+
+    /* ── 説明文 ── */
+    #fsOverlay .fs-top-desc {
+      text-align: center;
+      font-size: 15px; letter-spacing: 2px; color: #dff0d0;
+      text-shadow: 0 1px 10px rgba(0,0,0,0.9); line-height: 1.6;
+    }
+    #fsOverlay .fs-top-desc-en {
+      display: block; margin-top: 6px;
+      font-size: 10px; letter-spacing: 2px; color: rgba(200,168,50,0.8);
+    }
+
     /* ── 入隊選択メッセージ ── */
     #fsOverlay .fs-select-msg {
       font-size: 15px;
@@ -106,7 +130,7 @@
 
     @keyframes icon-pulse {
       0%,100% { filter: drop-shadow(0 0 12px rgba(255,150,0,0.5)); transform: scale(1); }
-      50%     { filter: drop-shadow(0 0 30px rgba(255,210,0,1.0)); transform: scale(1.06); }
+      50%     { filter: drop-shadow(0 0 34px rgba(255,210,0,1.0)); transform: scale(1.14); }
     }
 
     /* ── フッター著作権表記 ── */
@@ -264,11 +288,24 @@
     <div class="fs-bg" id="fsBg"></div>
     <div class="fs-content">
 
+      <!-- 大見出し -->
+      <div class="fs-top-title">
+        <h1>回避せよ！EDF</h1>
+        <span class="fs-sub-en">EVADE THE ENEMY! EDF!</span>
+      </div>
+
+      <!-- 説明文 -->
+      <div class="fs-top-desc">
+        <p>TRAINING 01</p>
+        <p>移動と銃で回避せよ！</p>
+        <span class="fs-top-desc-en">MOVE AND SHOOT TO EVADE THEM!</span>
+      </div>
+
       <!-- 入隊選択メッセージ -->
       <div class="fs-select-msg">貴殿の入隊したいアイコンを選択せよ！</div>
 
-      <!-- 🔻 ボタンを押せ 🔻 -->
-      <div class="fs-blink">🔻&nbsp;&nbsp;ボタンを押せ&nbsp;&nbsp;🔻</div>
+      <!-- ▼ ボタンを押せ ▼ -->
+      <div class="fs-blink">▼&nbsp;&nbsp;ボタンを押せ&nbsp;&nbsp;▼</div>
 
       <!-- ロゴ 3 ボタン -->
       <div class="fs-logo-btns">
@@ -283,8 +320,8 @@
         </button>
       </div>
 
-      <!-- 🔺 PRESS THE BUTTON 🔺 -->
-      <div class="fs-blink">🔺&nbsp;&nbsp;PRESS THE BUTTON&nbsp;&nbsp;🔺</div>
+      <!-- ▲ PRESS THE BUTTON ▲ -->
+      <div class="fs-blink">▲&nbsp;&nbsp;PRESS THE BUTTON&nbsp;&nbsp;▲</div>
 
       <!-- 著作権表記 -->
       <div class="fs-copyright">© D3PUBLISHER INC. All rights reserved.</div>
