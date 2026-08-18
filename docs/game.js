@@ -153,12 +153,21 @@ function speakTaisa(text) {
 function triggerGameOver() {
   gstate = 'gameover';
   snd('gameover');
+  if (gameResult === 'victory') return; // ALL CLEARはキャンバス描画のdrawGameOver()を使用
+
   const defeated = INIT_ENEMIES - enemyCount;
-  if (defeated >= 100) {
-    speakTaisa('見事だ！その回避力、認めよう！この調子で前線を守り抜け！');
-  } else {
-    speakTaisa('情けない！もっと素早く動け！次は避けてみせろ！');
-  }
+  const isSuccess = defeated >= 100;
+  const message = isSuccess
+    ? '見事だ！その回避力、認めよう！\nこの調子で前線を守り抜け！'
+    : '情けない！もっと素早く動け！\n次は避けてみせろ！';
+  speakTaisa(message.replace(/\n/g, ''));
+
+  const numEl = document.getElementById('ro-num');
+  const msgEl = document.getElementById('ro-message');
+  const overlay = document.getElementById('resultOverlay');
+  if (numEl) numEl.textContent = defeated.toLocaleString();
+  if (msgEl) msgEl.textContent = message;
+  if (overlay) overlay.style.display = 'flex';
 }
 
 // ─── Images ──────────────────────────────────────────────────────────────────
@@ -460,7 +469,13 @@ function resetGame() {
   loopCount=0; hpBonus=0; gameResult='defeat'; dwnWarning=0;
   roundBanner={ text:'ROUND 1', timer:1500, color:'#ffdd00' };
   gstate='playing';
+  const overlay = document.getElementById('resultOverlay');
+  if (overlay) overlay.style.display = 'none';
 }
+
+document.getElementById('ro-btn-share')?.addEventListener('click', () => shareToX());
+document.getElementById('ro-btn-retry')?.addEventListener('click', () => resetGame());
+document.getElementById('ro-btn-hub')?.addEventListener('click', () => { window.location.href = '/'; });
 
 // ─── Update ───────────────────────────────────────────────────────────────────
 function update(dt) {
@@ -974,7 +989,7 @@ function render() {
   drawHUD();
 
   if (gstate==='loading')  drawLoading();
-  if (gstate==='gameover') drawGameOver();
+  if (gstate==='gameover' && gameResult==='victory') drawGameOver();
   if (gstate==='playing' && paused) drawPause();
   if (gstate==='playing' && dwnWarning > 0) drawDwnWarning();
 }

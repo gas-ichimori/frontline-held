@@ -166,6 +166,65 @@
       padding: 0 12px;
     }
 
+    /* ── 結果画面（殲滅訓練と同じトンマナ） ── */
+    #resultOverlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 920;
+      background: url('/bg.png') center center/cover no-repeat;
+      flex-direction: column; justify-content: flex-end;
+      overflow: hidden;
+    }
+    #resultOverlay::before {
+      content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.48);
+    }
+    #ro-taisa {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: flex; justify-content: center; align-items: flex-end;
+      z-index: 1;
+    }
+    #ro-taisa img {
+      max-height: 82vh; max-width: 95vw; object-fit: contain;
+      filter: drop-shadow(0 4px 32px rgba(0,0,0,0.7));
+    }
+    #ro-content {
+      position: relative; z-index: 2;
+      width: 100%; padding: 0 20px 40px;
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    #ro-score-box {
+      background: rgba(0,0,0,0.8);
+      border: 2px solid rgba(136,255,85,0.5);
+      border-radius: 8px; padding: 14px 20px; text-align: center; width: 100%;
+    }
+    .ro-score-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px; letter-spacing: 4px; color: rgba(136,255,85,0.6);
+    }
+    .ro-score-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 40px; font-weight: 900; color: #88ff55;
+      text-shadow: 0 0 20px rgba(136,255,85,0.6);
+    }
+    .ro-score-unit { font-size: 15px; color: rgba(136,255,85,0.6); }
+    #ro-message {
+      font-size: 16px; letter-spacing: 2px; color: #fff;
+      text-align: right; line-height: 1.8; white-space: pre-line;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      min-height: 50px;
+    }
+    .ro-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .ro-btn {
+      font-family: 'M PLUS 1p', sans-serif; font-weight: 800;
+      font-size: 14px; letter-spacing: 3px;
+      padding: 15px; border-radius: 6px; cursor: pointer;
+      transition: transform 0.1s; border: none;
+    }
+    .ro-btn:active { transform: scale(0.97); }
+    .ro-btn-en { display:block; font-size:9px; opacity:0.75; letter-spacing:1px; margin-top:3px; }
+    .ro-btn-share { background: rgba(136,255,85,0.15); border: 2px solid rgba(136,255,85,0.7); color: #88ff55; }
+    .ro-btn-retry { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #aaa; }
+    .ro-btn-hub   { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #666; }
+
     /* ── ローディング画面 ── */
     #loadingOverlay {
       display: none;
@@ -347,6 +406,23 @@
       <!-- 著作権表記 -->
       <div class="fs-copyright">© D3PUBLISHER INC. All rights reserved.</div>
 
+    </div>
+  </div>
+
+  <!-- 結果画面（殲滅訓練・5秒感覚訓練と同じトンマナ） -->
+  <div id="resultOverlay">
+    <div id="ro-taisa"><img src="/taisa.png" alt="大佐"></div>
+    <div id="ro-content">
+      <div id="ro-score-box">
+        <div class="ro-score-label">KILL COUNT</div>
+        <div><span class="ro-score-num" id="ro-num">0</span><span class="ro-score-unit"> 匹</span></div>
+      </div>
+      <div id="ro-message"></div>
+      <div class="ro-btns">
+        <button class="ro-btn ro-btn-share" id="ro-btn-share">次の任務に就く為、証明書を発行<span class="ro-btn-en">Next Mission Certificate Issued</span></button>
+        <button class="ro-btn ro-btn-retry" id="ro-btn-retry">引き続き訓練を行う<span class="ro-btn-en">Continue the Training</span></button>
+        <button class="ro-btn ro-btn-hub" id="ro-btn-hub">別の訓練をする<span class="ro-btn-en">Choose Another Training</span></button>
+      </div>
     </div>
   </div>
 
