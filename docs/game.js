@@ -138,6 +138,29 @@ function snd(name) {
   }
 }
 
+function speakTaisa(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP'; u.rate = 0.9;
+  const voices = window.speechSynthesis.getVoices();
+  const male = voices.find(v => v.lang.startsWith('ja') && /Otoya|男性|Male|otoya/i.test(v.name));
+  if (male) { u.voice = male; u.pitch = 0.85; }
+  else { u.pitch = 0.5; }
+  window.speechSynthesis.speak(u);
+}
+
+function triggerGameOver() {
+  gstate = 'gameover';
+  snd('gameover');
+  const defeated = INIT_ENEMIES - enemyCount;
+  if (defeated >= 100) {
+    speakTaisa('見事だ！その回避力、認めよう！この調子で前線を守り抜け！');
+  } else {
+    speakTaisa('情けない！もっと素早く動け！次は避けてみせろ！');
+  }
+}
+
 // ─── Images ──────────────────────────────────────────────────────────────────
 const imgs = {};
 let loaded = 0, toLoad = 0;
@@ -721,7 +744,7 @@ function update(dt) {
           r:rnd(2,5), imgKey:'fx_hit_player', life:1, decay:rnd(0.025,0.055) });
       }
       snd('damage'); enemies.splice(i, 1);
-      if (pl.hp <= 0) { pl.hp=0; gstate='gameover'; snd('gameover'); }
+      if (pl.hp <= 0) { pl.hp=0; triggerGameOver(); }
       continue;
     }
     if (e.depth > 1.10) {
@@ -733,7 +756,7 @@ function update(dt) {
       const fxKey = Math.random() < 0.5 ? 'fx_barricade_hit' : 'fx_barricade_hit_2';
       splashes.push({ x:bsx, y:H-56, imgKey:fxKey, life:500, maxLife:500 });
       enemies.splice(i, 1);
-      if (defenseHp <= 0) { defenseHp=0; gstate='gameover'; snd('gameover'); }
+      if (defenseHp <= 0) { defenseHp=0; triggerGameOver(); }
       continue;
     }
   }
@@ -1378,13 +1401,20 @@ function drawGameOver() {
     ctx.fillText('ALL CLEAR', cx, 164);
     ctx.shadowBlur=0;
   } else {
-    ctx.shadowColor='#ffaa00'; ctx.shadowBlur=20;
-    ctx.fillStyle='#ffdd44'; ctx.font='bold 18px sans-serif';
-    ctx.fillText('諸君の勇気ある行動に感謝する！', cx, 110);
+    const defeatedForMsg = INIT_ENEMIES - enemyCount;
+    const isSuccess = defeatedForMsg >= 100;
+    ctx.shadowColor = isSuccess ? '#44ff88' : '#ffaa00'; ctx.shadowBlur=20;
+    ctx.fillStyle = isSuccess ? '#88ffaa' : '#ffdd44'; ctx.font='bold 18px sans-serif';
+    ctx.fillText(isSuccess ? '見事だ！その回避力、認めよう！' : '情けない！もっと素早く動け！', cx, 110);
     ctx.shadowBlur=0;
-    ctx.fillStyle='#ffaa55'; ctx.font='12px sans-serif';
-    ctx.fillText('I thank you for your courageous', cx, 136);
-    ctx.fillText('actions, soldiers!', cx, 154);
+    ctx.fillStyle = isSuccess ? '#aaffcc' : '#ffaa55'; ctx.font='12px sans-serif';
+    if (isSuccess) {
+      ctx.fillText('Well done! Your evasion skill', cx, 136);
+      ctx.fillText('is recognized, soldier!', cx, 154);
+    } else {
+      ctx.fillText('Pathetic! Move faster', cx, 136);
+      ctx.fillText('and show me true evasion!', cx, 154);
+    }
   }
 
   // 区切り線
@@ -1448,9 +1478,9 @@ function drawGameOver() {
   ctx.strokeStyle='#ff6644'; ctx.lineWidth=2;
   roundedRect(ctx,b2x,b2y,b2w,b2h,8); ctx.stroke();
   ctx.fillStyle='#ffffff'; ctx.font='bold 14px sans-serif';
-  ctx.fillText('引き続き前線で戦う', cx, b2y+20);
+  ctx.fillText('引き続き訓練を行う', cx, b2y+20);
   ctx.fillStyle='#ffbbaa'; ctx.font='11px sans-serif';
-  ctx.fillText('Continue Fighting on the Front Lines', cx, b2y+42);
+  ctx.fillText('Continue the Training', cx, b2y+42);
 
   // ボタン3: 別の訓練をする
   const b3x=W/2-145, b3y=560, b3w=290, b3h=52;
