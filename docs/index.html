@@ -27,6 +27,13 @@
       font-weight: 800;
     }
     canvas { display: block; image-rendering: pixelated; }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
 
     /* ── スマホ全画面タップ画面 ── */
     #fsOverlay {
@@ -55,8 +62,7 @@
       align-items: center;
       width: 100%; height: 100%;
       justify-content: center;
-      gap: 18px;
-      padding-bottom: 28px;
+      gap: 28px;
     }
 
     /* ── 大見出し ── */
@@ -93,15 +99,22 @@
       text-align: center;
       padding: 0 12px;
     }
+    #fsOverlay .fs-select-msg-en {
+      display: block; margin-top: 6px;
+      font-size: 10px; letter-spacing: 2px;
+      font-weight: normal;
+      color: rgba(255,221,68,0.7);
+      text-shadow: none;
+    }
 
     /* ── ロゴ3ボタン横並び ── */
     #fsOverlay .fs-logo-btns {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       align-items: center;
       justify-content: center;
       width: 100%;
-      padding: 0 8px;
+      padding: 0 4px;
     }
     #fsOverlay .fs-logo-btn {
       background: none;
@@ -110,7 +123,7 @@
       padding: 0;
       -webkit-tap-highlight-color: transparent;
       flex: 1;
-      max-width: 110px;
+      max-width: 135px;
     }
     #fsOverlay .fs-logo-btn img {
       width: 100%;
@@ -300,7 +313,7 @@
 
       <!-- 大見出し -->
       <div class="fs-top-title">
-        <h1>回避せよ！EDF</h1>
+        <h1>回避せよ！EDF！</h1>
         <span class="fs-sub-en">EVADE THE ENEMY! EDF!</span>
       </div>
 
@@ -312,7 +325,7 @@
       </div>
 
       <!-- 入隊選択メッセージ -->
-      <div class="fs-select-msg">貴殿の入隊したいアイコンを選択せよ！</div>
+      <div class="fs-select-msg">貴殿の入隊したいアイコンを選択せよ！<span class="fs-select-msg-en">SELECT THE ICON YOU WISH TO ENLIST WITH!</span></div>
 
       <!-- ▼ ボタンを押せ ▼ -->
       <div class="fs-blink hint-ja">▼&nbsp;&nbsp;ボタンを押せ&nbsp;&nbsp;▼</div>
