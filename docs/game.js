@@ -55,6 +55,7 @@ const TGS_BOOTH = '05-C03';
 // ─── GameOver ボタン ──────────────────────────────────────────────────────────
 let goBtn1 = null; // 証明書ボタン
 let goBtn2 = null; // リトライボタン
+let goBtn3 = null; // 別の訓練をするボタン
 
 function atkStars(v) {
   if (v < 20) return 1; if (v < 40) return 2;
@@ -272,6 +273,7 @@ function handleGoTap(tx, ty) {
   const hit = b => b && tx >= b.x && tx <= b.x+b.w && ty >= b.y && ty <= b.y+b.h;
   if (hit(goBtn1)) shareToX();
   else if (hit(goBtn2)) resetGame();
+  else if (hit(goBtn3)) window.location.href = '/';
 }
 
 function resume() { if (AC.state === 'suspended') AC.resume(); }
@@ -1445,6 +1447,18 @@ function drawGameOver() {
   ctx.fillText('引き続き前線で戦う', cx, b2y+20);
   ctx.fillStyle='#ffbbaa'; ctx.font='11px sans-serif';
   ctx.fillText('Continue Fighting on the Front Lines', cx, b2y+42);
+
+  // ボタン3: 別の訓練をする
+  const b3x=W/2-145, b3y=560, b3w=290, b3h=52;
+  goBtn3={x:b3x, y:b3y, w:b3w, h:b3h};
+  ctx.fillStyle='rgba(50,50,50,0.92)'; ctx.beginPath();
+  roundedRect(ctx,b3x,b3y,b3w,b3h,8); ctx.fill();
+  ctx.strokeStyle='#aaaaaa'; ctx.lineWidth=2;
+  roundedRect(ctx,b3x,b3y,b3w,b3h,8); ctx.stroke();
+  ctx.fillStyle='#ffffff'; ctx.font='bold 14px sans-serif';
+  ctx.fillText('別の訓練をする', cx, b3y+22);
+  ctx.fillStyle='#cccccc'; ctx.font='11px sans-serif';
+  ctx.fillText('Choose Another Training', cx, b3y+42);
 }
 
 function roundedRect(c, x, y, w, h, r) {

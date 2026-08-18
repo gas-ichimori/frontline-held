@@ -109,6 +109,18 @@
       50%     { filter: drop-shadow(0 0 30px rgba(255,210,0,1.0)); transform: scale(1.06); }
     }
 
+    /* ── フッター著作権表記 ── */
+    #fsOverlay .fs-copyright {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 10px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.5px;
+      text-align: center;
+      padding: 0 12px;
+    }
+
     /* ── ローディング画面 ── */
     #loadingOverlay {
       display: none;
@@ -273,6 +285,9 @@
 
       <!-- 🔺 PRESS THE BUTTON 🔺 -->
       <div class="fs-blink">🔺&nbsp;&nbsp;PRESS THE BUTTON&nbsp;&nbsp;🔺</div>
+
+      <!-- 著作権表記 -->
+      <div class="fs-copyright">© D3PUBLISHER INC. All rights reserved.</div>
 
     </div>
   </div>
@@ -567,8 +582,8 @@
       navigator.serviceWorker.register('/frontline-held/sw.js').catch(() => {});
     }
 
-    // スマホのみ：ローディング画面を表示してアセット読み込み完了を待つ
-    if (isMobile()) {
+    // ローディング画面を表示してアセット読み込み完了を待つ（PC・スマホ共通）
+    {
       if (typeof paused !== 'undefined') paused = true;
       document.getElementById('loadingOverlay').style.display = 'flex';
 
