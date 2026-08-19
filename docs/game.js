@@ -559,7 +559,7 @@ function update(dt) {
       // LAST WAVE 通過：全アイテム(ATK/SPD/BRS)がMAXの時のみHPボーナス加算、ループカウントは常に増加
       const _atkCapAtLoop = ATK_CAP;
       if (pl.atk >= _atkCapAtLoop && pl.bspd >= 100 && pl.burst >= 10) {
-        hpBonus += 2000;
+        hpBonus += 500;
       }
       // STAGE∞に初めて突入する瞬間、偽の救援物資（DWN）の警告を表示
       if (loopCount === 0) {
@@ -1704,7 +1704,7 @@ function togglePause() {
 function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
 function dbgVictory()  { enemyCount = INIT_ENEMIES - CLEAR_COUNT; gameResult='victory'; gstate='gameover'; snd('gameover'); }
 function dbgAtk(v)  { const cap = ATK_CAP; pl.atk = Math.max(1, Math.min(cap, pl.atk + v)); }
-function dbgLoop()  { loopCount = 1; hpBonus = 2000; pl.atk = Math.min(pl.atk, 100); }
+function dbgLoop()  { loopCount = 1; hpBonus = 500; pl.atk = Math.min(pl.atk, 100); }
 function dbgDwn()   { dwnWarning = 2000; snd('dwn_warning'); }
 function dbgSpd(v)  { pl.bspd = Math.max(1, Math.min(200, pl.bspd + v)); }
 function dbgBurstAdj(v) { pl.burst = Math.max(INIT_BCNT, Math.min(10, parseFloat((pl.burst + v).toFixed(1)))); pl.burstLeft = 0; }
@@ -1724,7 +1724,7 @@ function dbgGoto(idx, makeLoop) {
   spawnTmr   = 0;
   enemies    = [];
   powerups   = [];
-  if (makeLoop && loopCount === 0) { loopCount = 1; hpBonus = 2000; pl.atk = Math.min(pl.atk, 100); }
+  if (makeLoop && loopCount === 0) { loopCount = 1; hpBonus = 500; pl.atk = Math.min(pl.atk, 100); }
   const rd = ROUNDS[idx];
   if (rd.type === 'wave') {
     roundBanner = { text: rd.label, timer: 1500, color: '#ff4444' };
