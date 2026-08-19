@@ -1632,7 +1632,7 @@ async function shareToX() {
   const diff = window.selectedDifficulty || 'HARD';
   const gameTitle = diff === 'EASY' ? 'EDF5' : diff === 'NORMAL' ? 'EDF6' : 'EDF6.2';
   const tweetText =
-    `D3Pブース ${TGS_HALL}HALL ${TGS_BOOTH}の最前線基地へ応援求む！待機中の訓練システム"${gameTitle}に挑戦！" ${defeated.toLocaleString()}匹撃破！ #EDF #D3P #TGS2026 #地球防衛軍`;
+    `TGS2026 D3Pブース ${TGS_HALL}HALL ${TGS_BOOTH}の最前線基地へ応援求む！待機中の訓練システム"${gameTitle}に挑戦！" ${defeated.toLocaleString()}匹撃破！ #EDF #D3P #TGS2026 #地球防衛軍`;
 
   async function doShare(canvas, filename) {
     canvas.toBlob(async blob => {
