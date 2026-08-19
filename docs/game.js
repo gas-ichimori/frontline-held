@@ -49,6 +49,8 @@ const INIT_HP        = 1000;
 const INIT_DEFENSE   = 1000;
 const INIT_ENEMIES   = 10_000_000;
 const CLEAR_COUNT    = 1000;
+// DWN(偽の救援物資)取得時の能力ダウン量＝通常アイテム何個分か（難易度別）
+const DWN_DOWN_UNITS = { EASY: 2, NORMAL: 3, HARD: 4 };
 
 // ─── TGS ブース情報（イベント当日に変更） ────────────────────────────────────
 const TGS_HALL  = '5';
@@ -814,9 +816,10 @@ function update(dt) {
     const ps = proj(p.laneX, p.depth);
     if (Math.hypot(ps.x - pl.screenX, ps.y - (GY - 40)) < 44) {
       if (p.type === 'dwn') {
-        pl.atk   = Math.max(INIT_ATK,  pl.atk  - 25);
-        pl.bspd  = Math.max(INIT_BSPD, pl.bspd - 25);
-        pl.burst = Math.max(INIT_BCNT, parseFloat((pl.burst - 5).toFixed(1)));
+        const dwnUnits = DWN_DOWN_UNITS[window.selectedDifficulty] ?? DWN_DOWN_UNITS.NORMAL;
+        pl.atk   = Math.max(INIT_ATK,  pl.atk  - 5 * dwnUnits);
+        pl.bspd  = Math.max(INIT_BSPD, pl.bspd - 5 * dwnUnits);
+        pl.burst = Math.max(INIT_BCNT, parseFloat((pl.burst - 0.5 * dwnUnits).toFixed(1)));
         pl.notif = { type:'dwn', t:3000 };
         snd('powerdown'); powerups.splice(i, 1); continue;
       }
