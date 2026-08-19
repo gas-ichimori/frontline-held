@@ -42,11 +42,13 @@ const PLAYER_WALK_W  = Math.round(300 * (PLAYER_H / 480)); // 75px
 const SHOOT_MS       = 280;
 const LANE_SWITCH_CD = 220;
 const INIT_ATK       = 10;
+const ATK_CAP        = 100;
 const INIT_BSPD      = 20;
 const INIT_BCNT      = 1;
 const INIT_HP        = 1000;
 const INIT_DEFENSE   = 1000;
 const INIT_ENEMIES   = 10_000_000;
+const CLEAR_COUNT    = 1000;
 
 // ─── TGS ブース情報（イベント当日に変更） ────────────────────────────────────
 const TGS_HALL  = '5';
@@ -268,7 +270,7 @@ let defenseHp     = INIT_DEFENSE;
 let loopCount     = 0;   // LAST WAVE 通過回数
 let hpBonus       = 0;   // LAST WAVE ごとに +2000
 let gameResult    = 'defeat'; // 'defeat' | 'victory'
-let dwnWarning    = 0;   // ATK MAX in STAGE∞ → 2秒警告タイマー(ms)
+let dwnWarning    = 0;   // STAGE∞突入時 → 2秒警告タイマー(ms)
 // barricadeHitFx removed
 
 const pl = {
@@ -434,7 +436,7 @@ function getPool(key) {
 function spawnEnemy(pool, hpMult = 1, maxMultOverride = null) {
   const def = pool[Math.floor(Math.random() * pool.length)];
   const li  = Math.floor(Math.random() * 3);
-  const atkCap = loopCount > 0 ? 500 : 100;
+  const atkCap = ATK_CAP;
   const maxed = (pl.atk >= atkCap ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
   const maxMult = maxMultOverride !== null ? maxMultOverride
     : (maxed >= 3 ? 5 : maxed >= 2 ? 7.5 : maxed >= 1 ? 5 : 1);
@@ -555,9 +557,14 @@ function update(dt) {
   if (rd && roundTimer >= rd.dur) {
     if (rd.loopTo !== undefined) {
       // LAST WAVE 通過：全アイテム(ATK/SPD/BRS)がMAXの時のみHPボーナス加算、ループカウントは常に増加
-      const _atkCapAtLoop = loopCount > 0 ? 500 : 100;
+      const _atkCapAtLoop = ATK_CAP;
       if (pl.atk >= _atkCapAtLoop && pl.bspd >= 100 && pl.burst >= 10) {
         hpBonus += 2000;
+      }
+      // STAGE∞に初めて突入する瞬間、偽の救援物資（DWN）の警告を表示
+      if (loopCount === 0) {
+        dwnWarning = 2000;
+        snd('dwn_warning');
       }
       loopCount++;
       roundIdx = rd.loopTo;
@@ -593,7 +600,7 @@ function update(dt) {
       batch    = ph.batch;
       pool     = getPool(ph.pool);
     }
-    const atkCap2 = loopCount > 0 ? 500 : 100;
+    const atkCap2 = ATK_CAP;
     const maxed2 = (pl.atk >= atkCap2 ? 1 : 0) + (pl.bspd >= 100 ? 1 : 0) + (pl.burst >= 10 ? 1 : 0);
     if (rd.type === 'wave' && rd.waveNum === 1) {
       // WAVE 1: 3MAX のみ 3体/300ms
@@ -742,7 +749,7 @@ function update(dt) {
       e.r > 30 ? snd('die_l') : e.r > 18 ? snd('die_m') : snd('die_s');
       enemyCount = Math.max(0, enemyCount - 1);
       const dropRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
-      const _atkMax = loopCount > 0 ? 500 : 100;
+      const _atkMax = ATK_CAP;
       const _prog = ((pl.atk - INIT_ATK) / (_atkMax - INIT_ATK)
                    + (pl.bspd - INIT_BSPD) / (100 - INIT_BSPD)
                    + (pl.burst - INIT_BCNT) / (10 - INIT_BCNT)) / 3;
@@ -763,8 +770,8 @@ function update(dt) {
             animFrame:0, animTimer:0 });
         }
       }
-      // STAGE∞でATK MAXの時、DWNアイテムをdropMax率でスポーン
-      if (loopCount > 0 && pl.atk >= 500 && Math.random() < e.dropMax && dropRd?.type !== 'wave') {
+      // STAGE∞突入後は常時、DWNアイテムをdropMax率でスポーン
+      if (loopCount > 0 && Math.random() < e.dropMax && dropRd?.type !== 'wave') {
         powerups.push({ laneIndex:e.laneIndex, laneX:e.laneX,
           depth:0.05, type:'dwn', life:600, animFrame:0, animTimer:0 });
       }
@@ -817,17 +824,11 @@ function update(dt) {
         pl.notif = { type:'dwn', t:3000 };
         snd('powerdown'); powerups.splice(i, 1); continue;
       }
-      const atkCapPu = loopCount > 0 ? 500 : 100;
-      const wasAtkMax = pl.atk >= atkCapPu;
+      const atkCapPu = ATK_CAP;
       switch (p.type) {
         case 'atk': pl.atk  = Math.min(pl.atk  + 5,  atkCapPu); break;
         case 'spd': pl.bspd = Math.min(pl.bspd + 5,  100); break;
         case 'bsr': pl.burst = Math.min(parseFloat((pl.burst + 0.5).toFixed(1)), 10); break;
-      }
-      // ATKがSTAGE∞で初めてMAX到達 → 2秒警告
-      if (p.type === 'atk' && loopCount > 0 && !wasAtkMax && pl.atk >= 500 && dwnWarning <= 0) {
-        dwnWarning = 2000;
-        snd('dwn_warning');
       }
       const hitMax = (p.type==='atk' && pl.atk>=atkCapPu) ||
                      (p.type==='spd' && pl.bspd>=100) ||
@@ -849,8 +850,8 @@ function update(dt) {
     if (splashes[i].life <= 0) splashes.splice(i, 1);
   }
 
-  // 5千撃破で地球防衛成功
-  if (INIT_ENEMIES - enemyCount >= 5000) {
+  // CLEAR_COUNT撃破で地球防衛成功
+  if (INIT_ENEMIES - enemyCount >= CLEAR_COUNT) {
     gameResult = 'victory';
     gstate = 'gameover';
     snd('gameover');
@@ -1276,7 +1277,7 @@ function drawHUD() {
   ctx.strokeStyle='#555'; ctx.lineWidth=1; ctx.strokeRect(hx, hy+60, 120, 12);
 
   // ── MAX バッジ（DEFENCE ゲージ下） ──
-  const atkCap = loopCount > 0 ? 500 : 100;
+  const atkCap = ATK_CAP;
   const maxBadges = [
     { label:'ATK', color:'#ff5544', show: pl.atk  >= atkCap },
     { label:'SPD', color:'#44aaff', show: pl.bspd >= 100 },
@@ -1701,8 +1702,8 @@ function togglePause() {
   if (bgm) { paused ? bgm.pause() : bgm.play().catch(()=>{}); }
 }
 function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
-function dbgVictory()  { enemyCount = INIT_ENEMIES - 5000; gameResult='victory'; gstate='gameover'; snd('gameover'); }
-function dbgAtk(v)  { const cap = loopCount > 0 ? 500 : 100; pl.atk = Math.max(1, Math.min(cap, pl.atk + v)); }
+function dbgVictory()  { enemyCount = INIT_ENEMIES - CLEAR_COUNT; gameResult='victory'; gstate='gameover'; snd('gameover'); }
+function dbgAtk(v)  { const cap = ATK_CAP; pl.atk = Math.max(1, Math.min(cap, pl.atk + v)); }
 function dbgLoop()  { loopCount = 1; hpBonus = 2000; pl.atk = Math.min(pl.atk, 100); }
 function dbgDwn()   { dwnWarning = 2000; snd('dwn_warning'); }
 function dbgSpd(v)  { pl.bspd = Math.max(1, Math.min(200, pl.bspd + v)); }
