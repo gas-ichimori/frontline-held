@@ -56,11 +56,6 @@ const DWN_DOWN_UNITS = { EASY: 2, NORMAL: 3, HARD: 4 };
 const TGS_HALL  = '5';
 const TGS_BOOTH = '05-C03';
 
-// ─── GameOver ボタン ──────────────────────────────────────────────────────────
-let goBtn1 = null; // 証明書ボタン
-let goBtn2 = null; // リトライボタン
-let goBtn3 = null; // 別の訓練をするボタン
-
 function atkStars(v) {
   if (v < 20) return 1; if (v < 40) return 2;
   if (v < 60) return 3; if (v < 80) return 4; return 5;
@@ -183,13 +178,15 @@ function speakTaisa(text) {
 function triggerGameOver() {
   gstate = 'gameover';
   snd('gameover');
-  if (gameResult === 'victory') return; // ALL CLEARはキャンバス描画のdrawGameOver()を使用
 
   const defeated = INIT_ENEMIES - enemyCount;
+  const isVictory = gameResult === 'victory';
   const isSuccess = defeated >= 100;
-  const message = isSuccess
-    ? '見事だ！その回避力、認めよう！\nこの調子で前線を守り抜け！'
-    : '情けない！もっと素早く動け！\n次は避けてみせろ！';
+  const message = isVictory
+    ? '見事だ！ついに地球を守り抜いたぞ！\nEDFの誇りだ、よくやった！'
+    : isSuccess
+      ? '見事だ！その回避力、認めよう！\nこの調子で前線を守り抜け！'
+      : '情けない！もっと素早く動け！\n次は避けてみせろ！';
   speakTaisa(message.replace(/\n/g, ''));
 
   const numEl = document.getElementById('ro-num');
@@ -312,32 +309,17 @@ canvas.addEventListener('touchstart', e => {
   if (tx < W * 0.38)      tryLaneMove(-1);
   else if (tx > W * 0.62) tryLaneMove(+1);
 }, { passive: false });
-canvas.addEventListener('touchend', e => {
-  e.preventDefault();
-  if (gstate === 'gameover') {
-    const rect = canvas.getBoundingClientRect();
-    const tx = (e.changedTouches[0].clientX - rect.left) * (W / rect.width);
-    const ty = (e.changedTouches[0].clientY - rect.top)  * (H / rect.height);
-    handleGoTap(tx, ty);
-  }
-}, { passive: false });
 canvas.addEventListener('click', e => {
   resume();
   const rect = canvas.getBoundingClientRect();
   const tx = (e.clientX - rect.left) * (W / rect.width);
   const ty = (e.clientY - rect.top)  * (H / rect.height);
-  if (gstate === 'gameover') { handleGoTap(tx, ty); return; }
+  if (gstate === 'gameover') return;
   if (gstate === 'playing' && tx > W - 94 && ty < 150) { togglePause(); return; }
   if (gstate === 'playing' && tx >= W/2-66 && tx <= W/2+66 && ty >= 8 && ty <= 52) {
     if (typeof toggleDebug === 'function') toggleDebug();
   }
 });
-function handleGoTap(tx, ty) {
-  const hit = b => b && tx >= b.x && tx <= b.x+b.w && ty >= b.y && ty <= b.y+b.h;
-  if (hit(goBtn1)) shareToX();
-  else if (hit(goBtn2)) resetGame();
-  else if (hit(goBtn3)) window.location.href = '/';
-}
 
 function resume() { if (AC.state === 'suspended') AC.resume(); }
 
@@ -859,8 +841,7 @@ function update(dt) {
   // CLEAR_COUNT撃破で地球防衛成功
   if (INIT_ENEMIES - enemyCount >= CLEAR_COUNT) {
     gameResult = 'victory';
-    gstate = 'gameover';
-    snd('gameover');
+    triggerGameOver();
   }
 }
 
@@ -1023,7 +1004,6 @@ function render() {
   drawHUD();
 
   if (gstate==='loading')  drawLoading();
-  if (gstate==='gameover' && gameResult==='victory') drawGameOver();
   if (gstate==='playing' && paused) drawPause();
   if (gstate==='playing' && dwnWarning > 0) drawDwnWarning();
 }
@@ -1431,129 +1411,6 @@ function drawLoading() {
   ctx.fillStyle='#fff'; ctx.font='bold 22px monospace'; ctx.textAlign='center';
   ctx.textBaseline='middle'; ctx.fillText('LOADING...', W/2, H/2);
 }
-function drawGameOver() {
-  ctx.fillStyle='rgba(0,0,0,0.90)'; ctx.fillRect(0,0,W,H);
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  const cx = W/2;
-  const isVictory = gameResult === 'victory';
-
-  // メインメッセージ
-  if (isVictory) {
-    ctx.shadowColor='#44ff88'; ctx.shadowBlur=24;
-    ctx.fillStyle='#44ff88'; ctx.font='bold 22px sans-serif';
-    ctx.fillText('地球防衛成功！！', cx, 100);
-    ctx.shadowBlur=0;
-    ctx.fillStyle='#88ffcc'; ctx.font='bold 16px sans-serif';
-    ctx.fillText('EARTH DEFENSE SUCCESS', cx, 130);
-    ctx.fillStyle='#ffdd44'; ctx.font='bold 28px monospace';
-    ctx.shadowColor='#ffdd44'; ctx.shadowBlur=16;
-    ctx.fillText('ALL CLEAR', cx, 164);
-    ctx.shadowBlur=0;
-  } else {
-    const defeatedForMsg = INIT_ENEMIES - enemyCount;
-    const isSuccess = defeatedForMsg >= 100;
-    ctx.shadowColor = isSuccess ? '#44ff88' : '#ffaa00'; ctx.shadowBlur=20;
-    ctx.fillStyle = isSuccess ? '#88ffaa' : '#ffdd44'; ctx.font='bold 18px sans-serif';
-    ctx.fillText(isSuccess ? '見事だ！その回避力、認めよう！' : '情けない！もっと素早く動け！', cx, 110);
-    ctx.shadowBlur=0;
-    ctx.fillStyle = isSuccess ? '#aaffcc' : '#ffaa55'; ctx.font='12px sans-serif';
-    if (isSuccess) {
-      ctx.fillText('Well done! Your evasion skill', cx, 136);
-      ctx.fillText('is recognized, soldier!', cx, 154);
-    } else {
-      ctx.fillText('Pathetic! Move faster', cx, 136);
-      ctx.fillText('and show me true evasion!', cx, 154);
-    }
-  }
-
-  // 区切り線
-  ctx.strokeStyle='#554422'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(30,182); ctx.lineTo(375,182); ctx.stroke();
-
-  // 到達ラウンド・撃破数
-  const goRd = roundIdx < ROUNDS.length ? ROUNDS[roundIdx] : null;
-  const goRdLabel = isVictory ? '地球防衛成功'
-    : loopCount > 0 ? 'STAGE ∞'
-    : goRd ? (goRd.type==='wave' ? (goRd.label || `WAVE ${goRd.waveNum}`) : `ROUND ${goRd.num}`)
-    : 'ALL CLEAR!';
-  const defeated = INIT_ENEMIES - enemyCount;
-  ctx.fillStyle='#aaa'; ctx.font='13px monospace';
-  ctx.fillText(`到達: ${goRdLabel}`, cx, 206);
-  ctx.fillStyle='#ff9955'; ctx.font='bold 28px monospace';
-  ctx.fillText(`${defeated.toLocaleString()} 匹撃破`, cx, 232);
-
-  // 区切り線
-  ctx.strokeStyle='#554422';
-  ctx.beginPath(); ctx.moveTo(30,256); ctx.lineTo(375,256); ctx.stroke();
-
-  // 能力ランク（星）
-  ctx.fillStyle='#88ccff'; ctx.font='13px sans-serif';
-  ctx.fillText('能力ランク', cx, 278);
-  const s1=atkStars(pl.atk), s2=atkStars(pl.bspd), s3=brsStars(pl.burst);
-  const stars = (n) => '★'.repeat(n)+'☆'.repeat(5-n);
-  ctx.textAlign='left';
-  const rx=80;
-  ctx.fillStyle='#ff8888'; ctx.font='bold 14px monospace'; ctx.fillText('ATK', rx, 305);
-  ctx.fillStyle='#ffdd44'; ctx.font='18px sans-serif'; ctx.fillText(stars(s1), rx+44, 305);
-  ctx.fillStyle='#88aaff'; ctx.font='bold 14px monospace'; ctx.fillText('SPD', rx, 330);
-  ctx.fillStyle='#ffdd44'; ctx.font='18px sans-serif'; ctx.fillText(stars(s2), rx+44, 330);
-  ctx.fillStyle='#88ff88'; ctx.font='bold 14px monospace'; ctx.fillText('BRS', rx, 355);
-  ctx.fillStyle='#ffdd44'; ctx.font='18px sans-serif'; ctx.fillText(stars(s3), rx+44, 355);
-  ctx.textAlign='center';
-
-  // 区切り線
-  ctx.strokeStyle='#554422';
-  ctx.beginPath(); ctx.moveTo(30,375); ctx.lineTo(375,375); ctx.stroke();
-
-  // ボタン1: 証明書
-  const b1x=W/2-145, b1y=392, b1w=290, b1h=78;
-  goBtn1={x:b1x, y:b1y, w:b1w, h:b1h};
-  ctx.fillStyle='rgba(20,60,160,0.92)'; ctx.beginPath();
-  roundedRect(ctx,b1x,b1y,b1w,b1h,8); ctx.fill();
-  ctx.strokeStyle='#5599ff'; ctx.lineWidth=2;
-  roundedRect(ctx,b1x,b1y,b1w,b1h,8); ctx.stroke();
-  ctx.fillStyle='#ffffff'; ctx.font='bold 14px sans-serif';
-  ctx.fillText('次の任務に就く為、証明書を発行', cx, b1y+20);
-  ctx.fillStyle='#aaddff'; ctx.font='11px sans-serif';
-  ctx.fillText('Next Mission Certificate Issued', cx, b1y+40);
-  ctx.fillStyle='#ffff88'; ctx.font='bold 11px sans-serif';
-  ctx.fillText('▶ X (Twitter) へ投稿', cx, b1y+61);
-
-  // ボタン2: リトライ
-  const b2x=W/2-145, b2y=488, b2w=290, b2h=60;
-  goBtn2={x:b2x, y:b2y, w:b2w, h:b2h};
-  ctx.fillStyle='rgba(150,30,30,0.92)'; ctx.beginPath();
-  roundedRect(ctx,b2x,b2y,b2w,b2h,8); ctx.fill();
-  ctx.strokeStyle='#ff6644'; ctx.lineWidth=2;
-  roundedRect(ctx,b2x,b2y,b2w,b2h,8); ctx.stroke();
-  ctx.fillStyle='#ffffff'; ctx.font='bold 14px sans-serif';
-  ctx.fillText('引き続き訓練を行う', cx, b2y+20);
-  ctx.fillStyle='#ffbbaa'; ctx.font='11px sans-serif';
-  ctx.fillText('Continue the Training', cx, b2y+42);
-
-  // ボタン3: 別の訓練をする
-  const b3x=W/2-145, b3y=560, b3w=290, b3h=52;
-  goBtn3={x:b3x, y:b3y, w:b3w, h:b3h};
-  ctx.fillStyle='rgba(50,50,50,0.92)'; ctx.beginPath();
-  roundedRect(ctx,b3x,b3y,b3w,b3h,8); ctx.fill();
-  ctx.strokeStyle='#aaaaaa'; ctx.lineWidth=2;
-  roundedRect(ctx,b3x,b3y,b3w,b3h,8); ctx.stroke();
-  ctx.fillStyle='#ffffff'; ctx.font='bold 14px sans-serif';
-  ctx.fillText('別の訓練をする', cx, b3y+22);
-  ctx.fillStyle='#cccccc'; ctx.font='11px sans-serif';
-  ctx.fillText('Choose Another Training', cx, b3y+42);
-}
-
-function roundedRect(c, x, y, w, h, r) {
-  c.beginPath();
-  c.moveTo(x+r, y);
-  c.lineTo(x+w-r, y); c.arcTo(x+w, y, x+w, y+r, r);
-  c.lineTo(x+w, y+h-r); c.arcTo(x+w, y+h, x+w-r, y+h, r);
-  c.lineTo(x+r, y+h); c.arcTo(x, y+h, x, y+h-r, r);
-  c.lineTo(x, y+r); c.arcTo(x, y, x+r, y, r);
-  c.closePath();
-}
-
 // ─── Certificate & Share ─────────────────────────────────────────────────────
 function makeCertificate() {
   const cc = document.createElement('canvas');
@@ -1707,8 +1564,8 @@ function togglePause() {
   const bgm = document.getElementById('bgm');
   if (bgm) { paused ? bgm.pause() : bgm.play().catch(()=>{}); }
 }
-function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gstate='gameover'; snd('gameover'); } }
-function dbgVictory()  { enemyCount = INIT_ENEMIES - CLEAR_COUNT; gameResult='victory'; gstate='gameover'; snd('gameover'); }
+function dbgGameOver() { if (gstate==='playing') { pl.hp=0; gameResult='defeat'; triggerGameOver(); } }
+function dbgVictory()  { enemyCount = INIT_ENEMIES - CLEAR_COUNT; gameResult='victory'; triggerGameOver(); }
 function dbgAtk(v)  { const cap = ATK_CAP; pl.atk = Math.max(1, Math.min(cap, pl.atk + v)); }
 function dbgLoop()  { loopCount = 1; hpBonus = 500; pl.atk = Math.min(pl.atk, 100); }
 function dbgDwn()   { dwnWarning = 2000; snd('dwn_warning'); }
