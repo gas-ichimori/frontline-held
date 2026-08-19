@@ -270,7 +270,7 @@ let defenseHp     = INIT_DEFENSE;
 let loopCount     = 0;   // LAST WAVE 通過回数
 let hpBonus       = 0;   // LAST WAVE ごとに +2000
 let gameResult    = 'defeat'; // 'defeat' | 'victory'
-let dwnWarning    = 0;   // STAGE∞突入時 → 2秒警告タイマー(ms)
+let dwnWarning    = 0;   // ATK/SPD/BRSが全て上限到達 → 2秒警告タイマー(ms)
 // barricadeHitFx removed
 
 const pl = {
@@ -561,11 +561,6 @@ function update(dt) {
       if (pl.atk >= _atkCapAtLoop && pl.bspd >= 100 && pl.burst >= 10) {
         hpBonus += 500;
       }
-      // STAGE∞に初めて突入する瞬間、偽の救援物資（DWN）の警告を表示
-      if (loopCount === 0) {
-        dwnWarning = 2000;
-        snd('dwn_warning');
-      }
       loopCount++;
       roundIdx = rd.loopTo;
     } else {
@@ -770,8 +765,9 @@ function update(dt) {
             animFrame:0, animTimer:0 });
         }
       }
-      // STAGE∞突入後は常時、DWNアイテムをdropMax率でスポーン
-      if (loopCount > 0 && Math.random() < e.dropMax && dropRd?.type !== 'wave') {
+      // ATK/SPD/BRSが全て上限に達している間、DWNアイテムをdropMax率でスポーン
+      const allMaxedForDwn = pl.atk >= ATK_CAP && pl.bspd >= 100 && pl.burst >= 10;
+      if (allMaxedForDwn && Math.random() < e.dropMax && dropRd?.type !== 'wave') {
         powerups.push({ laneIndex:e.laneIndex, laneX:e.laneX,
           depth:0.05, type:'dwn', life:600, animFrame:0, animTimer:0 });
       }
@@ -825,6 +821,7 @@ function update(dt) {
         snd('powerdown'); powerups.splice(i, 1); continue;
       }
       const atkCapPu = ATK_CAP;
+      const wasAllMaxedPu = pl.atk >= atkCapPu && pl.bspd >= 100 && pl.burst >= 10;
       switch (p.type) {
         case 'atk': pl.atk  = Math.min(pl.atk  + 5,  atkCapPu); break;
         case 'spd': pl.bspd = Math.min(pl.bspd + 5,  100); break;
@@ -833,6 +830,12 @@ function update(dt) {
       const hitMax = (p.type==='atk' && pl.atk>=atkCapPu) ||
                      (p.type==='spd' && pl.bspd>=100) ||
                      (p.type==='bsr' && pl.burst>=10);
+      // ATK/SPD/BRSが全て上限に到達した瞬間、偽の救援物資（DWN）の警告を表示
+      const nowAllMaxedPu = pl.atk >= atkCapPu && pl.bspd >= 100 && pl.burst >= 10;
+      if (!wasAllMaxedPu && nowAllMaxedPu && dwnWarning <= 0) {
+        dwnWarning = 2000;
+        snd('dwn_warning');
+      }
       pl.notif = { type: hitMax ? `${p.type}_max` : p.type, t: hitMax ? 3500 : 2000 };
       snd('powerup'); powerups.splice(i, 1); continue;
     }
