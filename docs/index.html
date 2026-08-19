@@ -177,7 +177,7 @@
     #resultOverlay::before {
       content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.48);
     }
-    #resultOverlay { --ro-taisa-h: clamp(320px, 82vh, 620px); }
+    #resultOverlay { --ro-taisa-h: clamp(300px, 76dvh, 580px); }
     #ro-taisa {
       position: absolute; bottom: 0; left: 0; right: 0;
       display: flex; justify-content: center; align-items: flex-end;
@@ -703,7 +703,7 @@
       }
     }
 
-    // ロゴボタンタップ → 全画面化 + 背景・難易度を設定してチュートリアル表示
+    // ロゴボタンタップ → 背景・難易度を設定してチュートリアル表示
     async function startMobileGame(bgKey, difficulty) {
       window.selectedBgKey  = bgKey     || 'bg';
       window.selectedDifficulty = difficulty || 'HARD';
@@ -712,11 +712,6 @@
       document.getElementById('tutBtn').innerHTML = '▶︎&nbsp;&nbsp;NEXT&nbsp;&nbsp;◀︎';
       document.getElementById('fsOverlay').style.display = 'none';
       document.getElementById('tutorialOverlay').style.display = 'flex';
-      try {
-        const el = document.documentElement;
-        if (el.requestFullscreen)            await el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
-      } catch(e) {}
       try {
         if (screen.orientation?.lock) await screen.orientation.lock('portrait');
       } catch(e) {}
