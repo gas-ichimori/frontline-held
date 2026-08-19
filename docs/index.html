@@ -208,7 +208,7 @@
     .ro-score-unit { font-size: 15px; color: rgba(136,255,85,0.6); }
     #ro-message {
       font-size: 16px; letter-spacing: 2px; color: #fff;
-      text-align: right; line-height: 1.8; white-space: pre-line;
+      text-align: center; line-height: 1.8; white-space: pre-line;
       text-shadow: 0 2px 8px rgba(0,0,0,0.8);
       min-height: 50px;
     }
@@ -221,8 +221,10 @@
     }
     .ro-btn:active { transform: scale(0.97); }
     .ro-btn-en { display:block; font-size:9px; opacity:0.75; letter-spacing:1px; margin-top:3px; }
-    .ro-btn-share { background: rgba(136,255,85,0.15); border: 2px solid rgba(136,255,85,0.7); color: #88ff55; }
-    .ro-btn-retry { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #aaa; }
+    .ro-btn-x  { display:block; font-size:11px; font-weight:bold; margin-top:5px; }
+    .ro-btn-label { display:block; white-space:nowrap; overflow:hidden; }
+    .ro-btn-share { background: rgba(20,60,160,0.5); border: 2px solid #5599ff; color: #aaddff; }
+    .ro-btn-retry { background: rgba(136,255,85,0.15); border: 1px solid rgba(136,255,85,0.7); color: #88ff55; }
     .ro-btn-hub   { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #666; }
 
     /* ── ローディング画面 ── */
@@ -419,9 +421,9 @@
       </div>
       <div id="ro-message"></div>
       <div class="ro-btns">
-        <button class="ro-btn ro-btn-share" id="ro-btn-share">次の任務に就く為、証明書を発行<span class="ro-btn-en">Next Mission Certificate Issued</span></button>
-        <button class="ro-btn ro-btn-retry" id="ro-btn-retry">引き続き訓練を行う<span class="ro-btn-en">Continue the Training</span></button>
-        <button class="ro-btn ro-btn-hub" id="ro-btn-hub">別の訓練をする<span class="ro-btn-en">Choose Another Training</span></button>
+        <button class="ro-btn ro-btn-share" id="ro-btn-share"><span class="ro-btn-label">証明書を発行し、共有する</span><span class="ro-btn-en">Issue Certificate and Share</span><span class="ro-btn-x">▶︎X（旧Twitter）へ投稿</span></button>
+        <button class="ro-btn ro-btn-retry" id="ro-btn-retry"><span class="ro-btn-label">引き続き訓練を行う</span><span class="ro-btn-en">Continue the Training</span></button>
+        <button class="ro-btn ro-btn-hub" id="ro-btn-hub"><span class="ro-btn-label">別の訓練をする</span><span class="ro-btn-en">Choose Another Training</span></button>
       </div>
     </div>
   </div>

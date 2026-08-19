@@ -138,6 +138,23 @@ function snd(name) {
   }
 }
 
+function typeText(el, text, speed = 40) {
+  el.textContent = '';
+  let i = 0;
+  (function step() {
+    if (i <= text.length) { el.textContent = text.slice(0, i); i++; setTimeout(step, speed); }
+  })();
+}
+
+function fitTextNoWrap(el) {
+  if (!el) return;
+  let fontSize = parseFloat(getComputedStyle(el).fontSize);
+  while (el.scrollWidth > el.clientWidth && fontSize > 8) {
+    fontSize -= 0.5;
+    el.style.fontSize = fontSize + 'px';
+  }
+}
+
 function speakTaisa(text) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
@@ -166,8 +183,9 @@ function triggerGameOver() {
   const msgEl = document.getElementById('ro-message');
   const overlay = document.getElementById('resultOverlay');
   if (numEl) numEl.textContent = defeated.toLocaleString();
-  if (msgEl) msgEl.textContent = message;
+  if (msgEl) typeText(msgEl, message);
   if (overlay) overlay.style.display = 'flex';
+  document.querySelectorAll('.ro-btn-label').forEach(fitTextNoWrap);
 }
 
 // ─── Images ──────────────────────────────────────────────────────────────────
