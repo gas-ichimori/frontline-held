@@ -194,8 +194,8 @@ function triggerGameOver() {
   const msgEl = document.getElementById('ro-message');
   const overlay = document.getElementById('resultOverlay');
   if (numEl) numEl.textContent = defeated.toLocaleString();
-  if (msgEl) typeTextFit(msgEl, message);
   if (overlay) overlay.style.display = 'flex';
+  if (msgEl) typeTextFit(msgEl, message);
   document.querySelectorAll('.ro-btn-label').forEach(fitTextNoWrap);
 }
 
