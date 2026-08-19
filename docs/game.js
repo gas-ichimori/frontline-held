@@ -155,6 +155,15 @@ function fitTextNoWrap(el) {
   }
 }
 
+// 吹き出し用: 完成テキストで先にサイズを確定させてからタイプライター表示する
+function typeTextFit(el, text, speed = 40) {
+  if (!el) return;
+  el.style.fontSize = '';
+  el.textContent = text;
+  fitTextNoWrap(el);
+  typeText(el, text, speed);
+}
+
 function speakTaisa(text) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
@@ -183,7 +192,7 @@ function triggerGameOver() {
   const msgEl = document.getElementById('ro-message');
   const overlay = document.getElementById('resultOverlay');
   if (numEl) numEl.textContent = defeated.toLocaleString();
-  if (msgEl) typeText(msgEl, message);
+  if (msgEl) typeTextFit(msgEl, message);
   if (overlay) overlay.style.display = 'flex';
   document.querySelectorAll('.ro-btn-label').forEach(fitTextNoWrap);
 }

@@ -177,14 +177,35 @@
     #resultOverlay::before {
       content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.48);
     }
+    #resultOverlay { --ro-taisa-h: clamp(320px, 82vh, 620px); }
     #ro-taisa {
       position: absolute; bottom: 0; left: 0; right: 0;
       display: flex; justify-content: center; align-items: flex-end;
       z-index: 1;
     }
     #ro-taisa img {
-      max-height: 82vh; max-width: 95vw; object-fit: contain;
+      height: var(--ro-taisa-h); max-width: 95vw; object-fit: contain;
       filter: drop-shadow(0 4px 32px rgba(0,0,0,0.7));
+    }
+    .ro-bubble {
+      position: absolute;
+      bottom: calc(var(--ro-taisa-h) + 10px);
+      left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      border: 2px solid rgba(136,255,85,0.6);
+      border-radius: 12px;
+      padding: 12px 18px;
+      max-width: 240px;
+      text-align: center;
+      z-index: 3;
+    }
+    .ro-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -12px; left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(136,255,85,0.6);
     }
     #ro-content {
       position: relative; z-index: 2;
@@ -207,10 +228,9 @@
     }
     .ro-score-unit { font-size: 15px; color: rgba(136,255,85,0.6); }
     #ro-message {
-      font-size: 16px; letter-spacing: 2px; color: #fff;
-      text-align: center; line-height: 1.8; white-space: pre-line;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-      min-height: 50px;
+      font-size: 15px; letter-spacing: 1px; color: #fff;
+      text-align: center; line-height: 1.6; white-space: pre;
+      min-height: 20px;
     }
     .ro-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .ro-btn {
@@ -414,12 +434,12 @@
   <!-- 結果画面（殲滅訓練・5秒感覚訓練と同じトンマナ） -->
   <div id="resultOverlay">
     <div id="ro-taisa"><img src="/taisa.png" alt="大佐"></div>
+    <div class="ro-bubble"><div id="ro-message"></div></div>
     <div id="ro-content">
       <div id="ro-score-box">
         <div class="ro-score-label">KILL COUNT</div>
         <div><span class="ro-score-num" id="ro-num">0</span><span class="ro-score-unit"> 匹</span></div>
       </div>
-      <div id="ro-message"></div>
       <div class="ro-btns">
         <button class="ro-btn ro-btn-share" id="ro-btn-share"><span class="ro-btn-label">証明書を発行し、共有する</span><span class="ro-btn-en">Issue Certificate and Share</span><span class="ro-btn-x">▶︎X（旧Twitter）へ投稿</span></button>
         <button class="ro-btn ro-btn-retry" id="ro-btn-retry"><span class="ro-btn-label">引き続き訓練を行う</span><span class="ro-btn-en">Continue the Training</span></button>
